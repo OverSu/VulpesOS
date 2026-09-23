@@ -44,7 +44,7 @@ Le projet relie deux générations : **les applications et l’interface histori
 
 **Un seul projet, deux façons de l’utiliser : l’émulateur desktop Linux et l’application Android Vulpes OS - Preview (APK).** Ils partagent Gaia et les services Vulpes, avec une intégration Gecko adaptée à chaque plateforme.
 
-> **Publication en cours :** les trois Preview Android sont préparées pour les Releases ; leur mise en ligne attend le relèvement de la limite de taille des fichiers sur le serveur. Les sources complètes, la distribution desktop et leurs instructions d’installation sont en préparation. Les captures ci-dessous montrent le prototype desktop.
+> **Disponible :** les trois Preview Android sont téléchargeables dans les [Releases](https://nnsprod.com/git/oversu/VulpesOS/releases). Les sources complètes, la distribution desktop et leurs instructions d’installation sont en préparation. Les captures ci-dessous montrent le prototype desktop.
 
 <p align="center">
   <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="300" alt="Capture réelle de Vulpes : accueil Gaia en anglais"></a>
@@ -56,24 +56,24 @@ Le projet relie deux générations : **les applications et l’interface histori
 
 <a name="telechargements"></a>
 
-## 📥 Les versions Android
+## 📥 Tester la Preview Android
 
-**Version à privilégier : Vulpes OS - Preview 2.7-156.0.1**, la plus récente des trois versions. Les APK seront publiés dans les [Releases](https://nnsprod.com/git/oversu/VulpesOS/releases), avec les notes FR/EN et un fichier de contrôle `SHA256SUMS.txt`. **Téléchargements en attente de mise en ligne.**
+**Pour commencer, choisissez [Vulpes OS - Preview 2.7-156.0.1](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-156.0.1)**, la plus récente des trois versions. Chaque page contient l’APK, les notes FR/EN et le fichier de contrôle `SHA256SUMS.txt`.
 
 | Version | Contenu | Usage |
 | :--- | :--- | :--- |
-| 2.7-156.0.1 | Nom et icône Vulpes OS - Preview ; correctif du fond d’écran inclus | **Preview conseillée** |
-| 2.7-preview.2 | Correction du fond d’écran clignotant | Archive |
-| 2.7-preview.1 | Première Preview Android | Archive — clignotement du fond d’écran connu |
+| [2.7-156.0.1](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-156.0.1) | Nom et icône Vulpes OS - Preview ; correctif du fond d’écran inclus | **Preview conseillée** |
+| [2.7-preview.2](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-preview.2) | Correction du fond d’écran clignotant | Archive |
+| [2.7-preview.1](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-preview.1) | Première Preview Android | Archive — clignotement du fond d’écran connu |
 
-Une fois publié, l’APK s’installe en ouvrant le fichier sur Android. Les versions successives conservent le même identifiant et la même signature : une mise à jour par-dessus la précédente permet de garder les données.
+Téléchargez l’APK et ouvrez-le sur Android pour l’installer. Les versions successives conservent le même identifiant et la même signature : une mise à jour par-dessus la précédente permet de garder les données.
 
 - **Android 8.0 / API 26 minimum déclaré.** Validation sur un émulateur Android 16 / API 36 ; les autres configurations restent à tester.
 - **Environ 592 Mio par APK**, avec les architectures ARM64, ARM 32 bits et x86_64 intégrées.
 - **Preview de développement :** elle ne remplace pas Android et ne fournit pas les appels/SMS cellulaires. L’import des médias Android reste à porter.
 - **Desktop Linux :** environnement de développement distinct, encore sans distribution publique prête à installer. Ce simulateur affiche Gaia ; il n’émule pas tout le matériel d’un téléphone.
 
-Les APK seront joints aux Releases, sans alourdir l’historique Git. Les tags de ces versions historiques identifieront leurs téléchargements ; ils ne représenteront pas encore leurs sources de compilation complètes.
+Les APK sont joints aux Releases, sans alourdir l’historique Git. Ces tags désignent les APK historiques publiés ; ils ne représentent pas encore leurs sources de compilation complètes.
 
 <a name="points-forts"></a>
 
