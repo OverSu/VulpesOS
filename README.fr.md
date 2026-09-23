@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="README.md" lang="en" hreflang="en">🇬🇧 English</a> · <strong lang="fr">🇫🇷 Français</strong>
+  <a href="https://nnsprod.com/git/oversu/VulpesOS" lang="en" hreflang="en">🇬🇧 English</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/src/branch/main/README.fr.md" lang="fr" hreflang="fr"><strong>🇫🇷 Français</strong></a>
 </p>
 
 <p align="center">
@@ -43,9 +43,9 @@ Le projet relie deux générations : **les applications et l’interface histori
 > **Publication en cours.** Ce dépôt présente pour l’instant le projet et une capture de son prototype. Les sources, les instructions d’installation et les distributions seront publiées ensuite. Les fonctionnalités décrites ci-dessous correspondent à la version de développement testée localement, pas encore à une release téléchargeable ici.
 
 <p align="center">
-  <a href="docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="300" alt="Capture réelle de Vulpes : accueil Gaia en anglais"></a>
+  <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="300" alt="Capture réelle de Vulpes : accueil Gaia en anglais"></a>
   &nbsp;
-  <a href="docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="300" alt="Paramètres Vulpes en anglais, affichant la version réelle du moteur Gecko"></a>
+  <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="300" alt="Paramètres Vulpes en anglais, affichant la version réelle du moteur Gecko"></a>
 </p>
 
 <p align="center"><em>Accueil et informations système — captures réelles du prototype desktop en anglais. Le champ « Platform Version » affiche la version Gecko renvoyée par le moteur exécuté. Cliquer sur une image pour l’agrandir.</em></p>

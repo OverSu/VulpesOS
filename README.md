@@ -1,5 +1,5 @@
 <p align="center">
-  <strong lang="en">🇬🇧 English</strong> · <a href="README.fr.md" lang="fr" hreflang="fr">🇫🇷 Français</a>
+  <a href="https://nnsprod.com/git/oversu/VulpesOS" lang="en" hreflang="en"><strong>🇬🇧 English</strong></a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/src/branch/main/README.fr.md" lang="fr" hreflang="fr">🇫🇷 Français</a>
 </p>
 
 <p align="center">
@@ -43,9 +43,9 @@ The project connects two generations: **the original Firefox OS interface and ap
 > **Publication in progress.** This repository currently presents the project and a screenshot of its prototype. Source code, installation instructions and release builds will follow. The features described below refer to the locally tested development version, not a release available to download here yet.
 
 <p align="center">
-  <a href="docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="300" alt="Actual Vulpes screenshot: the Gaia home screen in English"></a>
+  <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="300" alt="Actual Vulpes screenshot: the Gaia home screen in English"></a>
   &nbsp;
-  <a href="docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="300" alt="Vulpes Settings in English, showing the actual Gecko engine version"></a>
+  <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="300" alt="Vulpes Settings in English, showing the actual Gecko engine version"></a>
 </p>
 
 <p align="center"><em>Home screen and device information — actual desktop captures in English. The “Platform Version” field shows the Gecko version reported by the running engine. Click either image to enlarge it.</em></p>
