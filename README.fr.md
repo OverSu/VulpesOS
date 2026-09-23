@@ -23,6 +23,8 @@
 <p align="center">
   <a href="https://vulpes-os.org"><strong>🌐 Découvrir le projet</strong></a>
   &nbsp; · &nbsp;
+  <a href="#telechargements"><strong>📥 APK Android</strong></a>
+  &nbsp; · &nbsp;
   <a href="#points-forts">Les points forts</a>
   &nbsp; · &nbsp;
   <a href="#architecture">L’architecture</a>
@@ -40,7 +42,9 @@ Et si l’interface de votre téléphone était faite avec les mêmes technologi
 
 Le projet relie deux générations : **les applications et l’interface historiques de Firefox OS**, et **le moteur web maintenu par Mozilla**. Son ambition est de faire évoluer l’un sans devoir réécrire l’autre à chaque version.
 
-> **Publication en cours.** Ce dépôt présente pour l’instant le projet et une capture de son prototype. Les sources, les instructions d’installation et les distributions seront publiées ensuite. Les fonctionnalités décrites ci-dessous correspondent à la version de développement testée localement, pas encore à une release téléchargeable ici.
+**Un seul projet, deux façons de l’utiliser : l’émulateur desktop Linux et l’application Android Vulpes OS - Preview (APK).** Ils partagent Gaia et les services Vulpes, avec une intégration Gecko adaptée à chaque plateforme.
+
+> **Publication en cours :** les trois Preview Android sont préparées pour les Releases ; leur mise en ligne attend le relèvement de la limite de taille des fichiers sur le serveur. Les sources complètes, la distribution desktop et leurs instructions d’installation sont en préparation. Les captures ci-dessous montrent le prototype desktop.
 
 <p align="center">
   <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="300" alt="Capture réelle de Vulpes : accueil Gaia en anglais"></a>
@@ -49,6 +53,27 @@ Le projet relie deux générations : **les applications et l’interface histori
 </p>
 
 <p align="center"><em>Accueil et informations système — captures réelles du prototype desktop en anglais. Le champ « Platform Version » affiche la version Gecko renvoyée par le moteur exécuté. Cliquer sur une image pour l’agrandir.</em></p>
+
+<a name="telechargements"></a>
+
+## 📥 Les versions Android
+
+**Version à privilégier : Vulpes OS - Preview 2.7-156.0.1**, la plus récente des trois versions. Les APK seront publiés dans les [Releases](https://nnsprod.com/git/oversu/VulpesOS/releases), avec les notes FR/EN et un fichier de contrôle `SHA256SUMS.txt`. **Téléchargements en attente de mise en ligne.**
+
+| Version | Contenu | Usage |
+| :--- | :--- | :--- |
+| 2.7-156.0.1 | Nom et icône Vulpes OS - Preview ; correctif du fond d’écran inclus | **Preview conseillée** |
+| 2.7-preview.2 | Correction du fond d’écran clignotant | Archive |
+| 2.7-preview.1 | Première Preview Android | Archive — clignotement du fond d’écran connu |
+
+Une fois publié, l’APK s’installe en ouvrant le fichier sur Android. Les versions successives conservent le même identifiant et la même signature : une mise à jour par-dessus la précédente permet de garder les données.
+
+- **Android 8.0 / API 26 minimum déclaré.** Validation sur un émulateur Android 16 / API 36 ; les autres configurations restent à tester.
+- **Environ 592 Mio par APK**, avec les architectures ARM64, ARM 32 bits et x86_64 intégrées.
+- **Preview de développement :** elle ne remplace pas Android et ne fournit pas les appels/SMS cellulaires. L’import des médias Android reste à porter.
+- **Desktop Linux :** environnement de développement distinct, encore sans distribution publique prête à installer. Ce simulateur affiche Gaia ; il n’émule pas tout le matériel d’un téléphone.
+
+Les APK seront joints aux Releases, sans alourdir l’historique Git. Les tags de ces versions historiques identifieront leurs téléchargements ; ils ne représenteront pas encore leurs sources de compilation complètes.
 
 <a name="points-forts"></a>
 
