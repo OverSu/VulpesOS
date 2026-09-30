@@ -1,0 +1,3 @@
+;(function(exports){'use strict';var inProgress=false;var LinkActionHandler={onClick:function lah_onClick(event){var dataset=event.target.dataset;var action=dataset.action;var type;event.preventDefault();if(!action){return;}
+if(inProgress){return;}
+inProgress=true;type=action.replace('-link','');ActivityPicker[type](dataset[type],this.reset,this.reset);},reset:function lah_reset(){inProgress=false;}};exports.LinkActionHandler=LinkActionHandler;}(this));

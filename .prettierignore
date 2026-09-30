@@ -1,0 +1,13 @@
+gaia/
+assets/
+engines/
+downloads/
+profiles/
+logs/
+android/toolchain/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/
+android/dist/
+android/keys/

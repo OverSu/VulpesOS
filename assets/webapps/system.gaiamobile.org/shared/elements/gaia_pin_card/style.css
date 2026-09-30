@@ -1,0 +1,99 @@
+.pin-card {
+  position: relative;
+  box-sizing: border-box;
+  background-color: #fff;
+  background-size: cover;
+  color: #000;
+  font-weight: 500;
+  font-family: sans-serif;
+  line-height: normal;
+  white-space: normal;
+  font-size: 1.2rem;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.15);
+}
+
+.pin-card > * {
+  pointer-events: none;
+}
+
+.pin-card .background {
+  position: relative;
+  width: 100%;
+  height: 47%;
+  opacity: 0.7;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  background-size: cover;
+}
+
+.pin-card i {
+  position: absolute;
+  top: .15rem;
+  left: .15rem;
+  width: 3.03rem;
+  height: 3.03rem;
+  background: url(images/default_icon.png);
+  background-size: 3.5rem 3.5rem;
+  background-position: center center;
+  border-radius: 50%;
+}
+
+.icon-container {
+  position: absolute;
+  top: 4.8rem;
+  display: block;
+  overflow: hidden;
+  left: calc(50% - 1.65rem);
+  width: 3.33rem;
+  height: 3.33rem;
+  border-radius: 50%;
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.15);
+  background-color: white;
+  z-index: 1;
+}
+
+.pin-card .content {
+  position: relative;
+  height: 53%;
+  width: 100%;
+}
+
+.pin-card header {
+  position: relative;
+  height: 1.6rem;
+  color: #5f5f5f;
+  font-size: 1.4rem;
+  font-style: italic;
+  padding: 0 0.8rem;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: ellipsis;
+  top: 1.5rem;
+}
+
+.pin-card.no-content header {
+  top: 2.5rem;
+}
+
+.pin-card.no-content .description {
+  display: none;
+}
+
+.pin-card .description p {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  text-align: left;
+  height: 3rem;
+  line-height: 1.4rem;
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #5f5f5f;
+  padding: 0 0.8rem;
+  margin: 2rem 0;
+}
+

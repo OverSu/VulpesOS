@@ -1,0 +1,451 @@
+/**
+ * Settings style & layout
+ * note: `lists.css' must be loaded before this stylesheet
+ */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 10px;
+  overflow: hidden;
+}
+
+/**
+ * Disable selection by default except for input, text area, and elements with
+ * "contenteditable".
+ */
+* {
+  -moz-user-select: none;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="url"],
+textarea,
+[contenteditable="true"] {
+  -moz-user-select: text;
+}
+
+/******************************************************************************
+ * Setting panels: full-size <section role="region"> blocks
+ */
+
+/* Setting panels: full-size <section role="region"> blocks */
+section[role="region"] {
+  position: absolute;
+  top: 0;
+  offset-inline-start: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/**
+ * Panel targets -- transitions
+ * the `.previous', '.current' classes are set by settings.js
+ */
+
+/**
+ * bug 976299 non-visible regions take an extra layer
+ * in the layer tree. Remove them to improve scroll performance
+ * in exchange for a reflow on section transitions.
+ *
+ * bug 976630 non-visible regions should have a visibility of hidden
+ * for accessibility purposes. Removing the visibility transition
+ * in hidden->visible avoids flashing.
+ */
+
+section[role="region"],
+section[role="region"].previous {
+  visibility: hidden;
+}
+
+section[role="region"].current {
+  visibility: visible;
+}
+
+html[dir="ltr"] section[role="region"] { transform: translateX(+100%); }
+html[dir="rtl"] section[role="region"] { transform: translateX(-100%); }
+
+html[dir="ltr"] section[role="region"].previous { transform: translateX(-100%); }
+html[dir="rtl"] section[role="region"].previous { transform: translateX(+100%); }
+
+html[dir="ltr"] section[role="region"].current { transform: translateX(0); }
+html[dir="rtl"] section[role="region"].current { transform: translateX(0); }
+
+/**
+ * We have to make icon-back as a `x` icon
+ * Notice, we have to differenate with section[data-dialog] to make sure
+ * we won't mess up the style together.
+ */
+.skin-organic section.dialog > header:first-child .icon.icon-back {
+  background-image: url(/shared/style/headers/images/icons/organic/close.png);
+}
+
+section.dialog > header:first-child .icon.icon-back {
+  background-image: url(/shared/style/headers/images/icons/close.png);
+}
+
+/**
+ * Only use the animation when ready
+ */
+body[data-ready="true"] section[role="region"] {
+  transition: transform .4s ease, visibility .4s;
+}
+
+body[data-ready="true"] section[role="region"].current {
+  transition: transform .4s ease;
+}
+
+/**
+ * Headers should not scroll with the rest of the page, except for #root.
+ */
+section[role="region"] > header {
+  position: absolute;
+}
+
+section[role="region"] > div {
+  position: absolute;
+  top: 5rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 5rem);
+  overflow-y: scroll;
+  will-change: scroll-position;
+}
+
+/**
+ * The back button icon shouldn't be
+ * the same color as other icons.
+ */
+
+gaia-header a:first-child,
+gaia-header button:first-child,
+gaia-header [data-icon="close"] {
+  color: var(--header-action-button-color) !important;
+}
+
+/*
+ * Need this for scrollable background layer
+ * optimization in gecko. See Bug 950250
+ */
+section[role="region"],
+section[role="region"] > div > ul {
+  background-color: #f4f4f4;
+}
+
+/**
+ * 1. Localized text in buttons
+ *    should be hidden.
+ */
+
+gaia-header [data-icon] > span {
+  font-size: 0; /* 1 */
+}
+
+ul li > a.menu-item > * {
+  overflow: unset;
+  text-overflow: unset;
+  white-space: initial;
+}
+
+/******************************************************************************
+ * Frame section
+ */
+#frame iframe {
+  position: absolute;
+  top: 0;
+  offset-inline-start: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/******************************************************************************
+ * Activities section = "root" and filtered by category
+ */
+
+/**
+ * 1. !important required to override scoped
+ *    styles in <gaia-header>
+ */
+
+#activityDoneButton {
+  display: none !important; /* 1 */
+}
+
+body[data-filter-by] #activityDoneButton {
+  display: inherit !important; /* 1 */
+}
+
+body[data-filter-by] #root > div header,
+body[data-filter-by] #root > div li {
+  display: none;
+}
+
+/* These rules show the "Network & Connectivity" header and items related to
+   connectivity (airplane mode, Wi-Fi and cellular & data) */
+body[data-filter-by="connectivity"] #root > div [data-category="connectivity"] {
+  display: block;
+}
+
+/******************************************************************************
+ * Explanation texts
+ */
+
+.explanation {
+  padding: 0.5rem 3rem;
+  font-style: italic;
+  font-size: 1.4rem;
+  color: #505859;
+}
+
+.description {
+  font-size: 1.7rem;
+  line-height: 2.3rem;
+  white-space: normal;
+  -moz-hyphens: auto;
+}
+
+.description p,
+.description a,
+.description label {
+  font-size: 1.7rem;
+  line-height: 2.3rem;
+  white-space: normal;
+}
+
+.description label {
+    padding: 0;
+}
+
+.description label span {
+  height: auto;
+  min-height: 6rem;
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
+  font-size: 1.7rem;
+  line-height: 2.3rem;
+  white-space: normal;
+}
+
+.description small {
+  font-size: 1.7rem;
+  color: #505859;
+}
+
+.link-text {
+  font-size: 1.4rem;
+  color: #35679A;
+  text-decoration: underline;
+}
+
+.link-text:active {
+  background-color: #c1d6e6;
+}
+
+.hint label span {
+  top: 2.9rem !important;
+}
+
+.hint span {
+  line-height: 6rem;
+}
+
+.hint .explanation {
+  font-style: normal;
+  position: relative;
+  margin-top: -2rem;
+  padding: 0.5rem 4rem 1.3rem;
+  padding-inline-start: 1.5rem;
+  white-space: normal;
+}
+
+.hint > gaia-switch ~ .explanation,
+.hint > label:not([for]) ~ .explanation {
+  padding-inline-end: 8rem;
+}
+
+.hint .explanation[hidden] {
+  display: none;
+}
+
+/******************************************************************************
+ * Disabled items
+ */
+
+.disabled a,
+.disabled p,
+.disabled h2,
+.disabled label,
+.disabled select,
+gaia-checkbox[disabled],
+gaia-radio[disabled],
+gaia-switch[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/******************************************************************************
+* Media Storage settings
+*/
+
+#mediaStorage .space-stackedbar {
+  background-color: #E7E7E7;
+  border: solid 0.1rem #A6A6A6;
+  border-radius: 0.3rem;
+  display: inline-block;
+  height: 3rem;
+  margin: 0.8rem 5%;
+  padding: 0.1rem;
+  width: 90%;
+}
+
+#mediaStorage .space-stackedbar .stackedbar-item {
+  display: inline-block;
+  height: 3rem;
+}
+
+#mediaStorage .space-stackedbar .color-music,
+#mediaStorage .color-music .stackedbar-color-label {
+  background-color: #82C72C;
+}
+
+#mediaStorage .space-stackedbar .color-pictures,
+#mediaStorage .color-pictures .stackedbar-color-label {
+  background-color: #00CAF2;
+}
+
+#mediaStorage .space-stackedbar .color-videos,
+#mediaStorage .color-videos .stackedbar-color-label {
+  background-color: #2295D3;
+}
+
+#mediaStorage .space-stackedbar .color-free,
+#mediaStorage .color-free .stackedbar-color-label {
+  background-color: #E7E7E7;
+}
+
+#mediaStorage .color-free .stackedbar-color-label {
+  border: solid 0.1rem #A6A6A6;
+}
+
+#mediaStorage .color-music .stackedbar-color-label,
+#mediaStorage .color-pictures .stackedbar-color-label,
+#mediaStorage .color-videos .stackedbar-color-label,
+#mediaStorage .color-free .stackedbar-color-label {
+  border-radius: 0.3rem;
+}
+
+#mediaStorage .stackedbar-color-label {
+  display: inline-block;
+  height: 2rem;
+  offset-inline-start: 1.5rem;
+  padding: 0;
+  position: absolute;
+  top: 2.1rem;
+  width: 2rem;
+}
+
+#mediaStorage .stackedbar-color-label + a {
+  padding-inline-start: 4rem;
+}
+
+/******************************************************************************
+ * Call settings
+ */
+
+/* three-state items: on|off|unknown */
+#menuItem-callWaiting[data-state="on"] span,
+#menuItem-callWaiting[data-state="off"] span {
+  display: inherit;
+}
+
+#menuItem-callWaiting span.cw-alert-icon,
+#menuItem-callWaiting[data-state="on"] span.cw-alert-icon,
+#menuItem-callWaiting[data-state="off"] span.cw-alert-icon {
+  display: none;
+}
+
+#menuItem-callWaiting[data-state="unknown"] label {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+#menuItem-callWaiting[data-state="unknown"] span.cw-alert-icon {
+  display: inherit;
+}
+
+/******************************************************************************
+ * Wallpaper snapshot
+ */
+
+#wallpaper-header { border: none; }
+
+.wallpaper {
+  position: relative;
+  overflow: hidden;
+  height: 17rem;
+}
+
+.wallpaper .wallpaper-button {
+  position: absolute;
+  border: none;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  offset-inline-start: 0;
+  margin: 0;
+  background: none;
+}
+
+.wallpaper .wallpaper-button > span {
+  position: absolute;
+  offset-inline-end: 0;
+  bottom: 0;
+  width: 4.6rem;
+  height: 4.6rem;
+  margin: 1.5rem;
+  font-size: 21px;
+  line-height: 4.6rem;
+  text-align: center;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  color: #fff;
+}
+
+.wallpaper .wallpaper-button:active > span {
+ background: #00C7EF;
+}
+
+.wallpaper .wallpaper-button > span:before {
+  font-size: 40px;
+  margin-inline-end: -2px;
+}
+
+.wallpaper .wallpaper-preview {
+  margin-top: -10rem;
+  position: absolute;
+  width: 100%;
+}
+
+/******************************************************************************
+ * Toaster
+ */
+section[role="status"] {
+  transition: opacity .6s ease 0s;
+  opacity: 0;
+}
+
+section[role="status"].toast-visible {
+  opacity: 1;
+}

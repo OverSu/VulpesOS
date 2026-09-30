@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Geolocation Debug</title>
+    <link rel="stylesheet" type="text/css" href="shared/style/buttons.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/headers.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/input_areas.css">
+    <link rel="stylesheet" type="text/css" href="shared/elements/gaia-theme/gaia-theme.css /">
+    <link rel="stylesheet" type="text/css" href="style/geoloc.css">
+    <!-- <script type="application/javascript" src="js/geoloc.js"></script> -->
+
+    <!-- localization -->
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/index.{locale}.json">
+    
+    <!-- <script src="shared/js/l10n.js" type="text/javascript" charset="utf-8"></script> --><script src="./gaia_build_index.js" type="text/javascript"></script>
+    <!-- <script defer="" src="shared/js/component_utils.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_switch/script.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+  <meta content="2.5" name="appVersion"></head>
+  <body role="application">
+    <section role="region">
+      <header>
+        <h1 data-l10n-id="geolocation-tracker">Geolocation tracker</h1>
+      </header>
+    </section>
+
+    <section role="region">
+      <div class="bb-docs">
+        <button id="btnGet" data-l10n-id="geoloc-get">Get current</button>
+        <button id="btnStart" data-l10n-id="geoloc-start">Start</button>
+        <button id="btnStop" data-l10n-id="geoloc-stop">Stop</button>
+        <button id="btnClear" data-l10n-id="geoloc-clear">Clear</button>
+        <button id="btnSave" data-l10n-id="geoloc-save">Save as a file</button>
+      </div>
+    </section>
+
+    <section role="region">
+      <header>
+        <h1 data-l10n-id="geoloc-parameters" id="h1-parameters" data-hide="parameters" class="bb-docs">Parameters</h1>
+      </header>
+      <div class="bb-docs" id="parameters">
+        <fieldset>
+          <legend data-l10n-id="geoloc-timeout">Timeout</legend>
+          <section>
+            <input id="geoloc-timeout" value="0" type="number">
+          </section>
+        </fieldset>
+        <fieldset>
+          <legend data-l10n-id="geoloc-maxage">Max. age</legend>
+          <section>
+            <input id="geoloc-maxage" value="0" type="number">
+          </section>
+        </fieldset>
+        <span class="desc" data-l10n-id="geoloc-msecs">Timeout and max. age are specified in milliseconds.</span>
+        <ul>
+          <li>
+            <gaia-switch id="geoloc-highaccuracy" checked="">
+              <label data-l10n-id="geoloc-highaccuracy">High accuracy</label>
+            </gaia-switch>
+          </li>
+          <li>
+            <gaia-switch id="geoloc-debug" checked="">
+              <label data-l10n-id="geoloc-debug">Show debug traces</label>
+            </gaia-switch>
+          </li>
+          <li>
+            <gaia-switch id="geoloc-keep" checked="">
+              <label data-l10n-id="geoloc-keep">Keep locations</label>
+            </gaia-switch>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section role="region">
+      <header>
+        <h1 data-l10n-id="geoloc-status" id="h1-status" data-hide="status">Status</h1>
+      </header>
+      <div class="bb-docs" id="status">
+        <fieldset>
+          <legend data-l10n-id="gps-fixes">Fixes</legend>
+          <section>
+            <input disabled="disabled" id="nbr-gps-fixes" placeholder="0" type="text">
+          </section>
+        </fieldset>
+        <fieldset>
+          <legend data-l10n-id="last-fix">Last</legend>
+          <section>
+            <input disabled="disabled" data-l10n-id="date-last-fix" id="date-last-fix" placeholder="None" type="text">
+          </section>
+        </fieldset>
+      </div>
+    </section>
+
+    <section role="region">
+      <header>
+        <h1 data-l10n-id="geoloc-debug-log" id="h1-debuglog" data-hide="debuglog">Debug log</h1>
+      </header>
+      <div class="bb-docs" id="debuglog">
+        <span id="log"></span>
+      </div>
+    </section>
+  </body>
+
+</html>

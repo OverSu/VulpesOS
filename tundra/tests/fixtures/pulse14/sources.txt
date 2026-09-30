@@ -1,0 +1,81 @@
+Source #0
+	State: SUSPENDED
+	Name: sink.primary_output.monitor
+	Description: Monitor of Droid sink primary_output
+	Driver: module-droid-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 1
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: sink.primary_output
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of Droid sink primary_output"
+		device.class = "monitor"
+		droid.hw_module = "primary"
+		device.icon_name = "audio-card"
+	Formats:
+		pcm
+
+Source #1
+	State: SUSPENDED
+	Name: sink.deep_buffer.monitor
+	Description: Monitor of Droid sink deep_buffer
+	Driver: module-droid-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 1
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: sink.deep_buffer
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of Droid sink deep_buffer"
+		device.class = "monitor"
+		droid.hw_module = "primary"
+		device.icon_name = "audio-card"
+	Formats:
+		pcm
+
+Source #2
+	State: SUSPENDED
+	Name: source.droid
+	Description: Droid source droid
+	Driver: module-droid-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 1
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL DECIBEL_VOLUME 
+	Properties:
+		device.description = "Droid source droid"
+		device.class = "sound"
+		device.api = "droid-hal"
+		droid.input.external = "true"
+		droid.input.builtin = "true"
+		droid.hw_module = "primary"
+		device.icon_name = "audio-card"
+	Ports:
+		input-builtin_mic: Input from builtin mic (type: Unknown, priority: 200, available)
+		input-bluetooth_sco_headset: Input from bluetooth sco headset (type: Unknown, priority: 200, available)
+		input-wired_headset: Input from wired headset (type: Unknown, priority: 200, not available)
+		input-voice_call: Input from voice call (type: Unknown, priority: 200, available)
+		input-back_mic: Input from back mic (type: Unknown, priority: 200, available)
+		input-usb_device: Input from usb device (type: Unknown, priority: 200, available)
+		input-default: Input from default (type: Unknown, priority: 200, available)
+		input-parking: Parking port (type: Unknown, priority: 50, available)
+	Active Port: input-builtin_mic
+	Formats:
+		pcm

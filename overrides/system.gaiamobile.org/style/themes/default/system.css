@@ -1,0 +1,26 @@
+/* Windows */
+
+div.windowSprite {
+  background: url("images/noise.png") repeat scroll 50% 50%, #373a3d;
+}
+
+/* Tasks Manager */
+
+#cardsView li {
+  background-color: #00f;
+}
+
+#cardsView li > a {
+  background: image-set(url("images/tasks/close.png") 1x, url("images/tasks/close@1.5x.png") 1.5x, url("images/tasks/close@2x.png") 2x) no-repeat;
+}
+
+#cardsView li > a:active {
+  background: image-set(url("images/tasks/close-active.png") 1x, url("images/tasks/close-active@1.5x.png") 1.5x, url("images/tasks/close-active@2x.png") 2x) no-repeat;
+}
+
+#cardsView li > h1 {
+  text-align: center;
+  color: #fff;
+  font-size: 2em;
+  text-shadow: #000 0 0.2rem 0.1rem;
+}

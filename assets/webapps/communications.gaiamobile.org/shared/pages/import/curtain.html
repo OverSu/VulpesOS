@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+
+    <title>Facebook</title>
+
+    <!-- Building Blocks -->
+    <link href="/shared/style/headers.css" rel="stylesheet">
+    <link href="/shared/style/confirm.css" rel="stylesheet">
+    <link href="/shared/style/progress_activity.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/shared/pages/import/style/root.css">
+    <link rel="stylesheet" href="/shared/pages/import/style/curtain.css">
+
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/shared.pages.import.curtain.{locale}.json">
+    <!-- <script type="text/javascript" src="/shared/js/l10n.js"></script> --><script src="./gaia_build_curtain.js" type="text/javascript"></script>
+  <meta content="2.5" name="appVersion"></head>
+
+  <body role="application">
+    <section id="curtain">
+      <form role="dialog" data-type="confirm">
+
+        <!-- Progress activity card -->
+        <section id="progress">
+          <h1 id="progressTitle"></h1>
+          <p role="status">
+            <span id="progressMsg"></span>
+            <progress id="progressElement" class="pack-activity" value="0" max="100"></progress>
+          </p>
+        </section>
+
+        <!-- Message card -->
+        <section id="message">
+          <h1 id="messageMsg"></h1>
+          <p role="status">
+            <span></span>
+            <progress class="pack-activity" max="100" value="0"></progress>
+          </p>
+        </section>
+
+        <!-- Waiting card -->
+        <section id="wait">
+          <h1 id="waitMsg" data-l10n-id="wait1">Please hold on</h1>
+          <p role="status">
+            <span></span>
+            <progress class="pack-activity" max="100" value="0"></progress>
+          </p>
+        </section>
+
+        <!-- Error card -->
+        <section id="error">
+          <h1 id="errorMsg">Error</h1>
+          <p data-l10n-id="error2">Do you want to retry?</p>
+        </section>
+
+        <!-- Timeout card -->
+        <section id="timeout">
+          <h1 id="timeoutMsg">Exceeded timeout</h1>
+          <p data-l10n-id="timeout2">Do you want to retry?</p>
+        </section>
+
+        <!-- Alert card -->
+        <section id="alert">
+          <h1 id="alertMsg"></h1>
+          <p>&nbsp;</p>
+        </section>
+
+        <menu>
+          <button data-l10n-id="curtainCancel" id="cancel">Cancel</button>
+          <button data-l10n-id="curtainRetry" id="retry" class="recommend">Retry</button>
+          <button data-l10n-id="curtainOK" id="ok" class="recommend">OK</button>
+        </menu>
+      </form>
+
+    </section>
+  </body>
+
+</html>

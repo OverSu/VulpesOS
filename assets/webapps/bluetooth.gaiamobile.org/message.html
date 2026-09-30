@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+
+    <title>Bluetooth Pair Message</title>
+    <meta name="description" content="Manage Bluetooth Pair Message">
+    <!-- Specific style -->
+    <link rel="stylesheet" type="text/css" href="shared/style/confirm.css">
+    <link rel="stylesheet" type="text/css" href="style/message.css">
+    
+    <!-- Localization -->
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/message.{locale}.json">
+    <!-- <script type="application/javascript" src="shared/js/l10n.js"></script> -->
+    <!-- <script type="application/javascript" src="shared/js/notification_helper.js"></script> --><script src="./gaia_build_message.js" type="text/javascript"></script>
+
+    <!-- Specific code -->
+    <!-- <script type="application/javascript" defer src="shared/js/async_storage.js"></script> -->
+    <!-- <script type="application/javascript" defer src="shared/js/bluetooth_helper.js"></script> -->
+  <meta content="2.5" name="appVersion"></head>
+  <body role="application">
+    <form role="dialog" data-type="confirm" id="pairing-request-timeout" hidden="">
+      <section>
+        <h1 data-l10n-id="pairing-request-timeout-title">Bluetooth Pairing Request</h1>
+        <p data-l10n-id="pairing-request-timeout-description">Bluetooth pairing request expired. Try to pair again.</p>
+      </section>
+      <menu>
+        <button data-l10n-id="ok" class="full recommend" id="incoming-pairing-timeout-confirm">OK</button>
+      </menu>
+    </form>
+    <script data-main="js/startup_pair.js" src="js/vendor/alameda.js"></script>
+  </body>
+
+</html>

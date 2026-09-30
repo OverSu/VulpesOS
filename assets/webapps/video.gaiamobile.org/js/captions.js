@@ -1,0 +1,4 @@
+;(function(exports){'use strict';function Captions(player){this.player=player;}
+Captions.prototype.remove=function(){for(var track of this.player.querySelectorAll('track')){if(track.src&&track.src.startsWith('blob:')){URL.revokeObjectURL(track.src);}
+track.remove();}};Captions.prototype.findAndDisplay=function(filepath){if(!filepath){return;}
+var basename=filepath.substring(0,filepath.lastIndexOf('.'));var captionsFilename=basename+'.vtt';var sdcard=navigator.getDeviceStorage('sdcard');if(!sdcard)return;var request=sdcard.get(captionsFilename);request.onsuccess=function(){var track=document.createElement('track');track.src=URL.createObjectURL(request.result);track.default=true;this.player.appendChild(track);track.track.mode='showing';}.bind(this);};exports.Captions=Captions;}(window));

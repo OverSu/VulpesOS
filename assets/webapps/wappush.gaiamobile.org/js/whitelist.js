@@ -1,0 +1,2 @@
+;'use strict';var WhiteList={_whiteList:[],init:function wl_init(){return LazyLoader.getJSON('js/whitelist.json').then((function wl_load(list){this._whiteList=list;}).bind(this),function(){});},has:function wl_has(value){if(this._whiteList.length===0){return true;}
+return(this._whiteList.indexOf(value)!==-1);}};

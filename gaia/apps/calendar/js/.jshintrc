@@ -1,0 +1,10 @@
+{
+  "extends": "../../../.jshintrc",
+  "predef": [
+    "IDBKeyRange",
+    "define",
+    "dump",
+    "postMessage",
+    "require"
+  ]
+}

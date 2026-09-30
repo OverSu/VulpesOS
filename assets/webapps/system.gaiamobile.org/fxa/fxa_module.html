@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link href="../shared/style/switches.css" rel="stylesheet" type="text/css">
+    <link href="../shared/style/buttons.css" rel="stylesheet" type="text/css">
+    <link href="../shared/style/confirm.css" rel="stylesheet" type="text/css">
+    <link href="../shared/style/input_areas.css" rel="stylesheet" type="text/css">
+    <link href="../shared/style/progress_activity.css" rel="stylesheet" type="text/css">
+    <link href="style/fxa.css" rel="stylesheet" type="text/css">
+
+    <!-- Gaia Components -->
+    <link href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css" rel="stylesheet" type="text/css">
+    <link href="../shared/elements/gaia-icons/gaia-icons.css" rel="stylesheet" type="text/css">
+
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/fxa.fxa_module.{locale}.json">
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- <script defer="" src="../js/service.js"></script> -->
+    <!-- <script defer="" src="../js/browser_frame.js"></script> -->
+    <!-- <script defer="" src="../js/entry_sheet.js"></script> -->
+    <!-- <script defer="" src="../shared/js/lazy_loader.js"></script> -->
+    <!-- <script defer="" src="../shared/js/l10n.js"></script> -->
+    <!-- <script defer="" src="../shared/js/settings_helper.js"></script> -->
+    <!-- <script defer="" src="../shared/js/utilities.js"></script> -->
+
+    <!-- Gaia Components -->
+    <!-- <script defer="" src="../shared/elements/config.js"></script> -->
+    <!-- <script defer="" src="../shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+
+    <!-- <script defer="" src="js/fxam_server_request.js"></script> -->
+    <!-- <script defer="" src="js/fxam_overlay.js"></script> -->
+    <!-- <script defer="" src="js/fxam_error_overlay.js"></script> -->
+    <!-- <script defer="" src="js/fxam_navigation.js"></script> -->
+    <!-- <script defer="" src="js/fxam_ui.js"></script> -->
+    <!-- <script defer="" src="js/fxam_manager.js"></script> -->
+    <!-- <script defer="" src="js/fxam_states.js"></script> -->
+    <!-- <script defer="" src="js/fxam_module.js"></script> --><script src="./gaia_build_defer_fxa_module.js" defer="" type="text/javascript"></script>
+
+  <meta content="2.5" name="appVersion"></head>
+  <body class="theme-settings">
+    <section role="region">
+      <gaia-header id="fxa-module-header" action="close">
+        <h1 data-l10n-id="firefox-accounts-title">Firefox Accounts</h1>
+      </gaia-header>
+      <div class="bb-steps">
+        <progress id="fxa-progress" value="" max="100"></progress>
+      </div>
+      <article id="step-container">
+        <section id="fxa-email" class="screen"><!--
+    <section class="vertical">
+      <div id="fxa-logo" class="fxa-logo"></div>
+      <p class="fxa-intro" data-l10n-id="fxa-use-email-to-sign-in">
+      </p>
+      <input id="fxa-email-input" data-l10n-id="fxa-enter-email-input" placeholder="Enter your email" required="" x-inputmode="verbatim" type="email">
+
+      <p id="fxa-notice" class="fine-print" data-l10n-id="fxa-notice2">
+        <a id="fxa-terms" href="https://accounts.firefox.com/legal/terms"></a>
+        <a id="fxa-privacy" href="https://accounts.firefox.com/legal/privacy"></a>
+      </p>
+    </section>
+    <script src="js/screens/fxam_enter_email.js"></script>
+  --></section>
+        <section id="fxa-set-password" class="screen fxa-password"><!--
+    <section class="vertical">
+      <h3 data-l10n-id="fxa-create-password-title"></h3>
+      <p id="fxa-hello-user"><a id="fxa-user-set-email"></a></p>
+      <input id="fxa-pw-set-input" placeholder="Password" required="" pattern=".{8,}" data-l10n-id="fxa-password" x-inputmode="verbatim" type="password">
+      <p class="fine-print" data-l10n-id="fxa-password-length-requirement">
+      </p>
+      <div id="show-pw-wrapper">
+        <label class="pack-checkbox" for="fxa-show-pw-set">
+          <input id="fxa-show-pw-set" type="checkbox">
+          <span></span>
+        </label>
+        <p data-l10n-id="fxa-show-password"></p>
+      </div>
+      <script src="js/screens/fxam_set_password.js"></script>
+    </section>
+  --></section>
+        <section id="fxa-enter-password" class="screen fxa-password"><!--
+    <section class="vertical">
+      <h3 data-l10n-id="fxa-enter-password-title">Enter Your Password</h3>
+      <p id="fxa-hello-known-user">Hello, <a id="fxa-known-user-email">holaENTER@email.com</a></p>
+      <input id="fxa-pw-input" placeholder="Password" required="" pattern=".{8,}" data-l10n-id="fxa-password" x-inputmode="verbatim" type="password">
+      <p class="fine-print"><a id="fxa-forgot-password" data-l10n-id="fxa-forgot-your-password">Forgot your password?</a></p>
+      <div id="show-pw-wrapper">
+        <label class="pack-checkbox" for="fxa-show-pw">
+          <input id="fxa-show-pw" type="checkbox">
+          <span></span>
+        </label>
+        <p data-l10n-id="fxa-show-password">Show password</p>
+      </div>
+      <script src="js/screens/fxam_enter_password.js"></script>
+    </section>
+  --></section>
+        <section id="fxa-signup-success" class="screen"><!--
+    <section class="vertical">
+      <h3 data-l10n-id="fxa-confirm-account">
+        Confirm Your Account
+      </h3>
+      <p id="fxa-will-send-email" class="fxa-envelope">
+        We will send an email to: <strong id="fxa-summary-email">email</strong>
+      </p>
+      <p data-l10n-id="fxa-signup-click-verification-link-in-email">
+        Next time you check your email, click the verification link to confirm your Firefox Account.
+      </p>
+      <p data-l10n-id="fxa-access-manage-account-settings">
+        In the future, you can access and manage your account from Settings.
+      </p>
+      <script src="js/screens/fxam_signup_success.js"></script>
+    </section>
+  --></section>
+        <section id="fxa-signin-success" class="screen"><!--
+    <section class="vertical">
+      <h3 data-l10n-id="fxa-success">
+        Success!
+      </h3>
+      <p data-l10n-id="fxa-ready-to-go">
+        Your Firefox Account is ready to go!
+      </p>
+      <p data-l10n-id="fxa-use-features">
+        Now you can use features like Find My Device and apps like the Firefox Marketplace.
+      </p>
+      <p data-l10n-id="fxa-access-manage-account-settings">
+        In the future, you can access and manage your account from Settings.
+      </p>
+      <script src="js/screens/fxam_signin_success.js"></script>
+    </section>
+  --></section>
+        <section id="fxa-tos" class="screen" data-navigation="back"><!--
+    <section role="region">
+      <h3 data-l10n-id="fxa-tos-header">Terms of Service</h3>
+      <p data-l10n-id="fxa-tos1">
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eius mod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ at. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+  </p>
+      <p data-l10n-id="fxa-tos2">
+Excepteur sint occaecat qui of fi cia deserunt mollit anim id est lab orum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. D uis aute irure dolor in.
+      </p>
+    </section>
+  --></section>
+        <section id="fxa-pp" class="screen" data-navigation="back"><!--
+    <section role="region">
+      <h3 data-l10n-id="fxa-pp-header">Privacy Policy</h3>
+      <p data-l10n-id="fxa-pp1">
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eius mod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ at. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      </p>
+      <p data-l10n-id="fxa-pp2">
+Excepteur sint occaecat qui of fi cia deserunt mollit anim id est lab orum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. D uis aute irure dolor in.
+      </p>
+    </section>
+  --></section>
+        <section id="fxa-refresh-auth" class="screen fxa-password"><!--
+    <section class="vertical">
+      <p id="fxa-password-refresh" data-l10n-id="fxa-password-refresh">Please enter your Firefox Account password to continue.</p>
+      <input id="fxa-pw-input-refresh" placeholder="Password" required="" pattern=".{8,}" data-l10n-id="fxa-password" type="password">
+      <p class="fine-print"><a id="fxa-forgot-password-refresh" data-l10n-id="fxa-forgot-your-password">Forgot your password?</a></p>
+      <div id="show-pw-wrapper">
+        <label class="pack-checkbox" for="fxa-show-pw-refresh">
+          <input id="fxa-show-pw-refresh" type="checkbox">
+          <span></span>
+        </label>
+        <p data-l10n-id="fxa-show-password">Show password</p>
+      </div>
+      <script src="js/screens/fxam_refresh_auth.js"></script>
+    </section>
+  --></section>
+        <section id="fxa-coppa" class="screen fxa-coppa"><!--
+    <section class="vertical">
+      <h3 data-l10n-id="fxa-age-verification">
+        Age verification
+      </h3>
+      <ul class="fxa-verification-wrapper">
+        <li>
+          <span class="button icon icon-dialog">
+            <select id="fxa-age-select">
+              <option value="0" data-l10n-id="fxa-year-of-birth">Year of birth</option>
+            </select>
+          </span>
+        </li>
+      </ul>
+    </section>
+    <script src="js/screens/fxam_coppa.js"></script>
+  --></section>
+      </article>
+      <nav role="navigation" class="horizontal navigation navigation-single-button" id="fxa-module-navigation">
+        <button id="fxa-module-back" class="start" data-l10n-id="fxa-back">Back</button>
+         <button id="fxa-module-next" class="recommend end" data-l10n-id="fxa-next">Next</button>
+        <button id="fxa-module-done" class="recommend end" data-l10n-id="fxa-done">Done</button>
+      </nav>
+    </section>
+    <!-- Progress overlay -->
+    <section id="fxa-overlay" role="dialog">
+      <progress></progress>
+      <p id="fxa-overlay-msg" data-l10n-id="fxa-connecting">Connecting</p>
+    </section>
+    <!-- Error message overlay -->
+    <form role="dialog" data-type="confirm" id="fxa-error-overlay" class="fade-in">
+      <section>
+        <h1 id="fxa-error-title"></h1>
+        <p>
+          <small id="fxa-error-msg"></small>
+          <small id="fxa-error-msg-coppa">
+            <a id="coppa-link" href="#"></a>
+          </small>
+        </p>
+      </section>
+      <menu>
+        <button class="full" data-l10n-id="fxa-ok" id="fxa-error-ok">OK</button>
+      </menu>
+    </form>
+  </body>
+
+</html>

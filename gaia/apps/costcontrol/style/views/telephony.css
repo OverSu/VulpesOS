@@ -1,0 +1,63 @@
+/* TELEPHONY VIEW */
+#reset-date {
+  font-weight: bold;
+  color: black;
+}
+
+#telephony-tab li {
+  border-bottom: solid 0.1rem #e0e0dd;
+  font-size: 1.6rem;
+  line-height: 1.6rem;
+  padding: 1.2rem 0 1.2rem 1.5rem;
+  margin-inline-start: 1.5rem;
+  margin-inline-end: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 3.6rem;
+}
+
+#telephony-time,
+#billing-cycle {
+  font-weight: bold;
+}
+
+#billing-cycle time,
+#telephony-tab li .meta {
+  font-size: 1.4rem;
+  color: #505859;
+}
+
+#telephony-tab li:last-child {
+  border: none;
+}
+
+#reset-date {
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: end;
+  vertical-align: baseline;
+}
+
+#telephony-tab li dl {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+#telephony-tab li dd {
+  flex: 1 1 50%;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: end;
+  overflow: hidden;
+}
+
+#telephony-tab li dd sub {
+  font-size: 1.4rem;
+  vertical-align: baseline;
+}
+
+#telephony-tab li dt {
+  color: #505859;
+  flex: 0 0 50%;
+}

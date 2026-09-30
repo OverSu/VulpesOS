@@ -1,0 +1,71 @@
+html {
+  font-size: 10px;
+  font-family: "Fira Sans";
+}
+
+body {
+  margin: 0;
+}
+
+.net-error-dialog {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 100;
+  background: url(net_error/bg_net_error_page.png) center;
+  background-size: cover;
+}
+
+.net-error-dialog .net-error-dialog-title {
+  margin-top: 46rem;
+  margin-bottom: 0;
+  font-size: 5.2rem;
+  font-weight: lighter;
+  font-style: italic;
+}
+
+.net-error-dialog .net-error-dialog-message {
+  margin-top: 0.3rem;
+  margin-bottom: 0;
+  font-size: 2.6rem;
+  font-weight: lighter;
+  font-style: italic;
+}
+
+.net-error-dialog .net-error-dialog-btn-group {
+  margin-top: 15.5rem;
+}
+
+.net-error-dialog .net-error-dialog-btn:first-child {
+  margin-right: 4rem;
+}
+
+.net-error-dialog .net-error-dialog-btn {
+  width: 23.7rem;
+  padding: 0;
+  font-style: italic;
+}
+
+.net-error-dialog .net-error-dialog-btn.focused,
+.net-error-dialog .net-error-dialog-btn:hover {
+  color: white;
+  background-color: #00caf2;
+}
+
+/* net-error-dialog-framed */
+.net-error-dialog.net-error-dialog-framed {
+  background: none;
+}
+
+.net-error-dialog.net-error-dialog-framed .net-error-dialog-title {
+  margin-top: 28rem;
+}
+
+.net-error-dialog.net-error-dialog-framed .net-error-dialog-btn-group {
+  margin-top: 12rem;
+}
+
+.net-error-dialog.net-error-dialog-framed #close-btn {
+  display: none;
+}

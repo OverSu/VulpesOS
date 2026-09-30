@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-group" content="theme-communications">
+    <meta name="theme-color" content="var(--header-background)">
+    <title> Contacts </title>
+
+    <!-- Building Blocks -->
+    <link href="/shared/style/input_areas.css" rel="stylesheet">
+    <link href="/shared/style/lists.css" rel="stylesheet">
+    <link href="/shared/style/scrolling.css" rel="stylesheet">
+    <link href="/shared/style/buttons.css" rel="stylesheet">
+    <link href="/shared/style/progress_activity.css" rel="stylesheet">
+    <link href="/shared/style/status.css" rel="stylesheet">
+    <link href="/shared/style/switches.css" rel="stylesheet">
+    <link href="/shared/style/confirm.css" rel="stylesheet">
+    <link href="/shared/style/action_menu.css" rel="stylesheet">
+    <link href="/shared/style/edit_mode.css" rel="stylesheet">
+    <link href="/shared/style/animations.css" rel="stylesheet">
+
+    <link href="/contacts/style/app.css" rel="stylesheet">
+    <link href="/contacts/style/contacts.css" rel="stylesheet">
+    <link href="/contacts/style/overlay.css" rel="stylesheet">
+    <link href="/shared/pages/import/style/search.css" rel="stylesheet">
+    <link href="/shared/pages/import/style/curtain_frame.css" rel="stylesheet">
+    <link href="/contacts/style/status.css" rel="stylesheet">
+    <link href="/contacts/style/fb_extensions.css" rel="stylesheet">
+    <link href="/contacts/style/match_service.css" rel="stylesheet">
+    <link href="/shared/style/contacts.css" rel="stylesheet">
+    <link href="/shared/style/contacts/contacts_buttons.css" rel="stylesheet">
+
+    <!-- <link rel="stylesheet" type="text/css" href="/shared/elements/gaia-icons/gaia-icons.css" /> -->
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+
+    <!-- For contacts import/export:
+    <script defer type="text/javascript" src="/shared/js/contacts/import/utilities/sdcard.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/import/utilities/vcard_parser.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/import/utilities/vcard_reader.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/import/utilities/import_from_vcard.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/import/utilities/import_sim_contacts.js"></script>
+    <script defer type="text/javascript" src="/shared/js/confirm.js"></script>
+    <script defer type="text/javascript" src="/shared/js/image_utils.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/utilities/image_thumbnail.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/contacts_shortcuts.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/import/utilities/overlay.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/import/utilities/status.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/import/import_status_data.js"></script>
+    <script defer type="text/javascript" src="/shared/js/date_time_helper.js"></script>
+    <script defer type="text/javascript" src="/shared/js/contacts/utilities/ice_store.js"></script>
+
+    <script defer src="/shared/js/mime_mapper.js"></script>
+    <script defer src="/shared/js/contacts/import/utilities/misc.js"></script>
+
+    <script defer src="/shared/js/l10n.js"></script>
+    <script defer src="/contacts/js/activities.js"></script>
+    <script defer src="/shared/js/contact_photo_helper.js"></script>
+
+    <script defer src="/shared/js/async_storage.js"></script>
+    <script defer src="/shared/js/contacts/import/utilities/config.js"></script>
+    <script defer src="/contacts/js/utilities/cookie.js"></script>
+    <script defer src="/contacts/js/utilities/extract_params.js"></script>
+    <script defer src="/contacts/js/utilities/performance_helper.js"></script>
+    <script defer src="/contacts/js/utilities/mozContact.js"></script>
+    <script defer src="/contacts/js/fb/fb_init.js"></script>
+    <script defer src="/shared/js/contacts/utilities/event_listeners.js"></script>
+    <script defer src="/contacts/js/navigation.js"></script>
+    <script defer src="/contacts/js/views/list.js"></script>
+    <script defer src="/contacts/js/contacts.js"></script>
+    <script defer src="/shared/js/contacts/utilities/image_loader.js"></script>
+    <script defer src="/contacts/js/fb_loader.js"></script>
+    <script defer src="/shared/js/advanced_telemetry_helper.js"></script>
+    <script defer src="/shared/js/settings_listener.js"></script>
+    -->
+
+    <!-- Web Components -->
+    <!-- <script defer="" src="/shared/elements/config.js"></script> -->
+    <!-- <script defer="" src="/shared/js/component_utils.js"></script> -->
+    <!-- <script defer="" src="/shared/elements/gaia_subheader/script.js"></script> -->
+    <!-- <script defer="" src="/shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+
+    <link rel="localization" href="/locales-obj/contacts.index.{locale}.json">
+    
+    <!--
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia_menu/style.css">
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia_sim_picker/style.css">
+    <script defer src="/shared/elements/gaia_menu/script.js"></script>
+    <script defer src="/shared/elements/gaia_sim_picker/script.js"></script>
+    <script defer src="/shared/elements/gaia_switch/script.js"></script>
+    -->
+
+    <!-- <script defer="" src="/shared/js/lazy_loader.js"></script> -->
+    <!-- <script defer="" src="/contacts/js/utilities/performance_helper.js"></script> -->
+    <!-- <script defer="" src="/contacts/js/cache.js"></script> -->
+    <!-- <script defer="" src="/contacts/js/bootstrap.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    
+    
+    
+    
+    
+
+    <!-- For the build system to include in zip:
+    <link href="/shared/js/tag_visibility_monitor.js">
+    <link href="/shared/js/contact2vcard.js">
+    <link href="/shared/js/device_storage/get_storage_if_available.js">
+    <link href="/shared/js/device_storage/get_unused_filename.js">
+    <link href="/shared/js/fb/fb_request.js">
+    <link href="/shared/js/fb/fb_data_reader.js">
+    <link href="/shared/js/setImmediate.js">
+    <link href="/shared/js/sim_settings_helper.js">
+    <link href="/shared/js/nfc_utils.js">
+    <link href="/shared/js/contacts/sms_integration.js">
+    <link href="/shared/js/contacts/contacts_buttons.js">
+
+    <link href="/shared/js/contacts/import/facebook/fb_data.js">
+    <link href="/shared/js/contacts/import/facebook/fb_utils.js">
+    <link href="/shared/js/contacts/import/facebook/fb_query.js">
+    <link href="/shared/js/contacts/import/facebook/fb_contact_utils.js">
+    <link href="/shared/js/contacts/import/facebook/fb_contact.js">
+
+    <link href="/shared/js/dialer/telephony_messages.js">
+
+    <link href="/shared/pages/import/js/parameters.js">
+
+    <link href="/shared/js/utilities.js">
+    -->
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!--
+    <link href="/shared/pages/import/oauth.html">
+    <link href="/shared/pages/import/curtain.html">
+    <link href="/shared/pages/import/import.html">
+    -->
+  <meta content="2.5" name="appVersion"></head>
+
+  <body role="application" class="app-contacts skin-comms theme-communications">
+
+      <!-- Contacts List Section -->
+      <section id="view-contacts-list" role="region" data-state="active" class="view view-noscroll view-contacts-list">
+        <gaia-header id="contacts-list-header">
+          <h1 id="app-title" data-l10n-id="contacts">Contacts</h1>
+          <button aria-label="Add" id="add-contact-button" data-icon="add" data-l10n-id="addButton"></button>
+          <button aria-label="Settings" id="settings-button" data-icon="settings" data-l10n-id="settingsButton"></button>
+        </gaia-header>
+
+        <article class="view-body">
+          <div id="no-contacts" class="hide">
+            <div class="info">
+              <p data-l10n-id="no-contacts">No contacts</p>
+              <p data-l10n-id="start-adding">Start adding them now</p>
+            </div>
+          </div>
+          <nav data-type="scrollbar">
+            <p></p>
+            <ol>
+              <li data-anchor="search-container" data-img="magnifier_icon_big.png">
+                <a href="#"><span class="pack-icon-search">Search</span></a>
+              </li>
+              <li class="hide" data-anchor="group-ice" data-img="icon_ice_shortcut.png">
+                <a href="#"><span class="pack-icon-ice">ICE</span></a>
+              </li>
+              <li data-anchor="group-favorites" data-img="star_icon_big.png">
+                <a href="#"><span class="pack-icon-favorites">Favorites</span></a>
+              </li>
+              <li data-anchor="group-A" data-letter="A"><a href="#">A</a></li>
+              <li data-anchor="group-B" data-letter="B"><a href="#">B</a></li>
+              <li data-anchor="group-C" data-letter="C"><a href="#">C</a></li>
+              <li data-anchor="group-D" data-letter="D"><a href="#">D</a></li>
+              <li data-anchor="group-E" data-letter="E"><a href="#">E</a></li>
+              <li data-anchor="group-F" data-letter="F"><a href="#">F</a></li>
+              <li data-anchor="group-G" data-letter="G"><a href="#">G</a></li>
+              <li data-anchor="group-H" data-letter="H"><a href="#">H</a></li>
+              <li data-anchor="group-I" data-letter="I"><a href="#">I</a></li>
+              <li data-anchor="group-J" data-letter="J"><a href="#">J</a></li>
+              <li data-anchor="group-K" data-letter="K"><a href="#">K</a></li>
+              <li data-anchor="group-L" data-letter="L"><a href="#">L</a></li>
+              <li data-anchor="group-M" data-letter="M"><a href="#">M</a></li>
+              <li data-anchor="group-N" data-letter="N"><a href="#">N</a></li>
+              <li data-anchor="group-O" data-letter="O"><a href="#">O</a></li>
+              <li data-anchor="group-P" data-letter="P"><a href="#">P</a></li>
+              <li data-anchor="group-Q" data-letter="Q"><a href="#">Q</a></li>
+              <li data-anchor="group-R" data-letter="R"><a href="#">R</a></li>
+              <li data-anchor="group-S" data-letter="S"><a href="#">S</a></li>
+              <li data-anchor="group-T" data-letter="T"><a href="#">T</a></li>
+              <li data-anchor="group-U" data-letter="U"><a href="#">U</a></li>
+              <li data-anchor="group-V" data-letter="V"><a href="#">V</a></li>
+              <li data-anchor="group-W" data-letter="W"><a href="#">W</a></li>
+              <li data-anchor="group-X" data-letter="X"><a href="#">X</a></li>
+              <li data-anchor="group-Y" data-letter="Y"><a href="#">Y</a></li>
+              <li data-anchor="group-Z" data-letter="Z"><a href="#">Z</a></li>
+              <li data-anchor="group-#" data-letter="#"><a href="#">#</a></li>
+            </ol>
+          </nav>
+          <div id="groups-container-box">
+            <div id="groups-container" class="view-body-inner">
+              <div id="groups-container-background">
+                <form id="search-container" class="search" role="search">
+                  <p>
+                    <label id="search-start">
+                      <input name="search" class="textfield" x-inputmode="verbatim" placeholder="Search" data-l10n-id="search-contact" type="search">
+                    </label>
+                 </p>
+                </form>
+                <section id="groups-list" data-type="list" class="active">
+                  <!-- Group template here -->
+                </section>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    <form id="selectable-form" role="dialog" data-type="edit" class="hide">
+      <section role="region" class="theme-settings">
+        <gaia-header id="selectable-form-header" action="close">
+          <h1 id="edit-title" data-l10n-id="contacts">Contacts</h1>
+          <button type="button" id="select-action"></button>
+        </gaia-header>
+      </section>
+      <menu id="select-all-wrapper">
+       <button id="deselect-all" class="edit-button" data-l10n-id="deselectAll" disabled="">Deselect all</button>
+        <button id="select-all" class="edit-button" data-l10n-id="selectAll">Select all</button>
+      </menu>
+    </form>
+    <section id="search-view" class="view"><!--
+    <form id="searchview-container" class="search" role="search">
+      <p>
+        <label role="presentation">
+          <input name="search" class="textfield" x-inputmode="verbatim" id="search-contact" placeholder="Search" data-l10n-id="search-contact" type="search">
+          <button type="reset">Clear</button>
+        </label>
+      </p>
+      <button id="cancel-search" data-l10n-id="cancel" type="submit">Cancel</button>
+    </form>
+
+    <section id="groups-list-search">
+      <ol id="search-list" data-type="list" class="active" role="listbox">
+      </ol>
+    </section>
+
+    <section id="search-process">
+      <p id="no-result" class="hide" data-l10n-id="noResults">No contacts found</p>
+      <p id="search-progress" class="hidden" role="status">
+        <progress class="small"></progress>
+      </p>
+    </section>
+  --></section>
+    <section id="view-screenshot" role="region" class="view hide"><!--
+    <article id="view-screenshot-body">
+    </article>
+  --></section>
+    <section id="view-contact-details" role="region" class="view view-right view-contact-profile view-noscroll"><!--
+    <gaia-header id="details-view-header" action="back">
+      <h1 id="contact-name-title"><bdi class="ellipsis-dir-fix"></bdi></h1>
+      <div class="favorite-indicator"></div>
+      <button id="edit-contact-button" data-icon="edit-contact" data-l10n-id="editButton"></button>
+    </gaia-header>
+
+    <article id="contact-detail-wrapper" class="view-body">
+      <div id="cover-img"></div>
+        <section id="contact-detail" class="view-body-inner">
+          <li data-phone="" id="phone-details-template-#i#" data-template="" role="region" aria-label="Phone" data-l10n-id="phoneDetail">
+            <h2>
+              <span data-l10n-id="#type_l10n_id#">#type#</span>
+              <span class="carrier-wrapper" hidden="">
+                <span data-l10n-id="separator"></span>
+                <span class="carrier">#carrier#</span>
+              </span>
+            </h2>
+            <div class="item">
+              <div class="item-body-exp">
+                <div class="button activity call-action icon icon-call" id="call-or-pick-#i#">
+                  <b aria-label="Call" data-l10n-id="makeCall"><bdi class="ellipsis-dir-fix">#value#</bdi></b>
+                  <span class="js-sim-indication"></span>
+                </div>
+              </div>
+              <div class="item-media pull-right">
+                <button id="send-sms-button-#i#" class="activity send-sms icon icon-message" data-l10n-id="send-sms-button" aria-label="SMS"></button>
+              </div>
+            </div>
+          </li>
+
+          <li data-social="" class="social-actions" id="social-template-#i#" data-template="" role="region">
+            <h2 data-l10n-id="social-network" id="social-label">Social Network</h2>
+              <button id="share_button" data-l10n-id="share-contact" class="activity icon icon-share">
+                Share
+              </button>
+          </li>
+
+          <li class="duplicate-actions" id="duplicate-contacts-template" data-template="" role="region">
+            <h2 data-l10n-id="organise-contacts">Organize Contacts</h2>
+            <button id="find-merge-button" data-l10n-id="find-merge-contacts" class="activity icon icon-find-and-merge">
+              Find duplicate contacts
+            </button>
+          </li>
+
+          <li data-address="" id="address-details-template-#i#" data-template="" role="region" aria-label="Address" data-l10n-id="addressDetail">
+            <h2 data-l10n-id="#type_l10n_id#">#type#</h2>
+            <div class="item">
+              <div class="item-body-exp">
+                <a href="#" class="action action-block">
+                  <b>
+                  <span class="force-align" dir="auto">#streetAddress#</span>
+                    #postalCode#
+                    #locality#
+                    #countryName#
+                  </b>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li data-mail="" id="email-details-template-#i#" data-template="" role="region" aria-label="Email" data-l10n-id="emailDetail">
+            <h2 data-l10n-id="#type_l10n_id#"></h2>
+            <div class="item">
+              <div class="item-body-exp">
+                <button id="email-or-pick-#i#" class="activity icon icon-email">
+                  <b aria-label="Email" data-l10n-id="composeEmail" dir="ltr">#value#</b>
+                </button>
+              </div>
+              <div class="item-media pull-right">
+                <button id="send-sms-to-email-button-#i#" class="activity send-sms icon icon-message" data-l10n-id="send-sms-button" aria-label="SMS"></button>
+              </div>
+            </div>
+          </li>
+
+          <li id="dates-template-#i#" data-template="" role="region" aria-label="Date" data-l10n-id="dateDetail">
+            <h2 data-l10n-id="#type_l10n_id#">#type#</h2>
+            <p><strong>#date#</strong></p>
+          </li>
+
+          <p data-comment="" id="note-details-template-#i#" data-template="" class="comment-notes">#note#</p>
+          <div id="contact-detail-inner">
+            <h1 id="org-title" class="force-align" dir="auto"></h1>
+            <ul id="details-list" role="presentation">
+            </ul>
+            <ul role="presentation">
+              <li role="presentation">
+                <button id="toggle-favorite" class="fillflow-row icon icon-fav">
+                  Add as favorite
+                </button>
+              </li>
+            </ul>
+          </div>
+        </section>
+    </article>
+  --></section>
+    <section id="view-contact-form" role="region" class="view view-bottom view-edit-contact"><!--
+    <gaia-header id="contact-form-header" action="close">
+      <h1 id="contact-form-title" data-l10n-id="addContact"></h1>
+      <button id="save-button" data-l10n-id="done">Done</button>
+    </gaia-header>
+    <progress id="throbber" value="0" max="100" class="pack-activity hide"></progress>
+
+    <div id="add-phone-#i#" role="listitem" data-template="" class="phone-template field-template" data-index="#i#">
+      <fieldset class="fillflow-row">
+        <div class="two_fields first-row">
+          <legend class="action" role="combobox" aria-haspopup="true" aria-labelledby="tel_type_#i#">
+            <span aria-hidden="true" data-taglist="phone-type" name="tel" data-value="#type_value#" id="tel_type_#i#" data-field="type" data-l10n-id="#type_l10n_id#">
+              #type#
+            </span>
+          </legend>
+          <p class="setbox-item">
+            <input placeholder="Carrier" data-field="carrier" data-l10n-id="carrier" name="tel[#i#][carrier]" class="textfield" x-inputmode="latin-prose" value="#carrier#" id="carrier_#i#" dir="auto" type="text">
+            <button type="reset">Clear</button>
+          </p>
+        </div>
+        <section class="second-row">
+          <p class="setbox-item">
+            <bdi>
+              <input placeholder="Phone" data-field="value" data-l10n-id="tel" name="tel[#i#][value]" class="textfield" value="#value#" id="number_#i#" type="tel">
+              <button type="reset">Clear</button>
+            </bdi>
+          </p>
+        </section>
+      </fieldset>
+    </div>
+
+    <div id="add-email-#i#" role="listitem" data-template="" class="email-template field-template" data-index="#i#">
+      <fieldset class="fillflow-row">
+        <legend class="action first-row" role="combobox" aria-haspopup="true" aria-labelledby="email_type_#i#">
+          <span aria-hidden="true" data-taglist="email-type" name="email[#i#][type]" data-value="#type_value#" id="email_type_#i#" data-field="type" data-l10n-id="#type_l10n_id#">#type#</span>
+        </legend>
+        <section>
+          <p class="setbox-item second-row">
+            <input placeholder="Email" data-field="value" data-l10n-id="email" name="email[#i#][value]" class="textfield" value="#value#" id="email_#i#" type="email">
+            <button type="reset">Clear</button>
+          </p>
+        </section>
+      </fieldset>
+    </div>
+
+    <div id="add-address-#i#" role="listitem" data-template="" class="address-template field-template" data-index="#i#">
+      <fieldset class="fillflow-row">
+        <section>
+          <p class="setbox-item first-row">
+            <input placeholder="Street" data-field="streetAddress" data-l10n-id="streetAddress" name="adr[#i#][streetAddress]" class="textfield" x-inputmode="latin-prose" value="#streetAddress#" id="streetAddress_#i#" dir="auto" type="text">
+            <button type="reset">Clear</button>
+          </p>
+          <div class="two_fields second-row">
+            <legend class="action" role="combobox" aria-haspopup="true" aria-labelledby="address_type_#i#">
+              <span aria-hidden="true" data-taglist="address-type" name="adr[#i#][type]" data-value="#type_value#" id="address_type_#i#" data-field="type" data-l10n-id="#type_l10n_id#">#type#</span>
+            </legend>
+            <p class="setbox-item">
+              <input placeholder="City" data-field="locality" data-l10n-id="locality" name="adr[#i#][locality]" class="textfield" x-inputmode="latin-prose" value="#locality#" id="locality_#i#" dir="auto" type="text">
+              <button type="reset">Clear</button>
+            </p>
+          </div>
+          <div class="two_fields third-row">
+            <p class="setbox-item">
+              <input placeholder="Country" data-field="countryName" data-l10n-id="countryName" name="adr[#i#][countryName]" class="textfield" x-inputmode="latin-prose" value="#countryName#" id="countryName_#i#" dir="auto" type="text">
+              <button type="reset">Clear</button>
+            </p>
+            <p class="setbox-item">
+              <input placeholder="Zip Code" data-field="postalCode" data-l10n-id="postalCode" name="adr[#i#][postalCode]" class="textfield" x-inputmode="verbatim" value="#postalCode#" id="postalCode_#i#" dir="auto" type="text">
+              <button type="reset">Clear</button>
+            </p>
+          </div>
+        </section>
+      </fieldset>
+    </div>
+
+    <div id="add-date-#i#" role="listitem" data-template="" class="date-template field-template" data-exclusive="true" data-custom="false" data-index="#i#">
+      <fieldset class="fillflow-row first-row">
+        <div class="two_fields">
+          <legend class="action" role="combobox" aria-haspopup="true" aria-labelledby="date_type_#i#">
+            <span aria-hidden="true" data-taglist="date-type" name="date[#i#][type]" data-value="#type_value#" id="date_type_#i#" data-field="type" data-l10n-id="#type_l10n_id#">#type#</span>
+          </legend>
+          <section>
+            <p class="setbox-item">
+              <span aria-hidden="true" id="date-text_#i#" class="datetime placeholder">
+                Date
+              </span>
+              <input placeholder="date" data-field="#type#" data-l10n-id="date" name="date[#i#][value]" id="date_#i#" aria-labelledby="date-text_#i#" type="date">
+            </p>
+          </section>
+        </div>
+      </fieldset>
+    </div>
+
+    <div id="add-note-#i#" role="listitem" data-template="" class="note-template field-template" data-index="#i#">
+      <dl role="presentation" class="setbox fillflow-row first-row">
+        <dd class="setbox-body">
+          <p class="setbox-item">
+            <textarea placeholder="Comment" data-field="note" data-l10n-id="comment" name="comment[#i#]" class="textfield" type="text" x-inputmode="latin-prose" id="note_#i#">                #note#
+            </textarea>
+           <button type="reset">Clear</button>
+          </p>
+        </dd>
+      </dl>
+    </div>
+
+
+    <article class="view-body">
+      <div class="view-body-inner">
+        <form id="contact-form" action="#" class="fill-flow">
+          <input name="id" id="contact-form-id" value="" type="hidden">
+          <section class="item first">
+            <div id="thumbnail-action" href="#" class="item-media fillflow-media">
+              <div role="button" id="photo-button" class="bb-button">
+                <p>
+                  <span class="icon icon-addimage"></span>
+                  <em data-l10n-id="addPhoto">Add photo</em>
+                </p>
+                <p class="edit-photo">
+                  <em data-l10n-id="edit-picture">Edit Picture</em>
+                </p>
+                <img id="thumbnail-photo" alt="">
+              </div>
+            </div>
+            <div class="item-body-exp with-overflow">
+              <p class="fillflow-row input-container">
+                <input placeholder="Name" data-field="givenName" data-l10n-id="givenName" name="givenName" class="textfield" x-inputmode="latin-prose" value="" id="givenName" dir="auto" autocorrect="off" autocapitalize="on" spellcheck="false" type="text">
+                <button type="reset">Clear</button>
+              </p>
+              <p class="fillflow-row input-container">
+                <input placeholder="Last name" data-field="familyName" data-l10n-id="familyName" name="familyName" class="textfield" x-inputmode="latin-prose" value="" id="familyName" dir="auto" autocorrect="off" autocapitalize="on" spellcheck="false" type="text">
+                <button type="reset">Clear</button>
+              </p>
+            </div>
+            <div class="with-overflow">
+              <p class="fillflow-row">
+                <input placeholder="Company Name" data-field="org" data-l10n-id="org" name="org" class="textfield" x-inputmode="verbatim" value="" id="org" dir="auto" type="text">
+                <button type="reset" id="clear-org">Clear</button>
+              </p>
+            </div>
+          </section>
+
+          <ul role="presentation">
+            <li role="region" aria-label="Phones" data-l10n-id="phones">
+              <section>
+                <div id="contacts-form-phones" role="list"></div>
+              </section>
+              <button data-field-type="tel" id="add-new-phone" data-l10n-id="addPhone" class="fillflow-row action action-add icon icon-add">
+                Add phone number
+              </button>
+              <hr>
+            </li>
+
+            <li role="region" aria-label="Emails" data-l10n-id="emails">
+              <section>
+                <div id="contacts-form-emails" role="list"></div>
+              </section>
+
+              <button data-field-type="email" id="add-new-email" data-l10n-id="addEmail" class="fillflow-row action action-add icon icon-add">
+                Add email address
+              </button>
+              <hr>
+            </li>
+
+            <li role="region" aria-label="Addresses" data-l10n-id="addresses">
+              <section>
+                <div id="contacts-form-addresses" role="list"></div>
+              </section>
+
+              <button data-field-type="adr" id="add-new-address" data-l10n-id="addAddress" class="fillflow-row action action-add icon icon-add">
+                Add new address
+              </button>
+              <hr>
+            </li>
+
+            <li role="region" aria-label="Dates" data-l10n-id="dates">
+              <section>
+                <div id="contacts-form-dates" role="list"></div>
+              </section>
+
+              <button data-field-type="date" id="add-new-date" data-l10n-id="addDate" class="fillflow-row action action-add icon icon-add">
+                Add Date
+              </button>
+              <hr>
+            </li>
+
+            <li role="region" aria-label="Notes" data-l10n-id="notes">
+              <section>
+                <div id="contacts-form-notes" role="list"></div>
+              </section>
+
+              <button data-field-type="note" id="add-new-note" data-l10n-id="addComment" class="fillflow-row action action-add icon icon-add">
+                Add comment
+              </button>
+              <hr>
+            </li>
+          </ul>
+        </form>
+
+        <footer class="tail-actions hide">
+          <button id="delete-contact" class="fillflow-row action action-delete danger">
+            <b data-l10n-id="deleteContact">Delete contact</b>
+          </button>
+        </footer>
+      </div>
+    </article>
+  --></section>
+    <section id="view-select-tag" role="region" class="view view-right view-select-tag"><!--
+    <gaia-header id="settings-header" action="back">
+      <h1 data-l10n-id="label"></h1>
+      <button id="settings-done" data-l10n-id="done">Done</button>
+    </gaia-header>
+
+    <article class="view-body">
+      <form class="view-body-inner">
+        <ul id="tags-list" class="selection-list compact" role="listbox">
+        </ul>
+        <p>
+          <input class="textfield tagItem" placeholder="Custom Tag" value="" id="custom-tag" data-l10n-id="customTag" dir="auto" type="text">
+          <button id="custom-tag-reset" type="reset">Clear</button>
+        </p>
+      </form>
+    </article>
+  --></section>
+    <form id="action-menu" role="dialog" data-type="action" class="hide">
+      <header id="org-title" data-l10n-id="select_recipient">Select recipient</header>
+      <menu id="value-menu" type="toolbar">
+      </menu>
+    </form>
+    <article id="settings-wrapper"><!--
+    <section data-theme="organic" id="view-settings" role="region" class="skin-organic view view-bottom theme-settings">
+      <gaia-header>
+        <h1 data-l10n-id="settings"></h1>
+        <button id="settings-close" data-l10n-id="done">Done</button>
+      </gaia-header>
+
+      <article class="view-body" id="settings-article">
+        <section role="region" class="view-body-inner">
+          <ul data-type="list" role="presentation">
+            <li id="settingsOrder" role="checkbox">
+              <gaia-switch name="order.lastname">
+                <label data-l10n-id="contactsOrderBy"></label>
+              </gaia-switch>
+            </li>
+          </ul>
+          <gaia-subheader skin="organic" id="transfer-contacts-header">
+            <span data-l10n-id="transferContactsTitle">Transfer Contacts</span>
+          </gaia-subheader>
+          <ul data-type="list" id="sources" role="listbox" aria-labelledby="transfer-contacts-header">
+            <li role="presentation" id="importContacts" data-source="sim">
+              <button role="option" class="icon icon-import" data-l10n-id="importContactsButton">
+                Import Contacts
+              </button>
+            </li>
+            <li role="presentation" id="exportContacts" data-source="sd">
+              <button role="option" class="icon icon-export" data-l10n-id="exportContactsButton">
+                Export Contacts
+              </button>
+            </li>
+          </ul>
+          <gaia-subheader skin="organic" id="contacts-management-header">
+            <span data-l10n-id="ContactManagementTitle">Contacts Management</span>
+          </gaia-subheader>
+          <ul data-type="list" id="contactsManagement" role="listbox" aria-labelledby="contacts-management-header">
+            <li role="presentation">
+              <button role="option" id="set-ice" class="action" data-l10n-id="setICEButton">
+                Set ICE Contacts
+              </button>
+            </li>
+            <li role="presentation">
+              <button role="option" id="bulkDelete" class="action" data-l10n-id="bulkDeleteButton">
+                Delete Contacts
+              </button>
+            </li>
+          </ul>
+        </section>
+      </article>
+    </section>
+    <section data-theme="organic" id="import-settings" role="region" class="skin-organic view view-right theme-settings">
+      <gaia-header id="import-settings-header" action="back">
+        <h1 id="import-settings-title"></h1>
+      </gaia-header>
+      <article class="view-body">
+        <section role="region" class="view-body-inner">
+          <ul role="listbox" data-type="list" id="import-options">
+            <li role="presentation" id="import-sd-option" data-source="sd">
+              <button role="option" class="icon icon-sd">
+                <span data-l10n-id="importMemoryCard">Memory card</span>
+                <p><span></span><time></time></p>
+              </button>
+              <p class="error-message"></p>
+            </li>
+            <li role="presentation" id="import-gmail-option" class="importService" data-source="gmail">
+              <button role="option" class="icon icon-gmail">
+                <span data-l10n-id="importGmail">Gmail</span>
+                <p><span></span><time></time></p>
+              </button>
+            </li>
+            <li role="presentation" id="import-live-option" class="importService" data-source="live">
+              <button role="option" class="icon icon-live">
+                <span data-l10n-id="importOutlook">Outlook</span>
+                <p><span></span><time></time></p>
+              </button>
+              <p class="error-message" data-l10n-id="genericNoConnection"></p>
+            </li>
+          </ul>
+          <ul role="listbox" data-type="list" id="export-options">
+            <li role="presentation" id="export-sd-option" data-source="sd">
+              <button role="option" class="icon icon-sd" data-l10n-id="memoryCard">
+                Memory card
+              </button>
+              <p class="error-message"></p>
+            </li>
+            <li role="presentation" id="export-bluetooth-option" data-source="bluetooth">
+              <button role="option" class="icon icon-bluetooth" data-l10n-id="bluetooth">
+                Bluetooth
+              </button>
+            </li>
+          </ul>
+        </section>
+      </article>
+    </section>
+    <section data-theme="organic" id="ice-settings" role="region" class="skin-organic view view-right theme-settings">
+      <gaia-header id="ice-settings-header" action="back">
+        <h1 id="ice-settings-title" data-l10n-id="ICESettingTitle"></h1>
+      </gaia-header>
+      <article class="view-body">
+        <section role="region" class="view-body-inner">
+          <p class="description" data-l10n-id="ICEDescription">
+            Add two contacts for making “In Case of Emergency” calls.
+          </p>
+          <ul data-type="list" role="listbox" aria-multiselectable="true">
+            <li role="option" id="ice-contacts-1-switch" class="ice-contacts-switch">
+              <gaia-switch name="ice-contact-1-enabled">
+                <label data-l10n-id="ICEContact1"></label>
+              </gaia-switch>
+            </li>
+            <li role="presentation">
+              <button role="option" id="select-ice-contact-1" class="icon icon-view" data-l10n-id="ICESelectContact" disabled="">
+                Select a contact
+              </button>
+            </li>
+            <li role="option" id="ice-contacts-2-switch" class="ice-contacts-switch">
+              <gaia-switch name="ice-contact-2-enabled">
+                <label data-l10n-id="ICEContact2"></label>
+              </gaia-switch>
+            </li>
+            <li role="presentation">
+              <button role="option" id="select-ice-contact-2" class="icon icon-view" data-l10n-id="ICESelectContact" disabled="">
+                Select a contact
+              </button>
+            </li>
+          </ul>
+        </section>
+      </article>
+    </section>
+  --></article>
+    <form data-type="confirm" id="loading-overlay" class="hide no-opacity" role="dialog"><!--
+    <section id="progress-activity" class="hide">
+      <h1 id="progress-title"></h1>
+      <p role="status">
+        <span id="progress-msg"></span>
+        <progress id="progress-element" class="pack-activity" value="0" max="100"></progress>
+      </p>
+    </section>
+    <menu>
+      <button data-l10n-id="cancel" id="cancel-overlay">Cancel</button>
+    </menu>
+  --></form>
+    <section id="statusMsg" role="status" class="hidden"><!--
+    <p></p>
+  --></section>
+    <form id="confirmation-message" class="hide" role="dialog" data-type="confirm"><!--
+    <section>
+      <h1>Confirmation title</h1>
+      <p>Confirmation message</p>
+    </section>
+    <menu>
+      <button>Action 1</button>
+      <button>Action 2</button>
+    </menu>
+  --></form>
+    <section id="ice-view" role="region" class="view view-right hidden"><!--
+    <gaia-header id="ice-header" action="back">
+      <h1 data-l10n-id="ice_contacts"></h1>
+    </gaia-header>
+    <arcticle class="view-body">
+      <section id="ice-list" data-type="list" class="active">
+        <ol id="ice-group" role="">
+        </ol>
+      </section>
+    </arcticle>
+  --></section>
+    <section id="multiple-select-view" role="region" class="view hidden"><!--
+    <template id="contactToImportTemplate">
+      <li>
+        <aside class="pack-end" aria-hidden="true">
+          <span data-type="img"></span>
+        </aside>
+        <p>Name</p>
+        <p>Org</p>
+      </li>
+    </template>
+    <gaia-header id="multiple-select-view-header" action="close">
+      <h1 id="multiple-select-view-title">Filename</h1>
+      <button id="save-button" data-l10n-id="importAll">Import all</button>
+    </gaia-header>
+
+    <article class="view-body">
+      <ol id="multiple-select-container" class="view-body-inner" data-type="list">
+      </ol>
+    </article>
+  --></section>
+    <gaia-sim-picker id="sim-picker" tabindex="-1"></gaia-sim-picker>
+  </body>
+
+</html>

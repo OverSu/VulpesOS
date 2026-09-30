@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <title>NFC test</title>
+    <script defer src="../../js/ndef_helper.js"></script>
+    <script defer src="../../js/nfc_tech.js"></script>
+    <link rel="stylesheet" type="text/css" href="../style/API.css">
+  </head>
+  <body>
+    <div id="content">
+      <div>
+        <h2>Test Description</h2>
+        <h5>
+          Tap an NFC tag, then this app will send some raw command to that tag.
+        </h5>
+      </div>
+      <div>
+        <h2>NFC Tag Info</h2>
+      </div>
+      <h4 id="success-message" class="success"></h4>
+      <h4 id="error-message" class="error"></h4>
+
+     <div id="tag-container">
+       <ul>
+         <li><b>Supported Technology List: </b><span data-type="tech-list"/> </li>
+       </ul>
+     </div>
+
+     <div id="isoDep-container">
+       <ul>
+         <li><b>Hardware Vendor ID: </b><span data-type="hw-vendor-id"/> </li>
+         <li><b>Hardware Type: </b><span data-type="hw-type"/> </li>
+         <li><b>Hardware Version: </b><span data-type="hw-version"/> </li>
+         <li><b>Hardware Storage Size: </b><span data-type="hw-storage"/> </li>
+         <li><b>Hardware Protocol: </b><span data-type="hw-protocol"/> </li>
+         <li><b>Software Vendor ID: </b><span data-type="sw-vendor-id"/> </li>
+         <li><b>Software Type: </b><span data-type="sw-type"/> </li>
+         <li><b>Software Version: </b><span data-type="sw-version"/> </li>
+         <li><b>Software Storage Size: </b><span data-type="sw-storage"/> </li>
+         <li><b>Software Protocol: </b><span data-type="sw-protocol"/> </li>
+         <li><b>UID: </b><span data-type="uid"/> </li>
+         <li><b>Batch Number: </b><span data-type="batch-num"/> </li>
+         <li><b>Production Date: </b><span data-type="production-date"/> </li>
+         <li><b>Key Settings: </b><span data-type="key-settings"/> </li>
+         <li><b>Max number of keys: </b><span data-type="max-keys"/> </li>
+         <li><b>Key Version: </b><span data-type="key-version"/> </li>
+       </ul>
+     </div>
+
+     <div id="nfcA-container">
+       <div id="type1-container">
+         <ul>
+           <li><b>Tag type: </b><span data-type="tag-type"/> </li>
+           <li><b>HR0  </b><span data-type="hr0" /> </li>
+           <li><b>HR1  </b><span data-type="hr1" /> </li>
+           <li><b>UID0 </b><span data-type="uid0"/> </li>
+           <li><b>UID1 </b><span data-type="uid1"/> </li>
+           <li><b>UID2 </b><span data-type="uid2"/> </li>
+           <li><b>UID3 </b><span data-type="uid3"/> </li>
+         </ul>
+       </div>
+       <div id="type2-container">
+         <ul>
+           <li><b>Tag type: </b><span data-type="tag-type"/> </li>
+           <li><b>Write to block 5 </b><span data-type="write"/> </li>
+           <li><b>Read blocks 5~8 </b><span data-type="read"/> </li>
+         </ul>
+       </div>
+     </div>
+    </div>
+  </body>
+</html>

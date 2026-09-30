@@ -1,0 +1,24 @@
+Vulpes OS — community project by oversu / NNS Production
+https://vulpes-os.org
+https://nnsprod.com/git/oversu/VulpesOS
+
+Original Vulpes host, adapter and tooling additions are licensed under the
+Mozilla Public License 2.0 (see LICENSE). Preserve the applicable copyright,
+license and attribution notices when redistributing modified files.
+
+Inherited components retain their original licenses:
+- Gaia: Mozilla Foundation and contributors; see gaia/LICENSE (Apache 2.0)
+  and the notices in individual files and bundled components.
+- Firefox / Gecko / GeckoView: Mozilla and contributors; engine versions,
+  download locations and source archives are pinned in engine-lock.json,
+  release.json and the Android Gradle configuration. Engines are downloaded
+  separately; they are not stored in this Git repository.
+- Fira fonts and Gaia icons: see gaia/shared/elements/vulpes-fonts/ and the
+  notices included with each font and application.
+- Tundra references AOSP, Debian, Droidian, libhybris, UBports, Capyloon and
+  other upstream projects. Their original licenses remain applicable.
+  Publishing the Tundra tooling does not relicense proprietary vendor files.
+
+Vulpes OS is independent of Mozilla. Firefox and other third-party trademarks
+belong to their respective owners. This project is not an official Firefox OS
+release or an endorsement by those organizations.

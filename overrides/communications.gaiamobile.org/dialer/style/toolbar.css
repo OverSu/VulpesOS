@@ -1,0 +1,93 @@
+/* Structure for toolbar*/
+
+.icon-recents {
+  background-image: image-set(url("images/recents.png") 1x, url("images/recents@1.5x.png") 1.5x, url("images/recents@2x.png") 2x, url("images/recents@2.25x.png") 2.25x);
+}
+
+.icon-contacts {
+  background-image: image-set(url("images/contacts.png") 1x, url("images/contacts@1.5x.png") 1.5x, url("images/contacts@2x.png") 2x, url("images/contacts@2.25x.png") 2.25x);
+}
+
+.icon-keypad {
+  background-image: image-set(url("images/dialpad.png") 1x, url("images/dialpad@1.5x.png") 1.5x, url("images/dialpad@2x.png") 2x, url("images/dialpad@2.25x.png") 2.25x);
+}
+
+/* Making lazy loading look nice */
+#contacts-view .bb-tabpanel,
+#recents-view.hidden .bb-tabpanel {
+  background-color: white;
+}
+
+#contacts-view .bb-tabpanel:before,
+#recents-view.hidden .bb-tabpanel:before {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5rem;
+
+  background-color: var(--header-background);
+  content: "";
+}
+
+#iframe-contacts-container {
+  overflow: hidden;
+}
+
+#iframe-contacts {
+  position: absolute;
+}
+
+#recents-view.hidden .bb-tabpanel section {
+  display: none;
+}
+
+.no-opacity {
+  opacity: 0 !important;
+}
+
+/* For showing/hiding navbar */
+#views:before {
+  transform: translateX(0);
+}
+
+#views.hide-toolbar:before {
+  transform: translateX(100%);
+}
+
+#views > li > .icon {
+  z-index: 2;
+}
+
+#views.hide-toolbar > li {
+  background: none;
+  pointer-events: none;
+}
+
+#views.hide-toolbar > li:before,
+#views.hide-toolbar > li > .icon {
+  transform: translateY(100%);
+  visibility: hidden;
+}
+
+#views.hide-toolbar #iframe-contacts-container {
+  height: 100%;
+}
+
+#views .bb-tabpanel {
+  pointer-events: all;
+}
+
+#contacts-view .bb-tabpanel {
+  height: calc(100% - 4.5rem);
+  z-index: 1;
+}
+
+/* Original Gaia glyphs stay sharp on high-density devices. */
+#option-recents, #option-contacts, #option-keypad { background-image:none; }
+#option-recents::before, #option-contacts::before, #option-keypad::before {
+  font-family:gaia-icons; font-size:30px; line-height:45px;
+  font-weight:normal; font-style:normal; text-rendering:optimizeLegibility;
+}
+#option-recents::before { content:"recent-calls"; }
+#option-contacts::before { content:"contacts"; }
+#option-keypad::before { content:"dialpad"; }

@@ -1,0 +1,2 @@
+;'use strict';(function(exports){function BaseView(target,options,viewManager){this.target=target;this.options=options;this.viewManager=viewManager;}
+BaseView.prototype.element=null;BaseView.prototype.highlight=function(){this.element.classList.add('highlighted');};BaseView.prototype.unHighlight=function(){this.element.classList.remove('highlighted');};BaseView.prototype.show=function(){this.element.classList.remove('hide');};BaseView.prototype.hide=function(){this.element.classList.add('hide');};exports.BaseView=BaseView;})(window);

@@ -1,0 +1,46 @@
+<element name="sim-manager" extends="section">
+  <template>
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="simManager-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="sim-card-container"></ul>
+      <header class="sim-manager-settings-header">
+        <h2 data-l10n-id="simSettings"></h2>
+      </header>
+      <ul class="sim-manager-select-list">
+        <li class="sim-manager-security-entry">
+          <a class="menu-item" href="#simpin">
+            <span data-l10n-id="simSecurity"></span>
+          </a>
+        </li>
+        <li>
+          <p data-l10n-id="sim-manager-outgoing-calls"></p>
+          <p data-l10n-id="sim-manager-outgoing-call-desc" class="explanation"></p>
+          <span class="button icon icon-dialog">
+            <select class="sim-manager-outgoing-call-select"></select>
+          </span>
+        </li>
+        <li>
+          <p data-l10n-id="sim-manager-outgoing-messages"></p>
+          <p data-l10n-id="sim-manager-outgoing-messages-desc" class="explanation"></p>
+          <span class="button icon icon-dialog">
+            <select class="sim-manager-outgoing-messages-select"></select>
+          </span>
+        </li>
+        <li>
+          <p data-l10n-id="sim-manager-outgoing-data"></p>
+          <p data-l10n-id="sim-manager-outgoing-data-description" class="explanation"></p>
+          <span class="button icon icon-dialog">
+            <select class="sim-manager-outgoing-data-select"></select>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/simcard_manager/panel"></panel>
+
+  </template>
+</element>

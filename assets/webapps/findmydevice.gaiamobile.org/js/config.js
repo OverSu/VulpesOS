@@ -1,0 +1,4 @@
+Config = {
+  "api_url": "https://find.firefox.com",
+  "api_version": "1"
+};

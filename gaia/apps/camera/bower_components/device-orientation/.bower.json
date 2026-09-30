@@ -1,0 +1,23 @@
+{
+  "name": "device-orientation",
+  "main": "device-orientation.js",
+  "homepage": "https://github.com/fxos-components/device-orientation",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "README.md"
+  ],
+  "version": "1.0.0",
+  "_release": "1.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.0",
+    "commit": "6f6921e80c4f1ab8a2600f9ecebf6afabdca02c9"
+  },
+  "_source": "git://github.com/fxos-components/device-orientation.git",
+  "_target": "*",
+  "_originalSource": "fxos-components/device-orientation"
+}

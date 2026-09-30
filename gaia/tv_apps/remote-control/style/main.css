@@ -1,0 +1,226 @@
+html {
+  font-size: 10px;
+  /* We have Fira Sans as default font in real device. But it isn't default in
+   * browser. That's the main reason this line is here.*/
+  font-family: "Fira Sans";
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+section {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 6rem  35.5rem 0 36rem;
+  background-color: #f4f4f4;
+}
+
+h1 {
+  margin: 0;
+  font-size: 4.6rem;
+  font-style: italic;
+  font-weight: 300;
+  color: #4d4d4d;
+}
+
+#settings-section {
+  display: none;
+}
+
+#settings-section.visible {
+  display: block;
+}
+
+#settings-icon {
+  position: absolute;
+  right: 6rem;
+  top: 4rem;
+  display: none;
+}
+
+#settings-icon.visible {
+  display: block;
+}
+
+#main-area {
+  position: relative;
+  display: none;
+  margin: 16.5rem 0 0 4.5rem;
+  font-weight: 300;
+  font-style: italic;
+  color: #4d4d4d;
+}
+
+#main-area.visible {
+  display: block;
+}
+
+#qrcode {
+  position: absolute;
+  background-color: white;
+  right: 0;
+  top: 0;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.25, 0, 0, 1.0);
+  transition-duration: 0.42s;
+}
+
+#qrcode:focus {
+  outline: 1rem solid #00cbf4;
+  transform: scale(1.1);
+}
+
+#qrcode-image {
+  margin: 3rem;
+  width: 26rem;
+  height: 26rem;
+}
+
+#instruction {
+  width: 78rem;
+}
+
+#instruction p {
+  font-size: 2.8rem;
+  margin: 0 0 1.5rem 0;
+}
+
+#ip {
+  margin-top: 4.5rem;
+  font-size: 6rem;
+}
+
+.error-message {
+  margin: 16rem 0 0 4.5rem;
+  width: 78rem;
+  font-size: 2.8rem;
+  line-height: 5.6rem;
+  font-weight: 300;
+  font-style: italic;
+  display: none;
+}
+
+.error-message.visible {
+  display: block;
+}
+
+smart-button[type="rounded-corner-text"].lower-right-button {
+  position: absolute;
+  right: 40.5rem;
+  bottom: 41rem;
+  width: 23.7rem;
+  text-align: center;
+}
+
+#big-qrcode {
+  padding: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.1s ease-in;
+  pointer-events: none;
+}
+
+#big-qrcode.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#big-qrcode-container {
+  background-color: white;
+  display: inline-block;
+}
+
+#big-qrcode-image {
+  margin: 3rem;
+  width: 54rem;
+  height: 54rem;
+}
+
+#option-list {
+  color: #4d4d4d;
+  margin: 12rem 0 0 4.5rem;
+}
+
+.option-item {
+  margin-bottom: 7rem;
+}
+
+.option-radio, .option-content {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.option-radio {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 0.4rem solid #5f6368;
+  text-align: center;
+  overflow: hidden;
+  outline: none;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.25, 0, 0, 1.0);
+  transition-duration: 0.42s;
+}
+
+.option-radio.checked:after {
+  font-family: "smart-icons";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 7rem;
+  line-height: 5.5rem;
+  margin-left: -0.8rem;
+  text-rendering: optimizelegibility;
+  content: "check";
+  color: #00caf2;
+}
+
+.option-radio:focus {
+  transform: scale(1.2);
+}
+
+.option-content {
+  margin: 0.8rem 0 0 2.5rem;
+}
+
+.option-content .label {
+  font-size: 3.8rem;
+}
+
+.option-content .description {
+  margin-top: 2.5rem;
+  font-size: 2.8rem;
+  font-weight: 300;
+  font-style: italic;
+}
+
+#clear-authorized-devices {
+  margin-top: 2.5rem;
+  width: 34rem;
+}
+
+#clear-authorized-devices.disabled {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#save-button {
+  position: absolute;
+  right: 40.5rem;
+  bottom: 14rem;
+  width: 23.7rem;
+  text-align: center;
+}

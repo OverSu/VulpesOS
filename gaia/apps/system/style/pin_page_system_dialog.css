@@ -1,0 +1,126 @@
+#pin-page-dialog {
+  font-weight: 400;
+}
+
+#pin-page-dialog .dialog {
+  padding: 1.8rem;
+  height: 85%;
+}
+
+#pin-page-dialog .divider {
+  border-top: 0.2rem solid rgba(0, 0, 0, 0.1);
+  color: var(--results-header-color);
+  text-align: center;
+  height: 1rem;
+  top: 1rem;
+  position: relative;
+  overflow: visible;
+  width: 100%;
+}
+
+.divider span {
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  position: relative;
+  background-color: #f4f4f4;
+  padding: 0 .66rem;
+  top: -1rem;
+  font-weight: 500;
+  color: #a6a6a6;
+}
+
+
+#pin-page-dialog .container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#pin-page-dialog .container span {
+  text-align: center;
+  width: 100%;
+}
+
+#pin-page-dialog .container > .page-title {
+  text-overflow: ellipsis;
+  margin: 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0;
+}
+
+#pin-card-container {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 10rem;
+  margin: 1.13rem auto 2.4rem;
+}
+
+gaia-pin-card {
+  display: block;
+  width: 13.33rem;
+  height: 15rem;
+  transform: scale(.65) translateY(-4rem);
+  margin: 0 auto;
+}
+
+gaia-button {
+  width: -moz-fit-content;
+}
+
+#pin-site-container gaia-app-icon {
+  width: 5.6rem;
+  height: 5.6rem;
+  margin: 2rem auto 1.5rem;
+  display: block;
+  outline: 0 none;
+  transition: transform ease .3s, opacity ease .3s;
+}
+
+#pin-site-container gaia-app-icon.default {
+  background-image: url('chrome/images/loading_icon_dark.svg');
+}
+
+#pin-page-dialog gaia-toast {
+  pointer-events: none;
+}
+
+@media (orientation: landscape) {
+
+  #pin-page-dialog #pin-page-container,
+  #pin-page-dialog #pin-site-container {
+    width: 47%;
+    height: 100%;
+    float: left;
+    padding: 0 2rem;
+  }
+
+  #pin-page-dialog #pin-site-container {
+    width: 44%;
+    margin-left: 8%;
+  }
+
+  #pin-page-dialog .divider {
+    border-top: none;
+    border-left: .2rem solid rgba(0, 0, 0, 0.1);
+    height: 68%;
+    width: 1%;
+    position: absolute;
+    left: 50%;
+    top: 25%;
+  }
+
+  #pin-page-dialog .divider span {
+    top: 9rem;
+    margin-left: -1.75rem;
+  }
+
+  #pin-site-container {
+    float: left;
+  }
+
+  #pin-site-container gaia-app-icon {
+    margin: 3.5rem auto 4.5rem;
+  }
+}

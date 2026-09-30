@@ -1,0 +1,3 @@
+;'use strict';(function(document){var cid=window.location.search.substring(fb.link.CID_PARAM.length+2);if(parent.fb){fb.operationsTimeout=parent.fb.operationsTimeout;}
+utils.listeners.add({'#link-header':[{event:'action',handler:fb.link.ui.end}],'#friends-list':fb.link.ui.selected});fb.link.init();document.querySelector('#view-all').onclick=fb.link.ui.viewAllFriends;fb.contacts.init(function fb_init(){window.addEventListener('message',function getAccessToken(e){if(e.origin!==fb.CONTACTS_APP_ORIGIN){return;}
+window.removeEventListener('message',getAccessToken);fb.link.start(cid,e.data.data);});parent.postMessage({type:'messaging_ready',data:''},fb.CONTACTS_APP_ORIGIN);});})(document);

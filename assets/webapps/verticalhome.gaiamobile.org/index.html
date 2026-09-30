@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta name="theme-color" content="transparent">
+    <title>FirefoxOS Homescreen</title>
+
+    <link rel="stylesheet" href="style/css/app.css">
+    <link rel="stylesheet" href="style/css/search.css">
+    <link rel="stylesheet" href="shared/elements/gaia_grid/style/external.css">
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/index.{locale}.json">
+    
+    
+
+    <!-- <script defer="" src="shared/js/l10n.js"></script> -->
+    <!-- <link rel="stylesheet" href="shared/style/input_areas.css"> -->
+
+    <!-- Those libraries are loaded after rendering icons -->
+    <!-- <script defer src="shared/js/homescreens/confirm_dialog_helper.js"></script> -->
+    <!-- <script defer src="js/contextmenu_handler.js"></script> -->
+
+    <!-- Lazy load for Confirm dialog component -->
+    <!-- <script defer src="/shared/js/component_utils.js"></script> -->
+    <!-- <script defer src="/shared/elements/gaia_buttons/script.js"></script> -->
+    <!-- <script defer src="/shared/elements/gaia_confirm/script.js"></script> -->
+    <!-- <script defer src="/shared/elements/gaia_menu/script.js"></script> -->
+
+    <!-- Lazy load for Context Menu -->
+    <!-- <script src="js/contextmenu_ui.js"></script> -->
+    <!-- <script type="text/javascript" src="shared/js/omadrm/fl.js"></script> -->
+    <!-- <script type="text/javascript" src="js/wallpaper.js"></script> -->
+
+    <!-- <script defer="" src="js/sources/application.js"></script> -->
+
+    <!-- <script defer="" src="js/app_manager.js"></script> -->
+    <!-- <script defer="" src="js/statusbar.js"></script> -->
+    <!-- <script defer="" src="shared/js/homescreens/vertical_preferences.js"></script> -->
+    <!-- <script defer="" src="shared/js/bookmarks_database.js"></script> -->
+    <!-- <script defer="" src="shared/js/lazy_loader.js"></script> -->
+    <!-- <script defer="" src="shared/js/url_helper.js"></script> -->
+    <!-- <script defer="" src="shared/js/web_manifest_helper.js"></script> -->
+    <!-- <script defer="" src="shared/js/icons_helper.js"></script> -->
+
+    <!-- <script defer="" src="js/sources/bookmark.js"></script> -->
+    <!-- <script defer="" src="js/stores/item.js"></script> -->
+
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/grid_layout.js"></script> -->
+    <!-- <script defer src="shared/elements/gaia_grid/js/grid_dragdrop.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/grid_icon_renderer.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/grid_view.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/script.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/items/grid_item.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/items/bookmark.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/items/divider.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/items/mozapp.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/items/group.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/items/placeholder.js"></script> -->
+
+    <!-- Gaia Components -->
+    <!-- <script defer="" src="shared/elements/config.js"></script> -->
+    <!-- <link rel="stylesheet" href="shared/elements/gaia-icons/gaia-icons.css"> -->
+    <link rel="stylesheet" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+    <!-- <script defer src="shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+
+    <!-- <script defer="" src="js/app.js"></script> -->
+    <!-- <script defer="" src="js/search.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+    <!-- <script defer src="shared/js/icc_helper.js"></script> -->
+    <!-- <script defer src="shared/js/version_helper.js"></script> -->
+    <!-- <script defer src="js/configurator.js"></script> -->
+  <meta content="2.5" name="appVersion"></head>
+  <body class="theme-media">
+    <div id="curtain"></div>
+
+    <section id="edit-header" role="region">
+      <gaia-header ignore-dir="">
+        <h1 data-l10n-id="edit-mode">Edit</h1>
+        <a href="#" data-l10n-id="edit-done" id="exit-edit-mode">Done</a>
+      </gaia-header>
+    </section>
+
+    <div id="search" role="button" aria-labelledby="search-input" aria-haspopup="true">
+      <form id="search-form">
+        <input id="search-input" x-inputmode="verbatim" role="presentation" placeholder="Search or enter address" data-l10n-id="search-or-enter-address" value="" dir="auto" type="text">
+        
+      </form>
+    </div>
+
+    <gaia-grid id="icons" dragdrop=""></gaia-grid>
+
+    <gaia-menu id="contextmenu-dialog" hidden="">
+      <button id="homescreen-settings-action" data-l10n-id="homescreen-settings" type="button">Homescreen Settings</button>
+      <button id="change-wallpaper-action" data-l10n-id="change-wallpaper" type="button">Change Wallpaper</button>
+    </gaia-menu>
+
+    <section id="edit-group" role="region" hidden="">
+      <gaia-header ignore-dir="" id="edit-group-header" action="close">
+        <h1 data-l10n-id="edit-group-header">Edit group</h1>
+        <button id="edit-group-save" disabled="" type="button" data-l10n-id="edit-done">Done</button>
+      </gaia-header>
+
+      <form>
+        <p>
+          <input id="edit-group-title" x-inputmode="latin-prose" dir="auto" type="text">
+          <button id="edit-group-title-clear" type="reset"></button>
+        </p>
+      </form>
+    </section>
+  </body>
+
+</html>

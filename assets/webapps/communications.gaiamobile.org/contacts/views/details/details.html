@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-group" content="theme-communications">
+    <meta name="theme-color" content="var(--header-background)">
+    <title> Contacts </title>
+
+    <!-- Hack for avoiding 'glitch' when loading the view -->
+    <style type="text/css">
+        html, body {
+            background: #00b7b7 !important;
+        }
+    </style>
+
+    <!-- Building Blocks -->
+    <link href="/shared/style/input_areas.css" rel="stylesheet">
+    <link href="/shared/style/lists.css" rel="stylesheet">
+    <link href="/shared/style/scrolling.css" rel="stylesheet">
+    <link href="/shared/style/buttons.css" rel="stylesheet">
+    <link href="/shared/style/progress_activity.css" rel="stylesheet">
+    <link href="/shared/style/status.css" rel="stylesheet">
+    <link href="/shared/style/switches.css" rel="stylesheet">
+    <link href="/shared/style/confirm.css" rel="stylesheet">
+    <link href="/shared/style/action_menu.css" rel="stylesheet">
+    <link href="/shared/style/edit_mode.css" rel="stylesheet">
+    <link href="/shared/style/animations.css" rel="stylesheet">
+
+    <link href="/contacts/style/app.css" rel="stylesheet">
+    <link href="/contacts/style/contacts.css" rel="stylesheet">
+    <link href="/contacts/style/overlay.css" rel="stylesheet">
+    <link href="/shared/pages/import/style/search.css" rel="stylesheet">
+    <link href="/shared/pages/import/style/curtain_frame.css" rel="stylesheet">
+    <link href="/contacts/style/status.css" rel="stylesheet">
+    <link href="/contacts/style/fb_extensions.css" rel="stylesheet">
+    <link href="/shared/style/contacts.css" rel="stylesheet">
+    <link href="/shared/style/contacts/contacts_buttons.css" rel="stylesheet">
+    <link href="/contacts/style/match_service.css" rel="stylesheet">
+    <link href="/contacts/views/details/style/overwrite.css" rel="stylesheet">
+
+    <!-- <link rel="stylesheet" type="text/css" href="/shared/elements/gaia-icons/gaia-icons.css" /> -->
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+
+    <!-- Web Components -->
+    <!-- <script defer="" src="/shared/elements/config.js"></script> -->
+    <!-- <script defer="" src="/shared/js/component_utils.js"></script> -->
+    <!-- <script defer="" src="/shared/elements/gaia_subheader/script.js"></script> -->
+    <!-- <script defer="" src="/shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+
+    <link rel="localization" href="/locales-obj/contacts.views.details.details.{locale}.json">
+    
+
+    <!-- <script defer="" src="/shared/js/lazy_loader.js"></script> -->
+    <!-- <script defer="" src="/contacts/js/utilities/performance_helper.js"></script> -->
+    <!-- <script defer="" src="/contacts/js/cache.js"></script> -->
+    <!-- <script defer="" src="/contacts/views/details/js/boot.js"></script> --><script src="./gaia_build_defer_details.js" defer="" type="text/javascript"></script>
+
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    
+    
+    
+    
+
+    
+    
+  <meta content="2.5" name="appVersion"></head>
+
+  <body role="application" class="app-contacts skin-comms theme-communications hidden">
+    <section id="view-contact-details" role="region" class="view view-contact-profile view-noscroll current"><!--
+    <gaia-header id="details-view-header" action="back">
+      <h1 id="contact-name-title"><bdi class="ellipsis-dir-fix"></bdi></h1>
+      <div class="favorite-indicator"></div>
+      <button id="edit-contact-button" data-icon="edit-contact" data-l10n-id="editButton"></button>
+    </gaia-header>
+
+    <article id="contact-detail-wrapper" class="view-body">
+      <div id="cover-img"></div>
+        <section id="contact-detail" class="view-body-inner">
+          <li data-phone="" id="phone-details-template-#i#" data-template="" role="region" aria-label="Phone" data-l10n-id="phoneDetail">
+            <h2>
+              <span data-l10n-id="#type_l10n_id#">#type#</span>
+              <span class="carrier-wrapper" hidden="">
+                <span data-l10n-id="separator"></span>
+                <span class="carrier">#carrier#</span>
+              </span>
+            </h2>
+            <div class="item">
+              <div class="item-body-exp">
+                <div class="button activity call-action icon icon-call" id="call-or-pick-#i#">
+                  <b aria-label="Call" data-l10n-id="makeCall"><bdi class="ellipsis-dir-fix">#value#</bdi></b>
+                  <span class="js-sim-indication"></span>
+                </div>
+              </div>
+              <div class="item-media pull-right">
+                <button id="send-sms-button-#i#" class="activity send-sms icon icon-message" data-l10n-id="send-sms-button" aria-label="SMS"></button>
+              </div>
+            </div>
+          </li>
+
+          <li data-social="" class="social-actions" id="social-template-#i#" data-template="" role="region">
+            <h2 data-l10n-id="social-network" id="social-label">Social Network</h2>
+              <button id="share_button" data-l10n-id="share-contact" class="activity icon icon-share">
+                Share
+              </button>
+          </li>
+
+          <li class="duplicate-actions" id="duplicate-contacts-template" data-template="" role="region">
+            <h2 data-l10n-id="organise-contacts">Organize Contacts</h2>
+            <button id="find-merge-button" data-l10n-id="find-merge-contacts" class="activity icon icon-find-and-merge">
+              Find duplicate contacts
+            </button>
+          </li>
+
+          <li data-address="" id="address-details-template-#i#" data-template="" role="region" aria-label="Address" data-l10n-id="addressDetail">
+            <h2 data-l10n-id="#type_l10n_id#">#type#</h2>
+            <div class="item">
+              <div class="item-body-exp">
+                <a href="#" class="action action-block">
+                  <b>
+                  <span class="force-align" dir="auto">#streetAddress#</span>
+                    #postalCode#
+                    #locality#
+                    #countryName#
+                  </b>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li data-mail="" id="email-details-template-#i#" data-template="" role="region" aria-label="Email" data-l10n-id="emailDetail">
+            <h2 data-l10n-id="#type_l10n_id#"></h2>
+            <div class="item">
+              <div class="item-body-exp">
+                <button id="email-or-pick-#i#" class="activity icon icon-email">
+                  <b aria-label="Email" data-l10n-id="composeEmail" dir="ltr">#value#</b>
+                </button>
+              </div>
+              <div class="item-media pull-right">
+                <button id="send-sms-to-email-button-#i#" class="activity send-sms icon icon-message" data-l10n-id="send-sms-button" aria-label="SMS"></button>
+              </div>
+            </div>
+          </li>
+
+          <li id="dates-template-#i#" data-template="" role="region" aria-label="Date" data-l10n-id="dateDetail">
+            <h2 data-l10n-id="#type_l10n_id#">#type#</h2>
+            <p><strong>#date#</strong></p>
+          </li>
+
+          <p data-comment="" id="note-details-template-#i#" data-template="" class="comment-notes">#note#</p>
+          <div id="contact-detail-inner">
+            <h1 id="org-title" class="force-align" dir="auto"></h1>
+            <ul id="details-list" role="presentation">
+            </ul>
+            <ul role="presentation">
+              <li role="presentation">
+                <button id="toggle-favorite" class="fillflow-row icon icon-fav">
+                  Add as favorite
+                </button>
+              </li>
+            </ul>
+          </div>
+        </section>
+    </article>
+  --></section>
+    <iframe src="/shared/pages/import/curtain.html" id="iframe_curtain"></iframe>
+    <form id="confirmation-message" class="hide" role="dialog" data-type="confirm"><!--
+
+     <section>
+       <h1>Confirmation title</h1>
+       <p>Confirmation message</p>
+     </section>
+     <menu>
+       <button>Action 1</button>
+       <button>Action 2</button>
+     </menu>
+
+  --></form>
+  </body>
+
+</html>

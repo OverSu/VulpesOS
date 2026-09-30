@@ -1,219 +1,92 @@
-<p align="center">
-  <a href="https://nnsprod.com/git/oversu/VulpesOS" lang="en" hreflang="en">🇬🇧 English</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/src/branch/main/README.fr.md" lang="fr" hreflang="fr"><strong>🇫🇷 Français</strong></a>
-</p>
-
-<p align="center">
-  <img src="docs/media/vulpes-logo.png" width="160" alt="Logo Vulpes OS — un renard blanc et bleu">
-</p>
-
+<p align="center"><a href="https://nnsprod.com/git/oversu/VulpesOS">🇬🇧 English</a> · <strong>🇫🇷 Français</strong></p>
+<p align="center"><img src="docs/media/vulpes-logo.png" width="160" alt="Logo renard de Vulpes OS"></p>
 <h1 align="center">Vulpes OS</h1>
-
+<p align="center"><strong>L'esprit de Firefox OS. Un Gecko moderne. Une base Gaia commune.</strong><br>Un projet communautaire pour retrouver une expérience mobile fondée sur le Web, sur PC, Android et téléphone natif.</p>
 <p align="center">
-  <strong>L’esprit Firefox OS. Un moteur Gecko d’aujourd’hui.</strong><br>
-  A community continuation of Firefox OS.
+<img src="https://img.shields.io/badge/Vulpes-2.7_preview.15-0755be?style=flat-square" alt="Vulpes Preview 15">
+<img src="https://img.shields.io/badge/Gecko_bureau-156.0.1-0099cc?style=flat-square" alt="Gecko bureau 156.0.1">
+<img src="https://img.shields.io/badge/Statut-Expérimental-f3a712?style=flat-square" alt="Expérimental">
 </p>
+<p align="center"><a href="https://vulpes-os.org">🌐 Le projet</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/releases">📦 Téléchargements</a> · <a href="https://vulpes-os.org/changelog.php">📝 Changelog</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/issues">🐞 Signaler un bug</a></p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Vulpes-2.7-0755be?style=flat-square" alt="Vulpes 2.7">
-  <img src="https://img.shields.io/badge/Gecko_desktop-156.0.1-0099cc?style=flat-square" alt="Gecko desktop 156.0.1">
-  <img src="https://img.shields.io/badge/Statut-Preview-f3a712?style=flat-square" alt="Statut : Preview">
-  <img src="https://img.shields.io/badge/Plateformes-Linux_%C2%B7_Android-334155?style=flat-square" alt="Linux et Android">
-</p>
+## 🦊 Le Web comme interface
 
-<p align="center">
-  <a href="https://vulpes-os.org"><strong>🌐 Découvrir le projet</strong></a>
-  &nbsp; · &nbsp;
-  <a href="#telechargements"><strong>📥 APK Android</strong></a>
-  &nbsp; · &nbsp;
-  <a href="#points-forts">Les points forts</a>
-  &nbsp; · &nbsp;
-  <a href="#architecture">L’architecture</a>
-  &nbsp; · &nbsp;
-  <a href="#suite">La suite</a>
-</p>
+Accueil, paramètres, appareil photo, galerie, messages : **Gaia reste l'interface**, composée de HTML, CSS et JavaScript. Vulpes adapte les API attendues par ces applications Firefox OS à un moteur Gecko moderne et à des services propres à chaque plateforme.
 
----
+Ce dépôt contient désormais l'interface commune, l'hôte PC, l'application Android, le runtime Tundra et les outils de développement. C'est une **première préversion pour développeurs**, pas un système mobile terminé.
 
-## 🦊 Le Web comme plateforme d’applications
+<p align="center"><img src="docs/media/vulpes-desktop.png" width="290" alt="Capture réelle du bureau Gaia en anglais"> &nbsp; <img src="docs/media/vulpes-gecko.png" width="290" alt="Capture réelle des informations système et du moteur Gecko"></p>
+<p align="center"><em>Captures de l'environnement de développement PC. Les fonctionnalités dépendent de la plateforme et du matériel disponible.</em></p>
 
-Et si l’interface de votre téléphone était faite avec les mêmes technologies que vos sites web ?
+## 📥 Choisissez votre plateforme
 
-**Vulpes redonne vie à cette idée de Firefox OS.** L’accueil, les paramètres et les applications Gaia retrouvent un environnement d’exécution sur un Gecko récent. HTML, CSS et JavaScript restent au cœur de l’expérience : une interface que l’on peut lire, comprendre et modifier.
+| Plateforme | Disponible aujourd'hui | Moteur |
+| --- | --- | --- |
+| **PC Linux** | Sources, fenêtre Gaia au format téléphone, développement et tests d'applications | Gecko **156.0.1** |
+| **APK Android** | Preview installable ; Android et ses permissions restent en dessous | GeckoView **156.0** |
+| **Pixel 3a · Sargo** | Sources Tundra ; build natif de développement testé sur notre appareil | Gecko **156.0.1** ARM64 |
 
-Le projet relie deux générations : **les applications et l’interface historiques de Firefox OS**, et **le moteur web maintenu par Mozilla**. Son ambition est de faire évoluer l’un sans devoir réécrire l’autre à chaque version.
+### Android — Preview 15
 
-**Un seul projet, deux façons de l’utiliser : l’émulateur desktop Linux et l’application Android Vulpes OS - Preview (APK).** Ils partagent Gaia et les services Vulpes, avec une intégration Gecko adaptée à chaque plateforme.
+Téléchargez l'APK et `SHA256SUMS.txt` depuis [la release Preview 15](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.15). Une installation par-dessus une ancienne Preview Vulpes signée conserve ses données.
 
-> **Disponible :** les trois Preview Android sont téléchargeables dans les [Releases](https://nnsprod.com/git/oversu/VulpesOS/releases). Les sources complètes, la distribution desktop et leurs instructions d’installation sont en préparation. Les captures ci-dessous montrent le prototype desktop.
+- Minimum déclaré : **Android 8 / API 26**. Cible : **API 37**.
+- APK universel : **ARM64, ARMv7 et x86_64** ; environ **600 Mio**, moteur GeckoView inclus.
+- Photo et Galerie utilisent Gaia, avec les permissions et l'import de fichiers Android.
+- Les appels et SMS sont transmis aux applications Android ; Vulpes n'est pas l'application Téléphone/SMS par défaut.
+- Des parcours sur émulateur Android 16 sont testés. Le minimum SDK déclaré ne signifie pas que tous les appareils Android ont été validés.
+- Il s'agit d'un **build de développement signé**, avec débogage Gecko accessible via ADB autorisé, pas d'une application durcie pour la production.
 
-<p align="center">
-  <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="300" alt="Capture réelle de Vulpes : accueil Gaia en anglais"></a>
-  &nbsp;
-  <a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="300" alt="Paramètres Vulpes en anglais, affichant la version réelle du moteur Gecko"></a>
-</p>
+### Linux — lancer depuis les sources
 
-<p align="center"><em>Accueil et informations système — captures réelles du prototype desktop en anglais. Le champ « Platform Version » affiche la version Gecko renvoyée par le moteur exécuté. Cliquer sur une image pour l’agrandir.</em></p>
+Prérequis : Linux x86_64, Python 3, Git et les bibliothèques système nécessaires à Firefox. Sur Debian/Ubuntu : `git python3 libgtk-3-0 libdbus-glib-1-2 libasound2` (les noms de paquets peuvent varier selon la distribution).
 
-<a name="telechargements"></a>
-
-## 📥 Tester la Preview Android
-
-**Pour commencer, choisissez [Vulpes OS - Preview 2.7-156.0.1](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-156.0.1)**, la plus récente des trois versions. Chaque page contient l’APK, les notes FR/EN et le fichier de contrôle `SHA256SUMS.txt`.
-
-| Version | Contenu | Usage |
-| :--- | :--- | :--- |
-| [2.7-156.0.1](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-156.0.1) | Nom et icône Vulpes OS - Preview ; correctif du fond d’écran inclus | **Preview conseillée** |
-| [2.7-preview.2](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-preview.2) | Correction du fond d’écran clignotant | Archive |
-| [2.7-preview.1](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-preview.1) | Première Preview Android | Archive — clignotement du fond d’écran connu |
-
-Téléchargez l’APK et ouvrez-le sur Android pour l’installer. Les versions successives conservent le même identifiant et la même signature : une mise à jour par-dessus la précédente permet de garder les données.
-
-- **Android 8.0 / API 26 minimum déclaré.** Validation sur un émulateur Android 16 / API 36 ; les autres configurations restent à tester.
-- **Environ 592 Mio par APK**, avec les architectures ARM64, ARM 32 bits et x86_64 intégrées.
-- **Preview de développement :** elle ne remplace pas Android et ne fournit pas les appels/SMS cellulaires. L’import des médias Android reste à porter.
-- **Desktop Linux :** environnement de développement distinct, encore sans distribution publique prête à installer. Ce simulateur affiche Gaia ; il n’émule pas tout le matériel d’un téléphone.
-
-Les APK sont joints aux Releases, sans alourdir l’historique Git. Ces tags désignent les APK historiques publiés ; ils ne représentent pas encore leurs sources de compilation complètes.
-
-<a name="points-forts"></a>
-
-## ✨ Ce qui rend Vulpes intéressant
-
-### 🔄 Un moteur qui peut évoluer
-
-Le passage de Gecko 45 à 52 a servi de première étape. Le prototype desktop utilise maintenant **Gecko 156.0.1** avec une architecture qui sépare l’interface, les services et l’intégration au moteur.
-
-Un outil automatise le téléchargement d’une version candidate, le contrôle de son empreinte et les tests de compatibilité. Le basculement reste explicite et un retour arrière est prévu. Les incompatibilités sont détectées et documentées ; elles ne sont pas réparées automatiquement.
-
-### 🧩 Faire vivre les applications Firefox OS
-
-Vulpes adapte les anciennes API dont Gaia a besoin : réglages, registre des applications, contacts locaux, stockage et communications entre applications. Le travail porte sur leur fonctionnement, leurs permissions et leurs données persistantes.
-
-Des essais avec des applications historiques accompagnent le portage. **La compatibilité progresse application par application** : la présence d’une ancienne API ne garantit pas encore le fonctionnement de tout le catalogue Firefox OS.
-
-### 🛠️ Modifier l’interface sans reconstruire Gecko
-
-Une grande partie de l’interface se travaille dans les fichiers HTML, CSS et JavaScript. Les ressources servies et les surcharges peuvent être modifiées puis rechargées, sans recompiler le moteur.
-
-Certaines applications conservent des bundles issus de l’ancien système de construction Gaia. Leur modification demande de vérifier quel fichier est réellement chargé : tous les fichiers des sources historiques ne sont pas encore reliés directement à l’interface exécutée.
-
-### 📱 Deux façons d’explorer le projet
-
-- **Sur Linux :** une fenêtre au format téléphone, avec Gaia, le multitâche et un navigateur utilisant des vues Gecko séparées.
-- **Sur Android :** **Vulpes OS – Preview**, une application GeckoView pour découvrir l’expérience sans remplacer le système du téléphone.
-
-La Preview Android est un terrain d’essai. Elle n’est pas une ROM et ne remplace pas les fonctions de téléphonie d’Android.
-
-## 🧪 Où en est le prototype ?
-
-| Fonction | Desktop Linux | Preview Android |
-| :--- | :--- | :--- |
-| Accueil Gaia, lancement des applications | ✅ Fonctionnel | ✅ Disponible |
-| Réglages persistants et interface traduite | ✅ Parcours testés | ✅ Intégrés, validation mobile à poursuivre |
-| Navigation web | ✅ Vues Gecko séparées | ✅ Sessions GeckoView séparées |
-| Contacts | ✅ Contacts locaux au profil | ✅ Contacts locaux à Vulpes |
-| SMS | 🧪 Interface et brouillons locaux | 🧪 Interface locale |
-| Galerie et musique | ✅ Import et lecture testés | 🚧 Import des médias Android à porter |
-| Alarmes | ✅ Création, déclenchement et persistance testés | 🧪 Liées à la durée de vie du processus Vulpes |
-| Appels et SMS sur le réseau mobile | 🚧 Non intégrés | 🚧 Non intégrés |
-| Installation comme système de téléphone | 🚧 Futur chantier | 🚧 L’APK ne remplace pas Android |
-
-**Versions de référence — septembre 2026**
-
-| Élément | Version |
-| :--- | :--- |
-| Produit communautaire | Vulpes OS 2.7 |
-| Moteur desktop | Gecko 156.0.1 |
-| Application Android | Preview 2.7-156.0.1 |
-| Dépendance GeckoView | `156.0.20260921121718` |
-| Minimum Android déclaré | Android 8.0 · API 26 |
-
-La version de l’APK, celle du moteur et celle du produit sont distinctes. Le `.1` final de la Preview désigne sa révision ; GeckoView rapporte ici **156.0**. Le minimum Android déclaré ne signifie pas que chaque appareil a été testé.
-
-<a name="architecture"></a>
-
-## ⚙️ Sous le capot
-
-```text
-                 Gaia + applications web
-                    HTML · CSS · JS
-                           │
-            Compatibilité des anciennes API moz*
-                  Contrats Vulpes versionnés
-                           │
-       Réglages · Applications · Contacts · Stockage
-              Messages locaux · Alarmes
-                           │
-              ┌────────────┴────────────┐
-              │                         │
-        Hôte desktop              Hôte Android
-      Fenêtre privilégiée       GeckoView + passerelle
-      et vues web séparées        WebExtension/native
-              │                         │
-       Firefox / Gecko                GeckoView
-              │                         │
-            Linux                     Android
+```sh
+git clone https://nnsprod.com/git/oversu/VulpesOS.git
+cd VulpesOS
+./setup.sh
+./run.sh
 ```
 
-### Une frontière claire entre les applications et le système
+`setup.sh` télécharge le moteur Mozilla verrouillé et vérifie son empreinte. Le lancement normal ouvre Gaia sans débogueur. Les profils et moteurs téléchargés restent hors Git.
 
-Les applications passent par des services dont les permissions sont contrôlées par l’hôte. Les pages web externes utilisent des contextes de navigation séparés et n’obtiennent pas les API privilégiées de Vulpes.
+### Pixel 3a — développement natif Tundra
 
-Le port desktop actuel s’appuie sur le **binaire officiel de Firefox**, avec un hôte et des adaptateurs Vulpes, sans modification native du moteur. Certaines interfaces utilisées par cet hôte restent internes à Gecko : les tests à chaque changement de version sont donc essentiels.
+**Le build natif démarre directement dans Vulpes**, avec des services matériels Android sélectionnés, un espace utilisateur Linux, Gecko et Gaia. Phosh et l'environnement applicatif Android ne sont pas démarrés.
 
-### Des mises à jour vérifiées avant activation
+Notre image de développement Sargo installée a passé les contrôles de démarrage et de persistance. Des appels réels et des SMS dans les deux sens ont été observés ; les derniers essais couvrent les conversations, les bascules de capteur photo, la capture JPEG pleine résolution, le focus tactile, le zoom numérique et l'arrêt du vibreur.
 
-```text
-Télécharger → Vérifier l’empreinte → Tester les interfaces
-                                         ↓
-Ancien moteur conservé ← Activer ← Tester Gaia et la persistance
+**Cette release ne contient pas d'image générique à flasher.** Le boot privé dépend encore de la disposition du stockage du téléphone inventorié, d'images système/données déjà déployées et d'accès de maintenance. Publier ce fichier ne fournirait pas une installation fonctionnelle à un autre Pixel. Les recettes Tundra sont incluses pour les contributeurs ; elles nécessitent un inventaire, des sauvegardes vérifiées et des composants matériels fournis localement. Ne réutilisez pas la sauvegarde d'un autre appareil et ne considérez pas un boot isolé comme une ROM complète.
+
+## ✨ Ce que nous partageons
+
+- **Une base Gaia :** interface et services communs pour PC, Android et Tundra.
+- **Les applications d'origine :** Photo, Galerie, Paramètres et Messages conservent leur interface Gaia, reliée aux adaptateurs de chaque plateforme.
+- **Du code Web éditable :** les ressources servies sont dans `assets/webapps/`, la compatibilité commune dans `host/`, les remplacements dans `overrides/`. Rechargez ou redémarrez pour tester, sans recompiler Gecko. Certaines sources historiques de `gaia/` nécessitent encore la mise à jour de leur version regroupée.
+- **Un moteur remplaçable :** téléchargements verrouillés, contrôle d'empreinte, tests isolés et outils de retour arrière. Une mise à jour du moteur se teste et se sélectionne explicitement ; la compatibilité n'est pas garantie automatiquement.
+- **Des versions distinctes :** Vulpes, Gaia, Gecko et adaptation matérielle sont identifiés séparément. GeckoView 156.0 n'est pas présenté comme Gecko bureau 156.0.1.
+
+## 🧪 Limites actuelles
+
+Cette Preview contient des adaptateurs matériels incomplets et des comportements hérités à corriger. Sur Sargo, l'aperçu photo tourne autour de 16 images/s ; flash/vidéo, rotation automatique par capteur et suspension complète restent incomplets. L'enregistrement réseau peut être instable et l'audio d'une conversation dans les deux sens reste à qualifier. Un grand dialogue signalé après envoi de SMS est encore en cours d'analyse.
+
+Sur Android, les intégrations suivent les permissions et les restrictions de cycle de vie du système. Les alarmes Gaia ne sont pas garanties après l'arrêt de Vulpes par Android. Certaines commandes non prises en charge restent visibles mais désactivées. Des applications de développement/test sont incluses.
+
+Conservez une sauvegarde avant vos essais. Pour signaler un problème, indiquez la plateforme, les versions Vulpes/Gecko et les étapes de reproduction ; retirez des logs les numéros, contacts et autres informations personnelles.
+
+## 🛠️ Construire l'APK Android
+
+```sh
+cd android
+./build-apk.sh
 ```
 
-Les profils de test sont séparés des données utilisateur. L’outil conserve l’ancien moteur et son profil pour permettre un retour arrière. Le pipeline concerne aujourd’hui le desktop ; les mises à jour Android suivent le cycle de construction de l’APK.
+Le script installe les outils verrouillés, prépare les ressources Gaia communes et construit un APK de développement signé dans `android/dist/`. L'acceptation des licences SDK Android peut être nécessaire. Un clone neuf génère sa propre clé de signature : il ne pourra pas mettre à jour un APK signé avec la clé privée du projet.
 
-### Une base de travail testée
+## 📜 Remerciements et licences
 
-Les contrôles automatisés couvrent notamment :
+Vulpes OS est un projet communautaire d'**oversu / NNS Production**, inspiré de Firefox OS. Merci à **Mozilla, aux contributeurs Gaia, à Capyloon, Droidian, UBports, libhybris, Debian, AOSP** et aux communautés qui font vivre les systèmes mobiles ouverts.
 
-- le démarrage de la vraie interface Gaia et le chargement des icônes ;
-- les langues, les réglages et la persistance après redémarrage ;
-- les contacts, le pavé numérique et le compositeur SMS ;
-- les médias importés, les alarmes et la navigation ;
-- les refus d’accès lorsque l’origine ou les permissions ne conviennent pas.
+Les nouveaux fichiers Vulpes utilisent **MPL 2.0**. Gaia conserve **Apache 2.0** ; les composants hérités conservent leurs licences et mentions. Voir [LICENSE](LICENSE), [NOTICE](NOTICE) et [la licence Gaia](gaia/LICENSE). Les forks doivent conserver les mentions d'attribution et de licence applicables.
 
-Un export des fichiers prévus pour publication a également démarré et passé les tests desktop sans les anciens dossiers de développement. Le packaging Android et la compilation de l’APK ont été vérifiés. Cela ne constitue pas une validation exhaustive de Firefox OS ni de tous les téléphones Android.
-
-<a name="suite"></a>
-
-## 🗺️ La suite
-
-- **Publier une base autonome :** sources, licences, documentation et procédure de démarrage.
-- **Consolider la compatibilité :** poursuivre les essais d’applications historiques et les corrections des parcours du quotidien.
-- **Améliorer la Preview Android :** accès aux médias, intégration à la plateforme et retours d’usage sur appareils réels.
-- **Réduire le coût des mises à jour Gecko :** maintenir des contrats stables et limiter les adaptations propres au moteur.
-- **Explorer un véritable port mobile :** matériel, modem, pilotes et intégration système, une fois la base consolidée.
-
-## 🤝 Participer
-
-Les retours utiles décrivent **l’appareil ou la distribution Linux, la version utilisée, les étapes pour reproduire le problème et le résultat attendu**. Une capture et un extrait de journal sans données personnelles aident beaucoup.
-
-Le projet a aussi besoin de contributions en JavaScript, CSS, intégration Gecko/GeckoView, tests, traduction et documentation. Les consignes de contribution accompagneront la publication des sources.
-
-## 📜 Origines et licences
-
-Vulpes est construit à partir du travail de Mozilla et des contributeurs de **Boot to Gecko / Firefox OS**, notamment Gaia.
-
-La licence retenue pour les nouveaux fichiers Vulpes est la **Mozilla Public License 2.0 (`MPL-2.0`)**. Gaia et les autres composants hérités conservent leurs licences, notamment **Apache 2.0** pour la base Gaia, ainsi que leurs mentions d’attribution. Les textes de licence et le détail des composants accompagneront la publication des sources.
-
----
-
-<p align="center">
-  <strong>VULPES</strong><br>
-  Firefox OS Community Project<br><br>
-  <a href="https://vulpes-os.org">vulpes-os.org</a>
-</p>
-
-<p align="center">
-  <sub>Vulpes est un projet communautaire indépendant, sans affiliation ni approbation de Mozilla.<br>
-  Vulpes is an independent community project and is not affiliated with or endorsed by Mozilla.</sub>
-</p>
+Vulpes OS est indépendant de Mozilla et n'est pas une version officielle de Firefox OS.

@@ -1,0 +1,10 @@
+(function (exports) {
+    var AccessibilityHelper = {
+        setAriaSelected: function ah_setAriaSelected(selectedTab, tabs) {
+            Array.prototype.forEach.call(tabs, function setAriaSelectedAttr(tab) {
+                tab.setAttribute('aria-selected', tab === selectedTab ? 'true' : 'false');
+            });
+        }
+    };
+    exports.AccessibilityHelper = AccessibilityHelper;
+}(window));

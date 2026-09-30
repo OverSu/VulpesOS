@@ -1,0 +1,9 @@
+/toolchain/
+/.gradle/
+/build/
+/app/build/
+/app/src/main/assets/
+/local.properties
+/dist/
+/keys/
+/logs/

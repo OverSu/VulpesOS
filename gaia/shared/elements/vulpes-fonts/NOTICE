@@ -1,0 +1,8 @@
+Fira Sans OpenType 3.109 — Digitized data copyright © 2012–2014, The Mozilla Foundation and Telefonica S.A.
+The eight unmodified OTF files come from the archived Firefox OS simulator 2.6 runtime.
+Their embedded license identifies SIL Open Font License 1.1 or later; see LICENSE-OFL.
+Gaia web fonts and the Tundra system font directory use these same binaries.
+
+Archived WOFF files: copyright (c) 2012–2013, The Mozilla Corporation and Telefonica S.A.
+Unmodified files from Gaia distros/spark/apps/studio/bower_components/gaia-fonts/fonts.
+Their previous Apache notice is retained in LICENSE. fonts.css now uses the OTF files.

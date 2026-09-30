@@ -1,0 +1,70 @@
+{
+  "name": "Browser",
+  "description": "Browser",
+  "launch_path": "/index.html",
+  "type": "certified",
+  "role": "deck",
+  "permissions": {
+    "browser":{},
+    "systemXHR":{},
+    "desktop-notification" : {},
+    "firefox-accounts": {},
+    "moz-extremely-unstable-and-will-change-webcomponents":{},
+    "settings": { "access": "readwrite" },
+    "geolocation": {},
+    "audio-capture": {},
+    "video-capture": {}
+  },
+  "locales": {
+    "ar": {
+      "name": "المتصفح",
+      "description": "متصفح الويب"
+    },
+    "en-US": {
+      "name": "Browser",
+      "description": "Web Browser"
+    },
+    "fr": {
+      "name": "Navigateur",
+      "description": "Navigateur Web"
+    },
+    "ja-JP": {
+      "name": "ブラウザ",
+      "description": "ブラウザ"
+    },
+    "zh-TW": {
+      "name": "網路瀏覽器",
+      "description": "網路瀏覽器"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "336": "/shared/resources/branding/browser_336.png"
+  },
+  "activities": {
+    "view": {
+      "filters": {
+        "type": "url",
+        "url": {
+          "required":true, "pattern":"https?:.{1,16384}", "patternFlags":"i"
+        }
+      }
+    }
+  },
+  "datastores-access": {
+    "places": {
+      "readonly": false,
+      "description": "Read synced browsing history."
+    },
+    "bookmarks_store": {
+      "readonly": false,
+      "description": "Read synced browser bookmarks."
+    }
+  },
+  "connections": {
+    "webpage-open": {
+      "description": "connection for opening webpage",
+      "rules": {}
+    }
+  }
+}

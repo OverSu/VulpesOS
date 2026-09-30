@@ -1,0 +1,3 @@
+;;'use strict';window.GaiaSelect=(function(win){var proto=Object.create(HTMLElement.prototype);var baseurl=window.GaiaSelectBaseurl||'/shared/elements/gaia_select/';var selectCounter=0;proto.createdCallback=function(){var label=this.querySelector('label');if(label){var select=this.querySelector('select');if(label.control!=select){var id=select.id;if(!id){select.id=id='gaia-select-'+(++selectCounter);}
+label.htmlFor=id;}}
+ComponentUtils.style.call(this,baseurl);};return document.registerElement('gaia-select',{prototype:proto});})(window);

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="style/common.css">
+    <link rel="stylesheet" type="text/css" href="style/save.css">
+
+    <!-- Shared code -->
+    <!-- <script type="text/javascript" src="shared/js/l10n.js"></script> --><script src="./gaia_build_save.js" type="text/javascript"></script>
+    <!-- <script type="text/javascript" defer="" src="shared/js/url_helper.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/bookmarks_database.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/web_manifest_helper.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/icons_helper.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="/shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+
+    <link rel="stylesheet" type="text/css" href="shared/style/buttons.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/headers.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/input_areas.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/status.css">
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia-icons/gaia-icons.css">
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+
+    <!-- Link to component just to copy the default_icon here -->
+    <!-- <script defer src="shared/elements/gaia_grid/script.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/grid_icon_renderer.js"></script> -->
+    <!-- <script defer="" src="shared/js/homescreens/icon.js"></script> -->
+
+    <!-- Specific code -->
+    <!-- <script type="text/javascript" defer="" src="js/bookmark_editor.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="js/components/status.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="js/activity_handler.js"></script> --><script src="./gaia_build_defer_save.js" defer="" type="text/javascript"></script>
+
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/save.{locale}.json">
+  <meta content="2.5" name="appVersion"></head>
+  <body class="theme-settings">
+    <section id="bookmark-entry-sheet" role="region" class="skin-organic">
+      <gaia-header id="header" action="close">
+        <h1 id="add-bookmark-header" data-l10n-id="add-to-home-screen-title">Add to Home Screen</h1>
+        <h1 id="edit-bookmark-header" data-l10n-id="edit-pinned-site-title">Edit Pinned Site</h1>
+        <button id="done-button" data-l10n-id="add-action">Add</button>
+      </gaia-header>
+      <form id="bookmark-form">
+        <div id="bookmark-icon"></div>
+        <p id="bookmark-url" dir="ltr"></p>
+        <p>
+          <input id="bookmark-title" dir="auto" type="text">
+          <button id="bookmark-title-clear" type="reset">Clear</button>
+        </p>
+      </form>
+      <div id="app-installation" class="hidden">
+        <h2><span data-l10n-id="add-application">Add Application</span></h2>
+        <img id="app-icon-placeholder" src="../shared/elements/gaia_grid/images/default_icon.png">
+        <img id="app-icon" class="hidden">
+        <p id="app-name"></p>
+        <button id="install-app-button" data-l10n-id="add">Add</button>
+        <p data-l10n-id="application-available">An application is available for this web site.</p>
+      </div>
+    </section>
+  </body>
+
+</html>

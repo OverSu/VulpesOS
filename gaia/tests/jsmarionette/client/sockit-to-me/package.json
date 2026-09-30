@@ -1,0 +1,22 @@
+{
+  "name": "sockit-to-me",
+  "version": "1.0.2",
+  "author": "Ghislain 'Aus' Lacroix <aus@mozilla.com>",
+  "description": "A synchronous socket API for node.js.",
+  "main": "build/Release/sockit",
+  "repository": "https://github.com/mozilla-b2g/gaia/tree/master/tests/jsmarionette/client/sockit-to-me",
+  "license": "MIT",
+
+  "engines": {
+    "node": "^4 || ^5"
+  },
+
+  "devDependencies": {
+    "node-gyp": "^3.0.1"
+  },
+
+  "scripts": {
+    "install": "CC=clang CXX=clang++ node-gyp configure build --verbose"
+  }
+}
+

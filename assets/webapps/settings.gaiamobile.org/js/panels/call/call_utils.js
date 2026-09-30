@@ -1,0 +1,3 @@
+
+define([],function(){'use strict';var conns=window.navigator.mozMobileConnections;var CallUtils={isPhoneNumberValid:function(number){if(number){var re=/^([\+]*[0-9])+$/;if(re.test(number)){return true;}}
+return false;},findActiveVoiceRule:function(rules){rules=rules||[];return rules.find((rule)=>{return(rule.active&&(rule.serviceClass&conns[0].ICC_SERVICE_CLASS_VOICE)!==0);});}};return CallUtils;});

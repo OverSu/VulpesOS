@@ -1,0 +1,10 @@
+;(function(exports){'use strict';var thumbnails=exports.Thumbnails={};thumbnails.container=document.createElement('ul');thumbnails.container.id='thumbnails';thumbnails.list=new ThumbnailList(ThumbnailDateGroup,thumbnails.container);document.addEventListener('DOMRetranslated',()=>{ThumbnailDateGroup.resetFormatter();ThumbnailItem.resetFormatter();thumbnails.list.localize();});var PAGE_SIZE=15;photodb=new MediaDB('pictures',metadataParserWrapper,{version:2,autoscan:false,batchHoldTime:2000,batchSize:3});var metadataParserLoaded=false;function metadataParserWrapper(file,onsuccess,onerror,bigFile){if(metadataParserLoaded){metadataParser(file,onsuccess,onerror,bigFile);return;}
+LazyLoader.load(['js/metadata_scripts.js','shared/js/media/crop_resize_rotate.js'],function(){metadataParserLoaded=true;metadataParser(file,onsuccess,onerror,bigFile);});}
+var firstPageResolver;var completionResolver;thumbnails.firstpage=new Promise(function(resolve,reject){firstPageResolver=resolve;thumbnails.complete=new Promise(function(resolve,reject){completionResolver=resolve;createThumbnails();});});function createThumbnails(){if(photodb.state===MediaDB.READY||photodb.state===MediaDB.ENUMERABLE){enumerateDB();}
+else{photodb.addEventListener('enumerable',enumerateDB);}}
+function enumerateDB(){var batch=[];var batchsize=PAGE_SIZE;var firstPageDisplayed=false;photodb.enumerate('date',null,'prev',function(fileinfo){if(fileinfo){if(picking&&fileinfo.metadata.video){return;}
+var metadata=fileinfo.metadata;if(metadata&&metadata.preview&&metadata.preview.filename){metadata.preview.width=Math.floor(metadata.preview.width);metadata.preview.height=Math.floor(metadata.preview.height);}
+batch.push(fileinfo);if(batch.length>=batchsize){flush();batchsize*=2;}}
+else{done();}});function flush(){batch.forEach(thumb);batch.length=0;if(!firstPageDisplayed){firstPageDisplayed=true;firstPageResolver();}}
+function thumb(fileinfo){files.push(fileinfo);thumbnails.list.addItem(fileinfo);}
+function done(){flush();completionResolver();}}}(window));

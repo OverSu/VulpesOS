@@ -1,0 +1,3 @@
+;'use strict';(function(exports){function Placeholder(){this.detail={type:'placeholder',index:0};}
+Placeholder.prototype={__proto__:GaiaGrid.GridItem.prototype,get pixelHeight(){return this.grid.layout.gridItemHeight;},createsGroupOnDrop:false,gridWidth:1,persistToDB:false,get name(){return'';},render:function(){if(!this.element){var tile=document.createElement('div');tile.className='icon placeholder';tile.style.height=this.pixelHeight+'px';this.element=tile;this.grid.element.appendChild(tile);}
+this.transform(this.x,this.y,this.grid.layout.percent);},remove:function(){if(this.element){this.element.parentNode.removeChild(this.element);}}};exports.GaiaGrid.Placeholder=Placeholder;}(window));

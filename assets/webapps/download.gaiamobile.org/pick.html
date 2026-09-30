@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Download Picker</title>
+
+    <!-- Localization -->
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/pick.{locale}.json">
+    
+    
+    
+    <!-- <script type="text/javascript" src="shared/js/l10n.js"></script> --><script src="./gaia_build_pick.js" type="text/javascript"></script>
+    <!-- <script defer="" type="text/javascript" src="shared/js/moz_intl.js"></script> -->
+
+    <!-- Web Components -->
+    <!-- <script defer="" src="shared/elements/config.js"></script> -->
+    <!-- <link rel="stylesheet" type="text/css" href="shared/elements/gaia-icons/gaia-icons.css" /> -->
+    <link rel="stylesheet" type="text/css" href="shared/elements/gaia-theme/gaia-theme.css">
+    <!-- <script defer="" src="shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+    <!-- <script defer src="shared/js/component_utils.js"></script> -->
+    <!-- <script defer src="shared/elements/gaia_menu/script.js"></script> -->
+
+    <link rel="stylesheet" type="text/css" href="shared/style/lists.css">
+    <link rel="stylesheet" href="style/pick.css">
+
+    <!-- <script type="text/javascript" defer="" src="shared/js/lazy_loader.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/download/download_store.js"></script> -->
+    <!-- <script type="text/javascript" defer src="shared/js/mime_mapper.js"></script> -->
+    <!-- <script type="text/javascript" defer src="shared/js/download/download_ui.js"></script> -->
+    <!-- <script type="text/javascript" defer src="shared/js/download/download_helper.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/download/download_formatter.js"></script> -->
+
+    <!-- Specific code -->
+    <!-- <script type="text/javascript" defer="" src="js/pick.js"></script> --><script src="./gaia_build_defer_pick.js" defer="" type="text/javascript"></script>
+
+    <!-- Error messages -->
+    <link rel="stylesheet" type="text/css" href="shared/style/buttons.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/confirm.css">
+  <meta content="2.5" name="appVersion"></head>
+
+  <body class="theme-media">
+    <section role="region" class="skin-dark">
+      <gaia-header ignore-dir="" id="header" action="close">
+        <h1 data-l10n-id="select-download">Select download</h1>
+      </gaia-header>
+
+      <section id="no-downloads">
+        <span></span>
+        <span data-l10n-id="no-downloads">No downloads</span>
+      </section>
+
+      <section id="downloads" data-type="list" class="active">
+        <ul>
+        </ul>
+      </section>
+    </section>
+  </body>
+
+</html>

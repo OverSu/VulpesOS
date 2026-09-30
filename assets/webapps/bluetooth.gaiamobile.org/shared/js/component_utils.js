@@ -1,0 +1,1 @@
+;;!function(t){"use strict";t.ComponentUtils={style:function(t){var e=document.createElement("style"),i=t+"style.css",s=this;e.setAttribute("scoped",""),e.innerHTML="@import url("+i+");",this.appendChild(e),this.style.visibility="hidden",e.addEventListener("load",function(){s.shadowRoot&&s.shadowRoot.appendChild(e.cloneNode(!0)),s.style.visibility=""})}}}(window);

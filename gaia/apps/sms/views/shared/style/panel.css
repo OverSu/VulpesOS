@@ -1,0 +1,25 @@
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  overflow: auto;
+
+  background: white;
+
+  animation: var(--transition-duration) both ease;
+}
+
+.panel {
+  transform: translate(100%); /* BiDi proof */
+}
+
+.panel-active {
+  transform: translate(0);
+}
+
+.panel-hidden {
+  display: none;
+}

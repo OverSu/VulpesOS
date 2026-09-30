@@ -1,0 +1,29 @@
+[
+  {
+    "id": "legacy-2048-for-firefox-os",
+    "slug": "2048-for-firefox-os",
+    "version": "1.0",
+    "page": "https://ffapps.danielherr.software/app/2048-for-firefox-os/",
+    "url": "https://ffapps.danielherr.software/app/2048-for-firefox-os/2048-for-firefox-os-1.0.zip",
+    "archive": "2048-for-firefox-os-1.0.zip",
+    "sha256": "af859c5f90ad9b578ed174ae9d883b45132fca7a026e19d4fca95cc8b4962131"
+  },
+  {
+    "id": "legacy-calculator-2",
+    "slug": "calculator-2",
+    "version": "2.0.4",
+    "page": "https://ffapps.danielherr.software/app/calculator-2/",
+    "url": "https://ffapps.danielherr.software/app/calculator-2/calculator-2-2.0.4.zip",
+    "archive": "calculator-2-2.0.4.zip",
+    "sha256": "e89840283d54319648916007b1388785618645308e6bd662f0916c87221ee9d4"
+  },
+  {
+    "id": "legacy-podcasts",
+    "slug": "podcasts",
+    "version": "2.0.1",
+    "page": "https://ffapps.danielherr.software/app/podcasts/",
+    "url": "https://ffapps.danielherr.software/app/podcasts/podcasts-2.0.1.zip",
+    "archive": "podcasts-2.0.1.zip",
+    "sha256": "d5f69dd6db47e3636bd1fd99ed449ac5f230214e1a60edeaa79f442c5efb4d38"
+  }
+]

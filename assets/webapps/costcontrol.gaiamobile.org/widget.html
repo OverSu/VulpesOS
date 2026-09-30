@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="theme-color" content="#eeeeee">
+  <title data-l10n-id="widget">Usage Widget</title>
+  <link rel="stylesheet" type="text/css" href="style/views/timestamp-highlights.css">
+  <link rel="stylesheet" type="text/css" href="style/widget.css">
+  <meta name="defaultLanguage" content="en-US">
+  <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+  <link rel="localization" href="/locales-obj/widget.{locale}.json">
+  
+
+  <!-- <script type="text/javascript" src="shared/js/l10n.js"></script> -->
+  <!-- TODO: Lazyly loaded, remove when mozHour12 is part of the platform
+  <script type="text/javascript" defer src="shared/js/date_time_helper.js"></script>
+  -->
+  <!-- <script type="text/javascript" defer="" src="shared/js/format.js"></script> -->
+  <!-- <script type="text/javascript" src="shared/js/async_storage.js"></script> -->
+  <!-- <script type="text/javascript" src="shared/js/settings_listener.js"></script> -->
+  <!-- <script type="text/javascript" src="shared/js/lazy_loader.js"></script> --><script src="./gaia_build_widget.js" type="text/javascript"></script>
+  <!-- <script type="text/javascript" defer="" src="shared/js/airplane_mode_helper.js"></script> -->
+
+  <!-- <script type="text/javascript" defer="" src="js/widget.js"></script> --><script src="./gaia_build_defer_widget.js" defer="" type="text/javascript"></script>
+<meta content="2.5" name="appVersion"></head>
+<body>
+  <section id="cost-control" hidden="">
+
+    <section id="fte-view" hidden="">
+      <div class="info">
+        <p></p>
+        <p class="meta"></p>
+      </div>
+    </section>
+
+    <section class="data" id="left-panel">
+
+      <section class="view" id="datausage-limit-view">
+        <div class="info">
+          <p id="data-limit"></p>
+          <p id="data-available" class="meta"></p>
+        </div>
+      </section>
+
+      <section class="view" id="datausage-view">
+        <div class="info">
+          <p id="mobile-usage-value"></p>
+          <p class="meta"><time id="datausage-from-date"></time> – <time id="datausage-to-date"></time></p>
+        </div>
+      </section>
+
+    </section>
+
+    <section class="credit" id="right-panel">
+
+      <section class="view" id="balance-view">
+        <div class="info">
+          <p id="balance-credit" data-l10n-id="not-available">Not available</p>
+          <p class="meta"></p>
+        </div>
+      </section>
+
+      <section class="view" id="telephony-view" hidden="">
+        <div class="info">
+          <p><span id="telephony-calltime"></span> <span id="telephony-smscount"></span></p>
+          <p class="meta"></p>
+        </div>
+      </section>
+
+    </section>
+
+  </section>
+  <iframe id="message-handler" src="" hidden=""></iframe>
+
+
+
+
+</body>
+</html>

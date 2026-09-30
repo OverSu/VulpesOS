@@ -1,0 +1,62 @@
+Card #0
+	Name: droid_card.primary
+	Driver: module-droid-card.c
+	Owner Module: 1
+	Properties:
+		droid.hw_module = "primary"
+		device.icon_name = "audio-card"
+	Profiles:
+		default: Default profile (sinks: 2, sources: 1, priority: 300, available: yes)
+		voicecall: Call mode (sinks: 0, sources: 0, priority: 0, available: yes)
+		voicecall-record: Call mode record (sinks: 0, sources: 0, priority: 0, available: yes)
+		communication: Communication mode (sinks: 0, sources: 0, priority: 0, available: yes)
+		ringtone: Ringtone mode (sinks: 0, sources: 0, priority: 0, available: yes)
+		off: Off (sinks: 0, sources: 0, priority: 0, available: yes)
+	Active Profile: default
+	Ports:
+		output-earpiece: Output to earpiece (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-speaker: Output to speaker (type: Unknown, priority: 300, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-wired_headset: Output to wired headset (type: Unknown, priority: 100, latency offset: 0 usec, not available)
+			Part of profile(s): default
+		output-wired_headphone: Output to wired headphone (type: Unknown, priority: 100, latency offset: 0 usec, not available)
+			Part of profile(s): default
+		output-bluetooth_sco: Output to bluetooth sco (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-sco_headset: Output to sco headset (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-sco_carkit: Output to sco carkit (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-a2dp: Output to a2dp (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-a2dp_headphones: Output to a2dp headphones (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-a2dp_speaker: Output to a2dp speaker (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-usb_device: Output to usb device (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-line: Output to line (type: Unknown, priority: 100, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-speaker_safe: Output to speaker safe (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		output-speaker+wired_headphone: Output to speaker+wired headphone (type: Unknown, priority: 100, latency offset: 0 usec, not available)
+			Part of profile(s): default
+		output-parking: Parking port (type: Unknown, priority: 50, latency offset: 0 usec, available)
+			Part of profile(s): default
+		input-builtin_mic: Input from builtin mic (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		input-bluetooth_sco_headset: Input from bluetooth sco headset (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		input-wired_headset: Input from wired headset (type: Unknown, priority: 200, latency offset: 0 usec, not available)
+			Part of profile(s): default
+		input-voice_call: Input from voice call (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		input-back_mic: Input from back mic (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		input-usb_device: Input from usb device (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		input-default: Input from default (type: Unknown, priority: 200, latency offset: 0 usec, available)
+			Part of profile(s): default
+		input-parking: Parking port (type: Unknown, priority: 50, latency offset: 0 usec, available)
+			Part of profile(s): default

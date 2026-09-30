@@ -1,0 +1,84 @@
+{
+  "name": "Browser",
+  "description": "Gaia System Web Browser",
+  "type": "certified",
+  "role": "search",
+  "launch_path": "/newtab.html",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/mozilla-b2g/gaia"
+  },
+  "locales": {
+    "ar": {
+      "name": "Browser",
+      "description": "Gaia System Web Browser"
+    },
+    "en-US": {
+      "name": "Browser",
+      "description": "Gaia System Web Browser"
+    },
+    "fr": {
+      "name": "Navigateur",
+      "description": "Navigateur web système de Gaia"
+    },
+    "zh-TW": {
+      "name": "Browser",
+      "description": "Gaia System Web Browser"
+    }
+  },
+  "default_locale": "en-US",
+  "permissions": {
+    "themeable": {},
+    "mobileconnection": {},
+    "webapps-manage": {},
+    "open-remote-window": {},
+    "settings": {
+      "access": "readwrite"
+    },
+    "systemXHR": {},
+    "contacts": {
+      "access": "readonly"
+    },
+    "moz-extremely-unstable-and-will-change-webcomponents": {}
+  },
+  "connections": {
+    "search": {
+      "handler_path": "index.html",
+      "description": "Notifies the search app on query change.",
+      "rules": {}
+    }
+  },
+  "datastores-access": {
+    "places": {
+      "access": "readonly",
+      "description": "Stores data about browsing history."
+    },
+    "bookmarks_store": {
+      "access": "readonly",
+      "description": "Stores data about bookmarks"
+    }
+  },
+  "icons": {
+    "84": "/shared/resources/branding/firefox-browser.png",
+    "126": "/shared/resources/branding/firefox-browser.png",
+    "142": "/shared/resources/branding/firefox-browser.png",
+    "189": "/shared/resources/branding/firefox-browser.png",
+    "256": "/shared/resources/branding/firefox-browser.png",
+    "284": "/shared/resources/branding/firefox-browser.png"
+  },
+  "chrome": {
+    "navigation": true
+  },
+  "activities": {
+    "search": {
+      "filters": {
+        "type": "text/plain",
+        "keyword": {
+          "required": true
+        }
+      },
+      "disposition": "window",
+      "href": "/index.html"
+    }
+  }
+}

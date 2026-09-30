@@ -1,0 +1,2 @@
+;'use strict';var contacts=window.contacts||{};contacts.adaptAndMerge=function(incomingContact,matches,callbacks){var listIds=Object.keys(matches);var totalMatches=listIds.length;var masterContact=matches[listIds[0]].matchingContact;var matchingContacts=[];for(var j=1;j<totalMatches;j++){matchingContacts.push(matches[listIds[j]]);}
+matchingContacts.push({matchingContact:incomingContact});contacts.Merger.merge(masterContact,matchingContacts,callbacks);};

@@ -1,0 +1,2 @@
+
+define(['require','modules/settings_panel','panels/carrier/carrier'],function(require){'use strict';var SettingsPanel=require('modules/settings_panel');var Carrier=require('panels/carrier/carrier');return function ctor_media_storage_panel(){return SettingsPanel({onInit:function(){Carrier.init();}});};});

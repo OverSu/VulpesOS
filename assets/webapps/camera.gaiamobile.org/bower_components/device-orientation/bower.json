@@ -1,0 +1,13 @@
+{
+  "name": "device-orientation",
+  "main": "device-orientation.js",
+  "homepage": "https://github.com/fxos-components/device-orientation",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "README.md"
+  ]
+}

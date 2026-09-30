@@ -1,0 +1,222 @@
+/**
+ * Reference these style sheet from Settings app
+ */
+
+/**
+ * Table View
+ * line height = 6rem, border included
+ */
+
+ul {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+ul li {
+  box-sizing: border-box;
+  position: relative;
+  margin: 0 1.5rem;
+  border-top: 0.1rem solid #e6e6e3;
+  color: #000;
+}
+
+ul li:first-child {
+  border-top: none;
+}
+
+ul+ul li:first-child {
+  border-top: 0.1rem solid #e6e6e3;
+}
+
+ul li.sound-setting {
+  min-height: 7.9rem;
+}
+
+ul li label:not([for]) {
+  background: none;
+}
+
+ul li > a,
+ul li > span,
+ul li > small,
+ul li > label > span,
+ul li > label > small {
+  text-decoration: none;
+  outline: 0;
+  color: #000;
+  box-sizing: border-box;
+  font-size: 1.9rem;
+  padding: 0 3rem;
+  margin: 0 -1.5rem;
+}
+
+ul li,
+ul li > a,
+ul li > label {
+  min-height: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+ul li > a,
+ul li > label {
+  min-height: 6rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+ul li[hidden] {
+  display: none;
+}
+
+ul li > a > span {
+  pointer-events: none;
+}
+
+ul li.active a,
+ul li.active span,
+ul li:not([aria-disabled="true"]) > small + a:active,
+ul li:not([aria-disabled="true"]) > a:active,
+ul li:not([aria-disabled="true"]) > small + a:focus,
+ul li:not([aria-disabled="true"]) > a:focus {
+  background-color: #b2f2ff;
+  color: #222;
+}
+
+ul li[aria-disabled="true"] > a {
+  color: #797e80;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+ul > li > progress {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+ul > li > progress + span {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+  padding-inline-start: 1rem;
+  color: #505b5b;
+  font-size: 1.4rem;
+  line-height: 6rem;
+}
+
+/* Customization style for overlapping .bluetooth-device:before */
+ul > li > progress.overlapping-icon {
+  position: absolute;
+  right: 3rem;
+  top: 50%;
+  margin-top: -1.5rem;
+}
+
+ul > li > progress.hidden {
+  display: none;
+}
+
+/* description + value on the same line */
+ul li > a span:nth-of-type(2):not(.button) {
+  position: absolute;
+  offset-inline-end: 1.5rem;
+  color: #505859;
+  line-height: 6rem;
+  height: 6rem;
+  top: 0;
+}
+
+/* text ellipsis */
+ul li > *,
+ul li > label > *,
+ul li > a > * {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* sublines */
+ul li > small,
+ul li > label > small,
+ul li > a > small {
+  display: block;
+  font-size: 1.4rem;
+  color: #505859;
+  /* click/tap events should be caught by the <a> element below the <small> */
+  pointer-events: none;
+}
+
+small.multiline > span {
+  display: block;
+}
+
+ul li > label {
+  font-size: 1.9rem;
+  line-height: 1.9rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+ul li > label ~ input {
+  margin-bottom: 1.5rem;
+}
+
+/******************************************************************************
+ * Boolean buttons
+ */
+
+ul li button,
+ul li a.bb-button {
+  display: inline-block;
+  margin: 1rem 0;
+  white-space: normal;
+}
+
+/******************************************************************************
+ * Boolean inputs
+ */
+
+/* custom styles for boolean inputs (see /shared/style/switches.css) */
+ul li label {
+  text-transform: none;
+}
+
+ul li > label:not([for]) {
+  margin-inline-start: -1.5rem;
+  margin-inline-end: -1.5rem;
+  padding-inline-start: 1.5rem;
+  padding-inline-end: 1.5rem;
+  width: 100%;
+  height: calc(100% - 1rem);
+  min-height: 5rem;
+  overflow: visible;
+  display: flex;
+}
+
+ul li > label:not([for]) > span {
+  line-height: normal;
+  height: auto;
+}
+
+/******************************************************************************
+ * Field inputs
+ */
+
+ul li p {
+  font-size: 1.9rem;
+  line-height: 1.9rem;
+  font-weight: 400;
+  margin: 0;
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+ul li p + label:not([for]) {
+  top: 2.5rem;
+  height: calc(100% - 2.5rem);
+}

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-group" content="theme-settings">
+    <meta name="theme-color" content="var(--header-background)">
+    <title data-l10n-id="usage">Usage</title>
+
+    <!-- Building blocks -->
+    <link rel="stylesheet" type="text/css" href="shared/style/headers.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/buttons.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/input_areas.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/lists.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/progress_activity.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/tabs.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/confirm.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/layout.css">
+
+    <!-- Gaia Components -->
+    <link rel="localization" href="/locales-obj/index.{locale}.json">
+    
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia-icons/gaia-icons.css">
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+    <!-- <script defer="" src="/shared/js/component_utils.js"></script> -->
+    <!-- <script defer="" src="/shared/elements/gaia_checkbox/script.js"></script> -->
+
+    <!-- App and Views -->
+    <link rel="stylesheet" type="text/css" href="style/app.css">
+    <link rel="stylesheet" type="text/css" href="style/views/settings.css">
+    <link rel="stylesheet" type="text/css" href="style/views/datausage.css">
+    <link rel="stylesheet" type="text/css" href="style/views/topup.css">
+    <link rel="stylesheet" type="text/css" href="style/views/timestamp-highlights.css">
+    <link rel="stylesheet" type="text/css" href="style/views/balance.css">
+    <link rel="stylesheet" type="text/css" href="style/views/telephony.css">
+    <link rel="stylesheet" type="text/css" href="style/views/appdetail.css">
+
+    <!-- Localization -->
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    
+
+    <!-- Firefox Desktop shims -->
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- <script type="text/javascript" defer="" src="shared/js/l10n.js"></script> -->
+    <!-- TODO: Lazyly loaded, remove when mozHour12 is part of the platform
+    <script type="text/javascript" defer src="shared/js/date_time_helper.js"></script>
+    -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/async_storage.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/accessibility_helper.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/settings_listener.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/lazy_loader.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="shared/js/format.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="/shared/js/url_helper.js"></script> -->
+
+    <!-- Gaia Components -->
+    <!-- <script defer="" src="/shared/elements/config.js"></script> -->
+    <!-- <script defer="" src="/shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+
+    <!-- <script type="text/javascript" defer="" src="js/app.js"></script> -->
+    <!-- <script type="text/javascript" defer="" src="js/application_init.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+
+    
+    
+    
+    
+    
+
+    <!-- Include the app icon in the application.zip -->
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_84.png">
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_126.png">
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_142.png">
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_189.png">
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_284.png">
+  <meta content="2.5" name="appVersion"></head>
+  <body role="application" class="theme-settings">
+
+    <section id="splash_section" class="window splash">
+    </section>
+
+    <section id="main" role="region" class="window skin-organic non-ready">
+      <div id="tabpanel">
+        <!-- XXX: The order of sections is important (tabs should be place above
+             the overlays) and we should distinguish between TABS and OVERLAY VIEWS -->
+        <gaia-header>
+          <h1 data-l10n-id="usage">Usage</h1>
+          <button aria-label="Settings" class="settings-button" data-icon="settings" data-l10n-id="settings-button"></button>
+        </gaia-header>
+
+        <!-- Bottom filters (Telephony / Cost Control and Data Usage) -->
+        <ul id="tabs" role="tablist" class="bb-tablist" data-type="filter" data-items="2">
+          <li id="balance-tab-filter" role="presentation">
+            <a id="balance-tab-control" data-l10n-id="balance" href="#balance-tab" role="tab" aria-controls="balance-tab">Balance</a>
+          </li>
+          <li id="telephony-tab-filter" role="presentation" hidden="">
+            <a id="telephony-tab-control" data-l10n-id="phone" href="#telephony-tab" role="tab" aria-controls="telephony-tab">Phone</a>
+          </li>
+          <li id="datausage-tab-filter" role="presentation">
+            <a id="datausage-tab-control" data-l10n-id="internet" href="#datausage-tab" role="tab" aria-controls="datausage-tab">Internet</a>
+          </li>
+        </ul>
+
+        <!-- BALANCE TAB -->
+        <section aria-labelledby="balance-tab-control" role="region tabpanel" id="balance-tab" class="bb-tabpanel view" data-viewport="left" hidden=""><!--
+
+    <section class="content">
+
+      <div id="cost-control-topup-countdown" class="countdown" hidden="">
+        <p>
+          <span id="top-up-countdown">
+            00:00
+          </span>
+
+          <span data-l10n-id="top-up-in-progress2">
+            Your top-up is being processed.
+          </span>
+        </p>
+      </div>
+
+      <div id="cost-control-message-area" class="error-messages" hidden="">
+        <p id="error-message-placeholder">
+        </p>
+      </div>
+
+      <div id="cost-control-info-area" class="overview">
+        <ul class="buttons-list end">
+          <li>
+            <button class="icon icon-reload" id="balance-tab-update-button" data-l10n-id="update-button">
+              Update
+            </button>
+          </li>
+        </ul>
+        <div class="info">
+          <div id="cost-control-icon" class="icons">
+            <span class="warning">
+            </span>
+            <progress>
+            </progress>
+          </div>
+          <p id="balance-tab-credit">
+          </p>
+          <p id="balance-tab-time">
+          </p>
+        </div>
+      </div>
+
+      <ul class="buttons-list">
+        <li>
+          <button class="icon icon-topup" id="balance-tab-topup-ussd-button" data-l10n-id="topup-ussd-button2" hidden="">
+            Open top-up menu
+          </button>
+        </li>
+        <li>
+          <button class="icon icon-topupcode" id="balance-tab-topup-button" data-l10n-id="topup-button2" hidden="">
+            Use top-up code
+          </button>
+        </li>
+      </ul>
+      <script type="text/javascript" defer="" src="js/views/balance.js"></script>
+    </section>
+
+  --></section>
+
+        <!-- TELEPHONY TAB -->
+        <section aria-labelledby="telephony-tab-control" role="region tabpanel" id="telephony-tab" class="bb-tabpanel view" data-viewport="left" hidden=""><!--
+
+    <section>
+      <ul>
+        <li>
+          <p id="telephony-time">
+          </p>
+          <dl>
+            <dt data-l10n-id="call-made">
+              Call made
+            </dt>
+            <dd>
+              <span id="telephony-calltime">
+              </span>
+            </dd>
+            <dt data-l10n-id="sms-sent">
+              SMS Sent
+            </dt>
+            <dd>
+              <span id="telephony-smscount">
+              </span>
+            </dd>
+          </dl>
+        </li>
+        <li id="billing-cycle">
+          <dl>
+            <dt data-l10n-id="billing-cycle-ends">Billing cycle ends</dt>
+            <dd><time id="reset-date">26 Dec</time></dd>
+          </dl>
+          <p class="meta" data-l10n-id="tracking-will-reset">Tracking will reset on this date</p>
+        </li>
+      </ul>
+      <script type="text/javascript" defer="" src="js/views/telephony.js"></script>
+    </section>
+
+  --></section>
+
+        <!-- DATA USAGE TAB -->
+        <section aria-labelledby="datausage-tab-control" id="datausage-tab" role="region tabpanel" class="bb-tabpanel view" data-viewport="right" hidden=""><!--
+
+    <div class="view-scroll">
+      <section class="content">
+        <section id="graphic-area" class="graph" role="img" aria-labelledby="axis-layer today-layer limits-layer warning-layer">
+          <canvas id="background-layer" aria-hidden="true"></canvas>
+          <canvas id="wifi-layer" aria-hidden="true" hidden=""></canvas>
+          <canvas id="mobile-layer" aria-hidden="true" hidden=""></canvas>
+          <canvas id="axis-layer" aria-hidden="true"></canvas>
+          <canvas id="today-layer" aria-hidden="true"></canvas>
+          <canvas id="warning-layer" aria-hidden="true"></canvas>
+          <canvas id="limits-layer" aria-hidden="true"></canvas>
+          <img alt="" src="./style/images/app/ui/datausage/pattern.png" id="graphic-pattern" hidden="">
+        </section>
+
+        <ul class="toggle-data" data-type="list">
+          <li id="mobileItem">
+            <gaia-checkbox id="mobileCheck">
+              <label>
+                <span class="data-origin-label" data-l10n-id="mobile-usage"></span>
+                <span class="overview" id="mobileOverview"></span>
+                <span></span>
+              </label>
+            </gaia-checkbox>
+          </li>
+          <li id="wifiItem">
+            <gaia-checkbox id="wifiCheck">
+              <label>
+                <span class="data-origin-label" data-l10n-id="wifi-usage">-</span>
+                <span class="overview" id="wifiOverview"></span>
+                <span></span>
+               </label>
+            </gaia-checkbox>
+          </li>
+        </ul>
+
+        <header id="app-usage-header">
+          <h2 data-l10n-id="app-usage-list-header">Mobile App Usage</h2>
+        </header>
+
+        <div id="app-usage-no-data" data-l10n-id="app-usage-no-data" hidden="">
+          You have not used any mobile data yet. Usage for each application will
+          show up here when you do.
+        </div>
+
+        <ul id="app-usage-list">
+        </ul>
+      </section>
+    </div>
+    <script type="text/javascript" defer="" src="js/views/datausage.js"></script>
+
+  --></section>
+
+      </div>
+
+      <!-- The top up input -->
+      <section role="dialog" id="topup-dialog" class="view" data-viewport="bottom" hidden=""><!--
+
+    <gaia-header id="topup-header" action="close">
+      <h1 data-l10n-id="top-up"></h1>
+      <button id="topup-send-button" data-l10n-id="send">Send</button>
+    </gaia-header>
+    <section class="content">
+      <div class="info">
+        <h2 data-l10n-id="enter-top-up-code">
+          Enter the top up code
+        </h2>
+        <p id="topup-code-explanation" data-l10n-id="top-up-code-explanation2">
+          Find it on the scratch card or directly in your receipt.
+        </p>
+        <p id="topup-incorrect-code" data-l10n-id="incorrect-code2" hidden="">
+          Make sure the code is correct and try again.
+        </p>
+        <p id="topup-error" data-l10n-id="topup-error2" hidden="">
+          There was a problem sending the code. Please, try again.
+        </p>
+        <section class="loading" id="topup-in-progress" hidden="">
+          <progress>
+          </progress>
+          <p data-l10n-id="wait-for-confirmation">
+            You'll receive a confirmation message
+          </p>
+        </section>
+      </div>
+    </section>
+    <form>
+      <input id="topup-code-input" type="number">
+    </form>
+
+  --></section>
+
+      <!-- App Detail view -->
+      <section id="appdetail-view" class="view" data-viewport="right" hidden=""><!--
+    <gaia-header action="back">
+      <h1>{{localized-app-name}}</h1>
+    </gaia-header>
+
+    <div class="view-scroll">
+      <section class="usage fade">
+        <section id="app-graphic-area" class="graph" role="img" aria-labelledby="app-axis-layer app-today-layer app-limits-layer app-warning-layer">
+          <canvas id="app-background-layer" aria-hidden="true"></canvas>
+          <canvas id="app-wifi-layer" aria-hidden="true" hidden=""></canvas>
+          <canvas id="app-mobile-layer" aria-hidden="true"></canvas>
+          <canvas id="app-axis-layer" aria-hidden="true"></canvas>
+          <canvas id="app-today-layer" aria-hidden="true"></canvas>
+          <canvas id="app-warning-layer" aria-hidden="true"></canvas>
+          <canvas id="app-limits-layer" aria-hidden="true"></canvas>
+          <img alt="" src="./style/images/app/ui/datausage/pattern.png" id="app-graphic-pattern" hidden="">
+        </section>
+
+        <p class="info" data-l10n-id="data-used-since" hidden="">
+          {{amount}} of data used since {{start-date}}
+        </p>
+        <p class="info" data-l10n-id="data-used-this-week" hidden="">
+          {{amount}} of data used this week
+        </p>
+        <p class="info" data-l10n-id="data-used-this-month" hidden="">
+          {{amount}} of data used this month
+        </p>
+      </section>
+    </div>
+
+    <script type="text/javascript" defer="" src="js/views/appdetail.js"></script>
+  --></section>
+
+      <!-- Settings view -->
+      <section id="settings-view" class="view" data-viewport="bottom">
+        <iframe id="settings-view-placeholder"></iframe>
+      </section>
+
+  </section>
+  <iframe id="message-handler" src="">
+  </iframe>
+  <iframe id="fte_view" class="window non-ready"></iframe>
+
+  <!-- SIM non ready screen -->
+  <form role="dialog" class="view" data-type="confirm" data-viewport="ethereal" id="non-ready-screen">
+    <section>
+      <h1>Card is not ready</h1>
+      <p>The button will close the application.</p>
+      <progress hidden=""></progress>
+    </section>
+    <menu>
+      <button class="full" data-l10n-id="ok">OK</button>
+    </menu>
+  </form>
+
+
+
+
+</body>
+</html>

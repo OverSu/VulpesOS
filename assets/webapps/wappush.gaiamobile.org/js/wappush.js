@@ -1,0 +1,29 @@
+;(function(exports){'use strict';var WapPushManager={init:wpm_init,close:wpm_close,displayWapPushMessage:wpm_displayWapPushMessage,onVisibilityChange:wpm_onVisibilityChange,onWapPushReceived:wpm_onWapPushReceived};var wapPushEnableKey='wap.push.enabled';var wapPushEnabled;var app;var closeTimeout;var pendingMessages;var displayedSiMessage;function wpm_getApp(){return new Promise(function(resolve,reject){var req=navigator.mozApps.getSelf();req.onsuccess=function wpm_gotApp(){resolve(this.result);};req.onerror=function wpm_getAppError(){reject(this.error);};});}
+function wpm_getConfig(){return new Promise(function(resolve,reject){var req=navigator.mozSettings.createLock().get(wapPushEnableKey);req.onsuccess=function wpm_settingsLockSuccess(){resolve(this.result[wapPushEnableKey]);};req.onerror=function wpm_settingsLockError(){reject(this.error);};});}
+function wpm_init(){wapPushEnabled=true;app=null;closeTimeout=null;pendingMessages=0;displayedSiMessage=null;navigator.mozSettings.addObserver(wapPushEnableKey,wpm_onSettingsChange);var promise=Promise.all([wpm_getApp(),wpm_getConfig(),WhiteList.init()]);promise=promise.then(function(values){app=values[0];wapPushEnabled=values[1];SiSlScreenHelper.init();CpScreenHelper.init();MessageDB.on('new',wpm_onNew);MessageDB.on('update',wpm_onUpdate);MessageDB.on('discard',wpm_onDiscard);MessageDB.on('delete',wpm_onDelete);document.addEventListener('visibilitychange',wpm_onVisibilityChange);window.navigator.mozSetMessageHandler('notification',wpm_onNotification);window.navigator.mozSetMessageHandler('wappush-received',wpm_onWapPushReceived);}).catch(function(error){wapPushEnabled=false;var message=error.message||'Unknown error';console.error('Could not initialize the WAP push manager: ',message);throw error;});return promise;}
+function wpm_onSettingsChange(v){wapPushEnabled=v.settingValue;}
+function wpm_onVisibilityChange(){if(document.hidden){wpm_close();}else{window.clearTimeout(closeTimeout);closeTimeout=null;}}
+function wpm_shouldDisplayMessage(message){if(!wapPushEnabled||(message===null)){return false;}
+if((message.type!=='text/vnd.wap.connectivity-xml')&&(!WhiteList.has(message.sender)||message.isExpired())){return false;}
+return true;}
+function wpm_sendNotification(message){var iconURL=NotificationHelper.getIconURI(app);var body;if(message.type==='text/vnd.wap.connectivity-xml'){body=message.text;}else{body={id:(message.type==='text/vnd.wap.si')?'si-message-body':'sl-message-body',args:{text:message.text||'',url:message.href}};}
+var title=Utils.prepareMessageTitle(message);var options={icon:iconURL,bodyL10n:body,tag:message.getUniqueId()};return NotificationHelper.send(title,options).then(function(notification){notification.addEventListener('click',function wpm_onNotificationClick(event){wpm_displayWapPushMessage(event.target.tag);});});}
+function wpm_onWapPushReceived(wapMessage){DUMP('Received a message: ',wapMessage);pendingMessages++;var message=ParsedMessage.from(wapMessage,Date.now());if(!wpm_shouldDisplayMessage(message)){DUMP('The message will not be displayed');wpm_finish();return Promise.resolve();}
+return message.save().catch(error=>{var message=error.message||'Unknown error';console.log('Could not add a message to the database: '+message+'\n');wpm_finish();throw error;});}
+function wpm_onNotification(message){if(!message.clicked){return;}
+wpm_displayWapPushMessage(message.tag);}
+function wpm_onNew(obj){DUMP('A new message added to the DB');var message=new ParsedMessage(obj);if(message.action==='signal-high'||message.action==='execute-high')
+{pendingMessages--;wpm_displayWapPushMessage(message.getUniqueId());}else{wpm_sendNotification(message).then(()=>wpm_finish());}}
+function wpm_onUpdate(obj){DUMP('A message was updated in the DB');var message=new ParsedMessage(obj);if(displayedSiMessage&&displayedSiMessage.getUniqueId()===message.getUniqueId()){displayedSiMessage=message;SiSlScreenHelper.populateScreen(message);}
+wpm_sendNotification(message).then(()=>wpm_finish());}
+function wpm_onDelete(obj){DUMP('A message was deleted');var message=new ParsedMessage(obj);if(displayedSiMessage&&displayedSiMessage.getUniqueId()===message.getUniqueId()){wpm_close();}
+wpm_clearNotifications(+message.getUniqueId());}
+function wpm_onDiscard(){DUMP('The message was discarded');wpm_finish();}
+function wpm_displayWapPushMessage(id){DUMP('Displaying message '+id);app.launch();window.clearTimeout(closeTimeout);closeTimeout=null;return ParsedMessage.load(id).then(function wpm_loadResolved(message){switch(message.type){case'text/vnd.wap.si':displayedSiMessage=message;CpScreenHelper.hide();if(message.isExpired()){SiSlScreenHelper.populateScreen();}else{SiSlScreenHelper.populateScreen(message);}
+return wpm_clearNotifications(id);case'text/vnd.wap.sl':displayedSiMessage=null;CpScreenHelper.hide();SiSlScreenHelper.populateScreen(message);return wpm_clearNotifications(id);case'text/vnd.wap.connectivity-xml':displayedSiMessage=null;SiSlScreenHelper.hide();CpScreenHelper.showConfirmInstallationDialog(message);return Promise.resolve();}}).catch(function(error){var message=error.message||'Unknown error';console.error('Could not retrieve the message: ',message);throw error;});}
+function wpm_clearNotifications(tag){return Notification.get({tag:tag}).then(function onSuccess(notifications){for(var i=0;i<notifications.length;i++){notifications[i].close();}},function onError(error){var message=error.message||'Unknown error';console.error('Could not get notification: ',message);throw error;});}
+function wpm_finish(){pendingMessages--;if(document.hidden){wpm_close();}}
+function wpm_close(){if(closeTimeout!==null){return;}
+closeTimeout=window.setTimeout(function wpm_delayedClose(){if(pendingMessages>0){closeTimeout=window.setTimeout(wpm_delayedClose,100);return;}
+DUMP('Automatically closing the application');closeTimeout=null;window.close();},100);}
+exports.WapPushManager=WapPushManager;})(this);

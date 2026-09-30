@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "device": "sargo",
+  "name": "Google Pixel 3a",
+  "architecture": "aarch64",
+  "soc": "SDM670",
+  "sharedBoardName": "bonito / sdm710",
+  "installedOSReportedByOwner": "Droidian 102 (verified by SSH)",
+  "bootloaderUnlockedReportedByOwner": true,
+  "installedFirmwareVerified": true,
+  "flashReady": false,
+  "diagnosticBoot": {
+    "reference": "ubports-sargo: BoardConfig-common.mk, Android 9; not yet verified against this device",
+    "headerVersion": 1,
+    "pageSize": 4096,
+    "base": "0x00000000",
+    "kernelOffset": "0x00008000",
+    "ramdiskOffset": "0x02000000",
+    "tagsOffset": "0x01e00000",
+    "partitionSizeBytes": 67108864,
+    "cmdline": "console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 printk.devkmsg=on rdinit=/init"
+  },
+  "upstreamBases": {
+    "ubuntuTouch": "Halium 9; documented vendor base PQ3B.190801.002; actual installed base still unknown",
+    "capyloon": "Android 10; vendor QQ3A.200805.001; Gecko 123 reference"
+  },
+  "installedFirmware": "google/sargo/sargo:9/PD2A.190115.029/5320088:user/release-keys",
+  "installedBoot": {
+    "kernel": "4.9-124-google-sargo",
+    "headerVersion": 0,
+    "pageSize": 4096,
+    "base": "0x00000000",
+    "kernelOffset": "0x00008000",
+    "ramdiskOffset": "0x01000000",
+    "tagsOffset": "0x00000100",
+    "partitionSizeBytes": 67108864,
+    "reference": "docs/SARGO-INVENTORY-2026-09-24.md",
+    "rawPartitionBackupVerified": true,
+    "rawHeaderOSVersion": "9.0.0",
+    "rawHeaderOSPatchLevel": "2022-01"
+  },
+  "otherSlot": {
+    "slot": "b",
+    "headerVersion": 2,
+    "headerOSVersion": "15.0.0",
+    "headerOSPatchLevel": "2026-02",
+    "matchesRunningKernel": false,
+    "qualifiedFallback": false
+  }
+}

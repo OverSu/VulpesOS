@@ -1,0 +1,57 @@
+<element name="findmydevice" extends="section">
+  <template>
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="findmydevice"></h1>
+    </gaia-header>
+
+    <div>
+      <div class="findmydevice-signin" hidden>
+        <ul>
+          <li class="description">
+            <p data-l10n-id="findmydevice-signup-description"></p>
+          </li>
+          <li class="findmydevice-login">
+            <button data-l10n-id="findmydevice-create-account" disabled></button>
+          </li>
+          <li class="description findmydevice-fxa-unverified-error" hidden>
+            <p data-l10n-id="fxa-please-verify"></p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="findmydevice-settings" hidden>
+        <ul>
+          <li class="findmydevice-enabled">
+            <gaia-switch data-ignore>
+              <label data-l10n-id="findmydevice-enable"></label>
+            </gaia-switch>
+          </li>
+        </ul>
+
+        <ul>
+          <li class="description">
+            <p class="findmydevice-tracking"></p>
+          </li>
+        </ul>
+
+        <header>
+          <h2 data-l10n-id="findmydevice-about"></h2>
+        </header>
+        <ul>
+          <li class="description">
+            <p>
+              <span data-l10n-id="findmydevice-settings-description"></span>
+              <br>
+              <br>
+              <a class="link-text" href="https://find.firefox.com">find.firefox.com</a>
+            </p>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <panel data-path="panels/findmydevice/panel"></panel>
+
+  </template>
+</element>

@@ -1,0 +1,6 @@
+{
+  "url": "https://archlinux.mailtunnel.eu/extra/os/x86_64/weston-15.0.1-3-x86_64.pkg.tar.zst",
+  "sha256": "92fe0bfe2cf1ae02105b0e6573f6695c6bbd4637c9a6b20299a6fea8c3d23b4d",
+  "signature": "https://archlinux.mailtunnel.eu/extra/os/x86_64/weston-15.0.1-3-x86_64.pkg.tar.zst.sig",
+  "signatureVerifiedWith": "local Arch package signing keyring"
+}

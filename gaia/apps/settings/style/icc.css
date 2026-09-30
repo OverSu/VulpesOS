@@ -1,0 +1,28 @@
+#icc-entries[data-custom-icon] li > a {
+  padding-inline-start: 5.5rem;
+}
+
+#icc-stk-list[data-custom-icon] li > a {
+  padding-inline-start: 7rem;
+}
+
+#icc-entries[data-custom-icon] li > span,
+#icc-stk-list[data-custom-icon] li > span {
+  display: flex;
+  position: absolute;
+  width: 3rem;
+  height: 3rem;
+  offset-inline-start: 1.5rem;
+  top: calc(50% - 1.5rem);
+  box-sizing: content-box;
+  padding: 0;
+}
+
+#icc-stk-list[data-custom-icon] li > span {
+  offset-inline-start: 3rem;
+}
+
+#icc-entries[data-custom-icon] li > span > canvas,
+#icc-stk-list[data-custom-icon] li > span > canvas {
+  margin: auto;
+}

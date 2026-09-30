@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "resolved": "2026-09-24",
+  "sources": [
+    {
+      "name": "capyloon-b2g",
+      "url": "https://github.com/capyloon/B2G.git",
+      "ref": "refs/heads/master",
+      "commit": "4a0244b8f75811dab05bc4269d17ec2c71e60a94",
+      "role": "build-reference"
+    },
+    {
+      "name": "capyloon-manifests",
+      "url": "https://github.com/capyloon/manifests.git",
+      "ref": "refs/heads/master",
+      "commit": "5f5e4f5348a45c97865b4cfd33b6812bbefa0993",
+      "role": "manifest-reference"
+    },
+    {
+      "name": "capyloon-gonk-misc",
+      "url": "https://github.com/capyloon/gonk-misc.git",
+      "ref": "refs/heads/main",
+      "commit": "f01816e5027a58581358267c3d8035217d6d3655",
+      "role": "system-reference"
+    },
+    {
+      "name": "capyloon-gecko",
+      "url": "https://github.com/capyloon/gecko-b2g.git",
+      "ref": "refs/heads/capyloon",
+      "commit": "01c461731c5d86c0e2c8ffef05f55e25092c0858",
+      "role": "engine-reference-only"
+    },
+    {
+      "name": "b2gos-sargo",
+      "url": "https://github.com/b2gos/device_google_bonito.git",
+      "ref": "refs/heads/gonk_android-10.0.0_r11",
+      "commit": "bfb9d4c3d16cbc0d73eae7f8ea9bf8cf9069c82e",
+      "role": "android10-device-reference"
+    },
+    {
+      "name": "ubports-sargo",
+      "url": "https://gitlab.com/ubports/porting/reference-device-ports/android9/google-pixel-3a/android_device_google_bonito.git",
+      "ref": "refs/heads/halium-9.0",
+      "commit": "ef01ef159a4ab1785dd300261d37615bdc732883",
+      "role": "android9-device-reference"
+    },
+    {
+      "name": "ubports-kernel",
+      "url": "https://gitlab.com/ubports/porting/reference-device-ports/android9/google-pixel-3a/android_kernel_google_bonito.git",
+      "ref": "refs/heads/halium-9.0",
+      "commit": "c77798a65bd637b533634dd2776c25561fa6e24e",
+      "role": "android9-kernel-source"
+    },
+    {
+      "name": "aosp-mkbootimg",
+      "url": "https://android.googlesource.com/platform/system/tools/mkbootimg",
+      "ref": "refs/heads/main",
+      "commit": "d2bb0af5ba6d3198a3e99529c97eda1be0b5a093",
+      "role": "boot-packager"
+    },
+    {
+      "name": "aosp-sargo-kernel",
+      "url": "https://android.googlesource.com/device/google/bonito-kernel",
+      "ref": "refs/tags/android-9.0.0_r47",
+      "commit": "d7b44a0be4a684a9e42e69298ee7d9695d1cc035",
+      "role": "android9-kernel-prebuilt"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+li button.icon-webrtc-voice:before {
+  background-image: image-set(url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_audio.png") 1x, url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_audio@1.5x.png") 1.5x, url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_audio@2x.png") 2x, url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_audio@2.25x.png") 2.25x);
+  background-size: 3rem;
+}
+
+li button.icon-webrtc-video:before {
+  background-image: image-set(url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_video.png") 1x, url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_video@1.5x.png") 1.5x, url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_video@2x.png") 2x, url("/contacts/style/webrtc-client/images/actionicon_contacts_webrtc_video@2.25x.png") 2.25x);
+  background-size: 3rem;
+}

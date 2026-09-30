@@ -1,0 +1,125 @@
+<html lang="en-US" dir="ltr">
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link href="../shared/style/progress_activity.css" rel="stylesheet" type="text/css">
+  <link href="../shared/style/value_selector.css" rel="stylesheet" type="text/css">
+  <link href="../shared/style/buttons.css" rel="stylesheet" type="text/css">
+  <link href="../shared/style/input_areas.css" rel="stylesheet" type="text/css">
+  <link href="../shared/style/action_menu.css" rel="stylesheet" type="text/css">
+  <link href="../shared/style/confirm.css" rel="stylesheet" type="text/css">
+  <link href="style/error_overlay.css" rel="stylesheet" type="text/css">
+  <link href="style/mobile_id.css" rel="stylesheet" type="text/css">
+
+  <meta name="defaultLanguage" content="en-US">
+  <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+  <link rel="localization" href="/locales-obj/mobile_id.index.{locale}.json">
+
+  <!-- Gaia Components -->
+  <link href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css" rel="stylesheet" type="text/css">
+  <link href="../shared/elements/gaia-icons/gaia-icons.css" rel="stylesheet" type="text/css">
+
+  <link rel="resource" type="application/json" href="shared/resources/mcc.json">
+  <!-- <script defer="" src="../shared/js/l10n.js"></script> -->
+  <!-- <script defer="" src="../shared/js/utilities.js"></script> -->
+
+  <!-- Gaia Components -->
+  <!-- <script src="../shared/elements/config.js"></script> -->
+  <!-- <script src="../shared/elements/gaia-header/dist/gaia-header.js"></script> --><script src="./gaia_build_index.js" type="text/javascript"></script>
+
+  <!-- <script defer="" src="js/error_overlay.js"></script> -->
+  <!-- <script defer="" src="js/ui.js"></script> -->
+  <!-- <script defer="" src="js/controller.js"></script> -->
+  <!-- <script defer="" src="js/mobile_id.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+
+  <title>Mobile ID</title>
+<meta content="2.5" name="appVersion"></head>
+  <body class="theme-settings" role="application">
+    <section class="skin-organic" role="region">
+      <gaia-header id="header" action="close">
+        <h1 data-l10n-id="errorTitle">Mobile identity</h1>
+      </gaia-header>
+      <progress id="verification-code-timer" value="" max="100"></progress>
+      <!--
+        We will contain the three main panels of the Mobile ID flow:
+        - Selection of the phone number
+        - Add verification code (if required)
+        - Feedback screen
+      -->
+      <section id="panels-container" class="panels-container">
+        <div class="panel msisdn-selection-panel">
+          <p id="mobile-id-explanation" class="explanation">
+          </p>
+          <div class="msisdn-overflow-shield">
+            <section class="msisdn-selection-wrapper">
+              <div>
+                <ul class="phone-options-list">
+                </ul>
+                <div id="add-msisdn" data-l10n-id="addPhoneNumber">Or add your phone number</div>
+              </div>
+              <div class="manual-msisdn">
+                <ul class="msisdn-form">
+                  <li>
+                    <span id="legend-parent" class="button icon icon-dialog button-select-wrapper">
+                      <span id="legend"></span>
+                      <select id="country-codes-select" hidden="">
+                      </select>
+                    </span>
+                  </li>
+                  <li><input id="msisdn-input" type="tel"></li>
+                </ul>
+                <div id="do-automatic-msisdn" data-l10n-id="selectPhoneNumber">Or select a phone number from the list</div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="panel verification-panel">
+          <p class="explanation" id="verification-code-explanation">
+          </p>
+          <input id="verification-code" type="number">
+        </div>
+        <div class="panel done-panel">
+          <p class="explanation" id="success-explanation">
+            Great! Know your phone number is registered.
+          </p>
+        </div>
+      </section>
+      <div id="msb" class="multistate-button">
+        <button id="allow-button" class="msb-button-step state-allow">
+          <div class="states-wrapper">
+            <div data-l10n-id="share">Share</div>
+            <div>
+              <progress></progress><span data-l10n-id="connecting">Connecting</span>
+            </div>
+          </div>
+        </button>
+        <button id="verify-button" class="msb-button-step state-verify">
+          <div class="states-wrapper">
+            <div>
+              <span></span>
+              <span data-l10n-id="resend">Resend</span>
+            </div>
+            <div data-l10n-id="verify">Verify</div>
+            <div>
+              <progress></progress><span data-l10n-id="verifying">Verifying</span>
+            </div>
+            <div>
+              <span data-l10n-id="verified">Verified</span>
+            </div>
+          </div>
+        </button>
+      </div>
+    </section>
+    <!-- Error message overlay -->
+    <form role="dialog" data-type="confirm" id="mobileid-error-overlay">
+      <section>
+        <h1 id="mobileid-error-title"></h1>
+        <p><small id="mobileid-error-msg"></small></p>
+        <menu>
+          <button class="full" data-l10n-id="ok" id="mobileid-error-ok">OK</button>
+        </menu>
+      </section>
+    </form>
+  </body>
+
+</html>

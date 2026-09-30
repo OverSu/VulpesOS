@@ -1,0 +1,1 @@
+;'use strict';WapPushManager.init();

@@ -1,0 +1,31 @@
+{
+  "name": "camera",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mozilla-b2g/gaia/tree/master/apps/camera",
+  "authors": [
+    "Wilson Page <wilsonpage@me.com>"
+  ],
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "debug": "https://raw.githubusercontent.com/visionmedia/debug/1.0.2/dist/debug.js",
+    "requirejs": "https://raw.githubusercontent.com/jrburke/requirejs/2.1.14/require.js",
+    "evt": "fxos-components/evt#~0.4.0",
+    "attach": "fxos-components/attach#0.1.1",
+    "device-orientation": "fxos-components/device-orientation",
+    "view": "fxos-components/view#~0.1.1",
+    "model": "fxos-components/model#~0.1.0",
+    "drag": "fxos-components/drag#0.1.4",
+    "gaia-header": "fxos-components/gaia-header#~0.9.5",
+    "gaia-theme": "fxos-components/gaia-theme#~0.4.1",
+    "gaia-icons": "fxos-components/gaia-icons#~1.0.2"
+  }
+}

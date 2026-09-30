@@ -1,0 +1,24 @@
+{
+  "name": "smart-system",
+  "tags": {
+    "dictionaries": ["jsdoc"]
+  },
+  "source": {
+    "include": [
+        "!tv_apps/smart-system/js/bootstrap.js",
+        "!tv_apps/smart-system/js/*.js",
+        "tv_apps/smart-system/fxa/js/**/*.js",
+        "tv_apps/smart-system/devtools/js/**/*.js",
+        "tv_apps/smart-system/value_selector/js/**/*.js"
+    ]
+  },
+  "plugins": [
+    "plugins/markdown",
+    "plugins/summarize"
+  ],
+  "opts": {
+    "private": true,
+    "recurse": true,
+    "destination": "docs/smart-system"
+  }
+}

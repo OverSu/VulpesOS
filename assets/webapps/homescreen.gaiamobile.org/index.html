@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta name="theme-color" content="transparent">
+    <title>Firefox OS Home Screen</title>
+
+    <!-- Setup environment -->
+    <!-- <script defer="" src="js/setup.js"></script> -->
+
+    <!-- Lazy loader -->
+    <!-- <script defer="" src="shared/js/lazy_loader.js"></script> -->
+    <!-- <script defer src="js/firstrun.js"></script> -->
+
+    <!-- gaia-container -->
+    <!-- <script defer="" src="bower_components/gaia-container/script.js"></script> -->
+
+    <!-- gaia-site-icon -->
+    <link rel="stylesheet" href="shared/elements/gaia-site-icon/external/style.css">
+    <!-- <script defer="" src="shared/elements/gaia-site-icon/script.js"></script> -->
+
+    <!-- gaia-pin-card -->
+    <!-- <script defer="" src="shared/js/component_utils.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_pin_card/script.js"></script> -->
+
+    <!-- gaia-components -->
+    <link rel="stylesheet" href="bower_components/base/base.css">
+    <link rel="stylesheet" href="shared/elements/gaia-theme/gaia-theme.css">
+    <!-- <script defer="" src="bower_components/evt/index.js"></script> -->
+    <!-- <script defer="" src="bower_components/pressed/pressed.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia-component/gaia-component.js"></script> -->
+    <!-- <script defer="" src="bower_components/gaia-dialog/gaia-dialog.js"></script> -->
+    <!-- <script defer="" src="bower_components/gaia-dialog/gaia-dialog-action.js"></script> -->
+
+    <!-- gaia l10n -->
+    <!-- <script defer="" src="shared/js/l10n.js"></script> -->
+
+    <!-- Local resources -->
+    <link rel="localization" href="/locales-obj/index.{locale}.json">
+
+    <link rel="stylesheet" href="style/window.css">
+    <link rel="stylesheet" href="style/grid.css">
+    <link rel="stylesheet" href="style/apps-panel.css">
+    <link rel="stylesheet" href="style/pages-panel.css">
+
+    <!-- Process the icons of pinned pages -->
+    <!-- <script defer="" src="shared/elements/gaia_grid/js/grid_icon_renderer.js"></script> -->
+    <!-- <script defer="" src="shared/js/homescreens/icon.js"></script> -->
+    <!-- <script defer="" src="shared/js/icons_helper.js"></script> -->
+
+    <!-- <script defer="" src="js/settings.js"></script> -->
+    <!-- <script defer="" src="js/appsmetadata.js"></script> -->
+    <!-- <script defer="" src="js/datastore.js"></script> -->
+    <!-- <script defer="" src="js/pagesstore.js"></script> -->
+    <!-- <script defer="" src="js/pages.js"></script> -->
+    <!-- <script defer="" src="js/apps.js"></script> -->
+    <!-- <script defer="" src="js/window.js"></script> -->
+    <!-- <script defer="" src="js/bootstrap.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+  <meta content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729" name="availableLanguages"><meta content="en-US" name="defaultLanguage"><meta content="2.5" name="appVersion"></head>
+
+  <body>
+    <header id="page-indicator-header">
+      <div aria-valuetext="Page {{ currentPage }} of {{ totalPages }}" id="page-indicator" data-l10n-id="page-indicator-text" role="slider" aria-valuemin="1" aria-valuenow="1" aria-valuemax="2" aria-controls="panels">
+        <span></span><span></span>
+      </div>
+    </header>
+    <div id="shadow"></div>
+    <div id="panels"><!--
+    --><div id="apps-panel" aria-labelledby="page-indicator-header">
+        <div class="scrollable">
+          <div class="edit-underlay"></div>
+          <gaia-container id="apps" drag-and-drop=""></gaia-container>
+        </div>
+        <gaia-dialog id="cancel-download" class="dialog-action">
+          <section>
+            <p class="body" data-l10n-id="stop-download-body">Do you want to stop downloading {{ name }}?</p>
+          </section>
+          <button class="action" data-l10n-id="stop-download-action">Stop</button>
+          <button on-click="close" data-l10n-id="cancel-action">Cancel</button>
+        </gaia-dialog>
+        <gaia-dialog id="resume-download" class="dialog-action">
+          <section>
+            <p class="body" data-l10n-id="resume-download-body">Do you want to download {{ name }}?</p>
+          </section>
+          <button class="action" data-l10n-id="resume-download-action">Download</button>
+          <button on-click="close" data-l10n-id="cancel-action">Cancel</button>
+        </gaia-dialog>
+      </div><!--
+   --><div id="pages-panel" aria-labelledby="page-indicator-header">
+        <div id="empty-pages">
+          <h1 data-l10n-id="no-pinned-pages-header">No Pinned Pages yet.</h1>
+          <p data-l10n-id="no-pinned-pages-body">Use your browser to pin any web page to this screen.</p>
+          <img src="style/images/empty_home_image.png" role="presentation">
+          <div id="boxes" role="presentation">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+        <div class="scrollable">
+          <div class="edit-underlay"></div>
+          <gaia-container id="pages"></gaia-container>
+        </div>
+      </div><!--
+ --></div>
+    <div id="bottombar">
+      <div id="remove"></div>
+      <div id="rename"></div>
+      <div id="done" data-l10n-id="edit-done">Done</div>
+    </div>
+  </body>
+
+</html>

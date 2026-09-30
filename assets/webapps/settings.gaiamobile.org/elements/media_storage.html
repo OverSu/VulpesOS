@@ -1,0 +1,28 @@
+<element name="mediaStorage" extends="section">
+  <template>
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="mediaStorage-header"></h1>
+    </gaia-header>
+
+    <div>
+      <div id="volume-list">
+      </div>
+      <header>
+        <h2 data-l10n-id="advanced"></h2>
+      </header>
+      <ul>
+        <li class="default-media-location">
+          <p data-l10n-id="default-media-location"></p>
+          <span class="button icon icon-dialog">
+            <select id="defaultMediaLocation" name="device.storage.writable.name">
+            </select>
+          </span>
+        </li>
+        <li data-l10n-id="default-media-location-msg" class="explanation"></li>
+      </ul>
+    </div>
+    <panel data-path="panels/media_storage/panel"></panel>
+
+  </template>
+</element>

@@ -1,0 +1,3 @@
+;'use strict';(function(exports){function Divider(){this.detail={type:'divider',index:0};}
+Divider.prototype={__proto__:GaiaGrid.GridItem.prototype,x:0,y:0,headerHeight:0,get pixelHeight(){return(this.grid.layout.cols>3)?50:60;},gridWidth:4,scale:1,render:function(){if(!this.element){var divider=this.element=document.createElement('section');divider.className='divider';var span=document.createElement('span');span.className='spacer';divider.appendChild(span);this.grid.element.appendChild(divider);}
+this.element.style.transform='translate(0 ,'+this.y+'px)';},remove:function(){if(this.element){this.element.parentNode.removeChild(this.element);}},isDraggable:function(){return false;}};exports.GaiaGrid.Divider=Divider;}(window));

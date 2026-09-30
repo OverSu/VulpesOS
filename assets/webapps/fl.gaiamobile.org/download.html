@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Locked Content</title>
+    <link rel="stylesheet" href="shared/style/confirm.css" type="text/css">
+    <link rel="stylesheet" href="shared/style/progress_activity.css" type="text/css">
+    <link rel="stylesheet" href="style/download.css" type="text/css">
+    <!-- Localization -->
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/download.{locale}.json">
+    <!-- Shared code -->
+    <!-- <script type="text/javascript" src="shared/js/l10n.js"></script> --><script src="./gaia_build_download.js" type="text/javascript"></script>
+    <!-- <script defer="" src="shared/js/omadrm/fl.js"></script> -->
+    <!-- <script defer="" src="shared/js/device_storage/get_unused_filename.js"></script> -->
+    <!-- <script defer="" src="shared/js/device_storage/get_storage_if_available.js"></script> -->
+    <!-- <script defer="" src="shared/js/media/media_utils.js"></script> -->
+    <!-- Specific code -->
+    <!-- <script defer="" src="js/constants.js"></script> -->
+    <!-- <script defer="" src="js/utils.js"></script> -->
+    <!-- <script defer="" src="js/db.js"></script> -->
+    <!-- <script defer="" src="js/binary_string_view.js"></script> -->
+    <!-- <script defer="" src="js/download.js"></script> --><script src="./gaia_build_defer_download.js" defer="" type="text/javascript"></script>
+  <meta content="2.5" name="appVersion"></head>
+  <body>
+    <div id="direct-download" hidden="">
+      <form role="dialog" data-type="confirm">
+        <section>
+          <h1 data-l10n-id="download-progress-title">Downloading</h1>
+          <p style="text-align: center;">
+            <progress id="direct-download-progress" class="pack-activity" value="0"></progress>
+          </p>
+        </section>
+      </form>
+    </div>
+    <div id="download-confirmation" hidden="">
+      <form role="dialog" data-type="confirm">
+        <section>
+          <h1 id="download-confirmation-title">download file?</h1>
+          <progress id="download-progress" value="0"></progress>
+          <dl>
+            <dt data-l10n-id="download-confirmation-name">Name</dt>
+            <dd id="download-confirmation-name"></dd>
+            <dt data-l10n-id="download-confirmation-type">Type</dt>
+            <dd id="download-confirmation-type"></dd>
+            <dt data-l10n-id="download-confirmation-size">Size</dt>
+            <dd id="download-confirmation-size"></dd>
+            <dt data-l10n-id="download-confirmation-description">Info</dt>
+            <dd id="download-confirmation-description"></dd>
+          </dl>
+          <p>
+            <img id="locked-content-advisory-icon" src="style/images/actionicon_lock.png">
+            <small id="locked-content-advisory-text"></small>
+          </p>
+        </section>
+        <menu>
+          <button id="download-cancel" type="button" data-l10n-id="cancel-button">Cancel</button>
+          <button id="download-confirm" type="button" class="recommend" data-l10n-id="download-button">Download</button>
+        </menu>
+      </form>
+    </div>
+    <div id="preview-image-screen" hidden="">
+      <form role="dialog" data-type="confirm">
+        <section>
+          <h1 data-l10n-id="preview-image-title">Preview image</h1>
+          <p></p><div id="preview-image"></div><p></p>
+        </section>
+        <menu>
+          <button id="preview-image-cancel" type="button" data-l10n-id="cancel-button">Cancel</button>
+          <button id="preview-image-install" type="button" disabled="" class="recommend" data-l10n-id="install-button">Install</button>
+        </menu>
+      </form>
+    </div>
+    <div id="preview-audio-screen" hidden="">
+      <form role="dialog" data-type="confirm">
+        <section>
+          <h1 data-l10n-id="preview-audio-title">Preview audio</h1>
+          <p><audio id="preview-audio" autoplay="" controls=""></audio></p>
+        </section>
+        <menu>
+          <button id="preview-audio-cancel" type="button" data-l10n-id="cancel-button">Cancel</button>
+          <button id="preview-audio-install" type="button" disabled="" class="recommend" data-l10n-id="install-button">Install</button>
+        </menu>
+      </form>
+    </div>
+  </body>
+
+</html>

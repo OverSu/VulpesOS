@@ -1,0 +1,23 @@
+{
+  "name": "shared",
+  "version": "0.0.0",
+  "homepage": "https://github.com/wilsonpage/gaia",
+  "authors": [
+    "Wilson Page <wilsonpage@me.com>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "gaia-component": "fxos-components/gaia-component",
+    "gaia-header": "fxos-components/gaia-header#~0.9.5",
+    "gaia-theme": "fxos-components/gaia-theme#~0.4.6",
+    "gaia-icons": "fxos-components/gaia-icons#1.0.2",
+    "gaia-toast": "fxos-components/gaia-toast",
+    "gaia-site-icon": "fxos-components/gaia-site-icon",
+    "gaia-dialog": "fxos-components/gaia-dialog",
+    "gaia-button": "fxos-components/gaia-button",
+    "gaia-text-input": "fxos-components/gaia-text-input"
+  },
+  "resolutions": {
+    "gaia-component": "~0.4.0"
+  }
+}

@@ -1,0 +1,5 @@
+
+define(['require','modules/settings_cache'],function(require){'use strict';var SettingsCache=require('modules/settings_cache');var settings=navigator.mozSettings;var kEnabledKey='privacy.donottrackheader.enabled';var kValueKey='privacy.donottrackheader.value';var enabledMap={'0':true,'1':true,'-1':false};var DoNotTrack=function(){};DoNotTrack.prototype={keyMigration:function dnt_migration(){SettingsCache.getSettings(function(results){if(results[kValueKey]===undefined){var value='-1';if(results[kEnabledKey]!==undefined){value=results[kEnabledKey]?'1':'-1';}
+settings.createLock().set({kValueKey:value});}});},carryKeyChange:function carryKeyChange(){settings.addObserver(kValueKey,function(result){var enabled=enabledMap[result.settingValue];if(enabled===undefined){console.warn('Invalid '+kValueKey+' value '+
+result.settingValue);return;}
+var cset={};cset[kEnabledKey]=enabled;var request=settings.createLock().set(cset);request.onerror=function set_onerror(){console.warn('Set '+kEnabledKey+' failed');};});}};return function ctor_do_not_track(){return new DoNotTrack();};});

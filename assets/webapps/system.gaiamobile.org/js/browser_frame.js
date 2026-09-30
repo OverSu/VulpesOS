@@ -1,0 +1,9 @@
+;'use strict';(function(exports){var nextId=0;var BrowserFrame=function BrowserFrame(){this.element=null;this._id=nextId++;createFrame.apply(this,arguments);return this;};BrowserFrame.prototype.CLASS_NAME='browser';function createFrame(config,frame){var browser=frame||document.createElement('iframe');browser.setAttribute('mozbrowser','true');browser.name=config.window_name||'main';if(config.oop){browser.setAttribute('remote','true');}
+if(config.isPrivate&&!config.isMockPrivate){browser.setAttribute('mozprivatebrowsing','true');}
+if(config.manifestURL){browser.setAttribute('mozapp',config.manifestURL);if(config.isSystemMessage){browser.setAttribute('expecting-system-message','expecting-system-message');}}
+if(config.parentApp){browser.setAttribute('parentapp',config.parentApp);}
+if(config.isInputMethod){browser.setAttribute('mozpasspointerevents','true');browser.setAttribute('ignoreuserfocus','true');}else{browser.setAttribute('mozallowfullscreen','true');}
+setMozAppType(browser,config);if(config.url){browser.src=config.url;browser.dataset.url=config.url;}
+browser.id=this.CLASS_NAME+this._id;browser.classList.add(this.CLASS_NAME);this.config=config;this.element=browser;}
+function setMozAppType(iframe,config){if(config.url.startsWith(window.location.protocol+'//callscreen.gaiamobile.org')||config.url.startsWith(window.location.protocol+'//clock.gaiamobile.org')){iframe.setAttribute('mozapptype','critical');}else if(config.isHomescreen){iframe.setAttribute('mozapptype','homescreen');}else if(config.isSearch){iframe.setAttribute('mozapptype','search');}else if(config.isInputMethod){iframe.setAttribute('mozapptype','inputmethod');}}
+exports.BrowserFrame=BrowserFrame;}(window));

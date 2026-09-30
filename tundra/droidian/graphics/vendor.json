@@ -1,0 +1,6 @@
+{
+  "vendorLibrary": "/usr/lib/aarch64-linux-gnu/libEGL_libhybris.so.0",
+  "vendorSha256": "e6e949e478f8f96718afe07e4e0c50f524afb6f587aed89304eb7d083ba3dcb5",
+  "sourceRevision": "b22d041aaf97c5e2bf7ea9a4281fdf9b73edd805",
+  "upstreamSource": "https://github.com/droidian/libhybris/blob/b22d041aaf97c5e2bf7ea9a4281fdf9b73edd805/hybris/egl/egl.c"
+}

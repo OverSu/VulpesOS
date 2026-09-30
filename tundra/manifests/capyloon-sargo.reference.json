@@ -1,0 +1,8 @@
+{
+  "upstream": "https://github.com/capyloon/manifests",
+  "manifestCommit": "5f5e4f5348a45c97865b4cfd33b6812bbefa0993",
+  "resolvedAt": "2026-09-24T07:34:33.525796+00:00",
+  "projectCount": 393,
+  "sha256": "1d3961dcc1873c8fec5ecfd516dfb03fa3e8c2d14ca15ca8a5d02946459d8c4c",
+  "scope": "Capyloon Gonk reference only; not a Vulpes/Tundra product"
+}

@@ -1,0 +1,82 @@
+{
+    "activities": {
+        "marketplace-addon": {"href": "/index.html"},
+        "marketplace-app": {"href": "/index.html"},
+        "marketplace-app-rating": {"href": "/index.html"},
+        "marketplace-category": {"href": "/index.html"},
+        "marketplace-openmobile-acl": {
+            "href": "/index.html",
+            "returnValue": true
+        },
+        "marketplace-search": {"href": "/index.html"},
+        "marketplace-website": {"href": "/index.html"}
+    },
+    "default_locale": "en-US",
+    "description": "Firefox Marketplace",
+    "developer": {
+        "name": "Mozilla",
+        "url": "http://mozilla.org"
+    },
+    "icons": {
+        "60": "/app-icons/60.png",
+        "90": "/app-icons/90.png",
+        "120": "/app-icons/120.png",
+        "128": "/app-icons/128.png"
+    },
+    "launch_path": "/index.html",
+    "locales": {
+        "bg": {},
+        "bn-BD": {},
+        "ca": {},
+        "cs": {},
+        "de": {},
+        "el": {},
+        "en-US": {},
+        "es": {},
+        "eu": {},
+        "fr": {},
+        "ga-IE": {},
+        "hr": {},
+        "hu": {},
+        "it": {},
+        "ja": {},
+        "ko": {},
+        "mk": {},
+        "nb-NO": {},
+        "nl": {},
+        "pa": {},
+        "pl": {},
+        "pt-BR": {},
+        "ro": {},
+        "ru": {},
+        "sk": {},
+        "sq": {},
+        "sr": {},
+        "sr-Latn": {},
+        "ta": {},
+        "tr": {},
+        "xh": {},
+        "zh-CN": {},
+        "zh-TW": {},
+        "zu": {}
+    },
+    "name": "Marketplace",
+    "orientation": ["portrait-primary"],
+    "origin": "app://marketplace.firefox.com",
+    "permissions": {
+        "mobilenetwork": {
+            "description": "To detect mobile carrier and regional information."
+        },
+        "moz-firefox-accounts": {
+            "description": "To use native (2.0+) Firefox Accounts login."
+        },
+        "tcp-socket": {
+            "description": "To detect online status."
+        },
+        "feature-detection": {
+            "description": "To detect features supported by the device."
+        }
+    },
+    "type": "privileged",
+    "version": "20151105.135335"
+}

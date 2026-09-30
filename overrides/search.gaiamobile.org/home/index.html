@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06152d">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' file:; style-src 'self'; script-src 'self'; form-action https://duckduckgo.com; base-uri 'none'; object-src 'none'">
+<title>Accueil | Vulpes</title><link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="welcome.css"><script src="welcome.js" defer></script>
+</head>
+<body>
+<header><a class="brand" href="index.html" aria-label="Vulpes"><img src="assets/logo.png" width="32" height="32" alt="">Vulpes</a><nav aria-label="Language"><button type="button" data-lang="fr" lang="fr" aria-pressed="true">FR</button><span aria-hidden="true">/</span><button type="button" data-lang="en" lang="en" aria-pressed="false">EN</button></nav></header>
+<main>
+<img class="nivi" src="assets/nivi.png" width="240" height="240" alt="Nivi">
+<h1 data-i18n="heading">Le Web vous attend.</h1><p class="intro" data-i18n="intro">Un nouvel onglet. À vous la suite.</p>
+<form action="https://duckduckgo.com/" method="get" id="search" role="search">
+<label for="query" data-i18n="label">Rechercher sur le Web</label>
+<div class="search"><input type="search" id="query" name="q" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Une recherche ou une adresse…" required><button type="submit" aria-label="Rechercher"><span aria-hidden="true">→</span></button></div>
+<p class="hint" data-i18n="provider">Les recherches s’ouvrent avec DuckDuckGo.</p>
+</form>
+<nav class="shortcuts" aria-label="Raccourcis" id="shortcuts">
+<a href="https://vulpes-os.org/" data-site="/"><span aria-hidden="true">⌂</span><strong data-i18n="project">Vulpes OS</strong></a>
+<a href="https://vulpes-os.org/marketplace/" data-site="/marketplace/"><span aria-hidden="true">▦</span><strong>Marketplace</strong></a>
+<a href="https://vulpes-os.org/changelog.php" data-site="/changelog.php"><span aria-hidden="true">↗</span><strong data-i18n="news">Nouveautés</strong></a>
+</nav>
+<p class="offline" hidden data-i18n="offline">Vous êtes hors ligne. Cette page reste disponible ; les recherches et les liens nécessitent une connexion.</p>
+<noscript><p class="hint">FR / EN : activez JavaScript pour changer la langue. Enable JavaScript to switch languages. Web search works without it.</p></noscript>
+</main><footer><span data-i18n="footer">Libre, curieux, ouvert sur le Web.</span><small data-i18n="local">Page locale · Aucun suivi</small></footer>
+</body></html>

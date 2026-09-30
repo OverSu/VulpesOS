@@ -1,0 +1,213 @@
+{
+  "name": "Browser",
+  "description": "Gaia System Web Browser",
+  "type": "certified",
+  "role": "search",
+  "launch_path": "/newtab.html",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/mozilla-b2g/gaia"
+  },
+  "locales": {
+    "ar": {
+      "name": "مُتصفّح",
+      "description": "مُتصفّح نظام Gaia"
+    },
+    "bg": {
+      "name": "Браузър",
+      "description": "Системен уеб браузър на Gaia"
+    },
+    "bn-BD": {
+      "name": "ব্রাউজার",
+      "description": "গায়া সিস্টেম ওয়েব ব্রাউজার"
+    },
+    "ca": {
+      "name": "Navegador",
+      "description": "Navegador web del sistema del Gaia"
+    },
+    "cs": {
+      "name": "Prohlížeč",
+      "description": "Vyhledávání"
+    },
+    "da": {
+      "name": "Browser",
+      "description": "Gaia system-webbrowser"
+    },
+    "de": {
+      "name": "Browser",
+      "description": "System-Webbrowser für Gaia"
+    },
+    "el": {
+      "name": "Περιηγητής",
+      "description": "Περιηγητής Ιστού του Gaia"
+    },
+    "en-US": {
+      "name": "Browser",
+      "description": "Gaia System Web Browser"
+    },
+    "es": {
+      "name": "Navegador",
+      "description": "Navegador del sistema Gaia"
+    },
+    "eu": {
+      "name": "Nabigatzailea",
+      "description": "Gaia, sistemaren web nagibatzailea"
+    },
+    "fr": {
+      "name": "Navigateur",
+      "description": "Navigateur web système de Gaia"
+    },
+    "gl": {
+      "name": "Navegador",
+      "description": "Navegador web do sistema Gaia"
+    },
+    "hr": {
+      "name": "Browser",
+      "description": "Gaia System Web Browser"
+    },
+    "hu": {
+      "name": "Böngésző",
+      "description": "Gaia webbögésző"
+    },
+    "it": {
+      "name": "Browser",
+      "description": "Browser di sistema di Gaia"
+    },
+    "ja": {
+      "name": "ブラウザ",
+      "description": "Gaia システムの Web ブラウザ"
+    },
+    "km": {
+      "name": "Browser",
+      "description": "កម្មវិធី​អ៊ីនធឺណិត​ជា​ប្រព័ន្ធ Gaia"
+    },
+    "ko": {
+      "name": "브라우저",
+      "description": "가이아 시스템 웹 브라우저"
+    },
+    "lt": {
+      "name": "Naršyklė",
+      "description": "„Gaia“ saityno naršyklė"
+    },
+    "mk": {
+      "name": "Пребарување",
+      "description": "Резултати од пребарување"
+    },
+    "ms": {
+      "name": "Pelayar",
+      "description": "Pelayar Web Sistem Gaia"
+    },
+    "ne-NP": {
+      "name": "ब्राउजर",
+      "description": "गैया प्रणाली वेब ब्राउजर"
+    },
+    "nl": {
+      "name": "Browser",
+      "description": "Gaia-systeemwebbrowser"
+    },
+    "pa": {
+      "name": "ਖੋਜ ਨਤੀਜੇ",
+      "description": "ਖੋਜ ਨਤੀਜੇ"
+    },
+    "pl": {
+      "name": "Firefox",
+      "description": "Systemowa przeglądarka"
+    },
+    "pt-BR": {
+      "name": "Navegador",
+      "description": "Navegador do Gaia"
+    },
+    "ro": {
+      "name": "Browser",
+      "description": "Browser web în sistemul Gaia"
+    },
+    "ru": {
+      "name": "Браузер",
+      "description": "Системный веб-браузер Gaia"
+    },
+    "sk": {
+      "name": "Prehliadač",
+      "description": "Webový prehliadač Gaia"
+    },
+    "sq": {
+      "name": "Shfletues",
+      "description": "Shfletuesi Web i Sistemit Gaia"
+    },
+    "sr-Cyrl": {
+      "name": "Прегледач",
+      "description": "Gaia веб прегледач"
+    },
+    "sr-Latn": {
+      "name": "Pregledač",
+      "description": "Gaia veb pregledač"
+    },
+    "sv-SE": {
+      "name": "Webbläsare",
+      "description": "Gaia systemwebbläsare"
+    },
+    "tr": {
+      "name": "Tarayıcı",
+      "description": "Gaia Sistem Web Tarayıcısı"
+    },
+    "zh-CN": {
+      "name": "浏览器",
+      "description": "Gaga 系统的网页浏览器"
+    },
+    "zh-TW": {
+      "name": "瀏覽器",
+      "description": "Gaia 系統網頁瀏覽器"
+    }
+  },
+  "default_locale": "en-US",
+  "permissions": {
+    "themeable": {},
+    "mobileconnection": {},
+    "webapps-manage": {},
+    "open-remote-window": {},
+    "settings": {
+      "access": "readwrite"
+    },
+    "systemXHR": {},
+    "contacts": {
+      "access": "readonly"
+    },
+    "moz-extremely-unstable-and-will-change-webcomponents": {}
+  },
+  "connections": {
+    "search": {
+      "handler_path": "index.html",
+      "description": "Notifies the search app on query change.",
+      "rules": {}
+    }
+  },
+  "datastores-access": {
+    "places": {
+      "access": "readonly",
+      "description": "Stores data about browsing history."
+    },
+    "bookmarks_store": {
+      "access": "readonly",
+      "description": "Stores data about bookmarks"
+    }
+  },
+  "icons": {
+    "284": "/shared/resources/branding/vulpes-browser.png"
+  },
+  "chrome": {
+    "navigation": true
+  },
+  "activities": {
+    "search": {
+      "filters": {
+        "type": "text/plain",
+        "keyword": {
+          "required": true
+        }
+      },
+      "disposition": "window",
+      "href": "/index.html"
+    }
+  },
+  "origin": "app://search.gaiamobile.org",
+  "version": "2.5"
+}

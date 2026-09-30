@@ -1,0 +1,52 @@
+/* Navigation matches the Android preview; Gaia owns the application theme. */
+#home {
+  appearance: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 480px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #122332;
+  color: white;
+  touch-action: none;
+  user-select: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+}
+[home-active] #home {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+[home-active][home-at-bottom] #home {
+  background: transparent;
+}
+#home::before {
+  content: '';
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+#home:active::before {
+  opacity: 0.6;
+}
+#home:focus-visible {
+  outline: 2px solid #8ad7ff;
+  outline-offset: -3px;
+}
+
+@media (orientation: landscape) {
+  #home { left:auto; right:0; top:0; bottom:0; width:44px; height:100%; }
+  [home-active] #home {
+    background:linear-gradient(to left, rgba(0,0,0,0.8), transparent);
+  }
+  [home-active][home-at-bottom] #home { background:transparent; }
+}

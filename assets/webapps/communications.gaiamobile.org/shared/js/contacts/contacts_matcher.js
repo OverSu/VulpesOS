@@ -1,0 +1,67 @@
+;(function(exports){'use strict';function MatcherObj(pdataProvider){var blankRegExp=/\s+/g;var FB_CATEGORY='facebook';var FB_LINKED='fb_linked';var dataProvider=pdataProvider;function MultipleMatcher(ptargets,pmatchingOptions){var next=0;var self=this;var targets=ptargets;var matchingOptions=pmatchingOptions;var finalMatchings={};function doMatchBy(target,callbacks){var options={filterValue:target,filterBy:matchingOptions.filterBy,filterOp:matchingOptions.filterOp};var req=dataProvider.find(options);req.onsuccess=function(){var matchings=req.result.filter(function(aResult){return filterFacebook(aResult,matchingOptions.linkParams);});var filterBy=options.filterBy;var sanitizedTarget=SimplePhoneMatcher.sanitizedNumber(target);var targetVariants=SimplePhoneMatcher.generateVariants(target);matchings.forEach(function(aMatching){if(matchingOptions.selfContactId===aMatching.id){return;}
+var field=options.filterBy[0];var values=aMatching[field];values.forEach(function(aValue){var value=aValue.value;var sanitizedValue=SimplePhoneMatcher.sanitizedNumber(value);var valueMatched=false;if(targetVariants.length>1){if(targetVariants.indexOf(sanitizedValue)!==-1){valueMatched=true;}}else if(SimplePhoneMatcher.generateVariants(sanitizedValue).indexOf(sanitizedTarget)!==-1){valueMatched=true;}
+if(valueMatched){var matchings,matchingObj;if(!finalMatchings[aMatching.id]){matchingObj={matchings:{},matchingContact:aMatching};finalMatchings[aMatching.id]=matchingObj;matchingObj.matchings[filterBy[0]]=[];}
+else{matchingObj=finalMatchings[aMatching.id];}
+matchings=matchingObj.matchings[filterBy[0]];var sameValueMatchings=matchings.filter(function(matching){return(matching.matchedValue===value);});if(sameValueMatchings.length===0){matchings.push({'target':target,'matchedValue':value});}}});});carryOn();};req.onerror=function(e){window.console.error('Error while trying to do the matching',e.target.error.name);notifyMismatch(self);};}
+function carryOn(){next++;if(next<targets.length){doMatchBy(targets[next],callbacks);}
+else if(Object.keys(finalMatchings).length>0){notifyMatch(self,finalMatchings);}
+else{notifyMismatch(self);}}
+function matched(contacts){carryOn();}
+var callbacks={onmatch:matched,onmismatch:carryOn};this.start=function(){doMatchBy(targets[0],callbacks);};}
+function notifyMatch(obj,matchings){typeof obj.onmatch==='function'&&obj.onmatch(matchings);}
+function notifyMismatch(obj){typeof obj.onmismatch==='function'&&obj.onmismatch();}
+function matchBy(aContact,field,filterOper,callbacks,poptions){var options=poptions||{};var values=[];if(Array.isArray(aContact[field])){aContact[field].forEach(function(aField){if(field==='tel'){var variants=SimplePhoneMatcher.generateVariants(aField.value);variants.forEach(function(aVariant){values.push(aVariant);});}
+else if(typeof aField.value==='string'){values.push(aField.value.trim());}});}
+if(values.length>0){var matcher=new MultipleMatcher(values,{filterBy:[field],filterOp:filterOper,selfContactId:aContact.id,linkParams:options});matcher.onmatch=callbacks.onmatch;matcher.onmismatch=callbacks.onmismatch;matcher.start();}
+else{notifyMismatch(callbacks);}}
+function matchByTel(aContact,callbacks,options){matchBy(aContact,'tel','match',callbacks,options);}
+function matchByEmail(aContact,callbacks,options){matchBy(aContact,'email','startsWith',callbacks,options);}
+function doMatch(aContact,mode,callbacks){if(mode==='passive'){doMatchPassive(aContact,callbacks);}
+else if(mode==='active'){doMatchActive(aContact,callbacks);}}
+function doMatchTelAndEmail(aContact,callbacks,options){var localCbs={onmatch:function(telMatches){var matchCbs={onmatch:function(mailMatches){var allMatches=telMatches;Object.keys(mailMatches).forEach(function(aMatch){if(!allMatches[aMatch]){allMatches[aMatch]=mailMatches[aMatch];}
+else{allMatches[aMatch].matchings.email=mailMatches[aMatch].matchings.email;}});notifyMatch(callbacks,allMatches);},onmismatch:function(){notifyMatch(callbacks,telMatches);}};matchByEmail(aContact,matchCbs,options);},onmismatch:function(){matchByEmail(aContact,callbacks,options);}};matchByTel(aContact,localCbs,options);}
+function getSourceSimUrl(aContact){var out;if(Array.isArray(aContact.category)&&aContact.category.indexOf('sim')!==-1&&Array.isArray(aContact.url)){for(var j=0;j<aContact.url.length;j++){var aUrl=aContact.url[j];if(aUrl.type.indexOf('source')!==-1&&aUrl.type.indexOf('sim')!==-1){out=aUrl.value;}}}
+return out;}
+function doMatchPassive(aContact,callbacks){if(!hasName(aContact)){notifyMismatch(callbacks);return;}
+var simUrl=getSourceSimUrl(aContact);if(simUrl){performPassiveMatchForSimContact(simUrl,aContact,callbacks);}
+else{performPassiveMatch(aContact,callbacks);}}
+function performPassiveMatchForSimContact(simUrl,aContact,callbacks){var localCbs={onmatch:function(results){var matchingFound=false;Object.keys(results).forEach(function(aResultId){var matchingContact=results[aResultId].matchingContact;var matchingUrl=getSourceSimUrl(matchingContact);if(matchingUrl&&matchingUrl===simUrl){matchingFound=true;var matchings={};matchings[aResultId]={matchingContact:matchingContact};callbacks.onmatch(matchings);return;}});if(!matchingFound){performPassiveMatch(aContact,callbacks);}},onmismatch:function(){performPassiveMatch(aContact,callbacks);}};matchByName(aContact,localCbs);}
+function performPassiveMatch(aContact,callbacks){var matchingsFound={};var localCbs={onmatch:function(results){var names=[];Object.keys(results).forEach(function(aResultId){var mContact=results[aResultId].matchingContact;if(!hasName(mContact)){return;}
+var targetFN=null;if(!isEmptyStr(aContact.familyName)){targetFN=Normalizer.toAscii(aContact.familyName[0].trim().toLowerCase()).replace(blankRegExp,'');}
+var targetGN=null;if(!isEmptyStr(aContact.givenName)){targetGN=Normalizer.toAscii(aContact.givenName[0].trim().toLowerCase()).replace(blankRegExp,'');}
+var targetName=(targetGN||'')+(targetFN||'');var mFamilyName=null;var mGivenName=null;if(!isEmptyStr(mContact.familyName)){mFamilyName=Normalizer.toAscii(mContact.familyName[0].trim().toLowerCase()).replace(blankRegExp,'');}
+if(!isEmptyStr(mContact.givenName)){mGivenName=Normalizer.toAscii(mContact.givenName[0].trim().toLowerCase()).replace(blankRegExp,'');}
+var mName=(mGivenName||'')+(mFamilyName||'');names.push({contact:mContact,familyName:mFamilyName,givenName:mGivenName,name:mName});var matchingList=names.filter(function(obj){return((obj.familyName===targetFN&&obj.givenName===targetGN)||(obj.name&&obj.name===targetName)&&(!Array.isArray(obj.contact.category)||obj.contact.category.indexOf(FB_CATEGORY)===-1));});matchingList.forEach(function(aMatching){var contact=aMatching.contact;matchingsFound[contact.id]={matchingContact:contact};});});reconcileResults(aContact,matchingsFound,results,callbacks);},onmismatch:function(){notifyMismatch(callbacks);}};doMatchTelAndEmail(aContact,localCbs);}
+function doMatchActive(aContact,callbacks){var options={linkedMatched:{},linkedTo:getLinkedTo(aContact)};var localCbs={onmatch:function(results){var cbsName={onmatch:function(nameResults){Object.keys(nameResults).forEach(function(aId){if(!results[aId]){results[aId]=nameResults[aId];}
+else{results[aId].matchings.name=nameResults[aId].matchings.name;}});notifyMatch(callbacks,results);},onmismatch:function(){notifyMatch(callbacks,results);}};matchByName(aContact,cbsName,options);},onmismatch:function(){matchByName(aContact,callbacks,options);}};doMatchTelAndEmail(aContact,localCbs,options);}
+function notifyFindNameReady(){document.dispatchEvent(new CustomEvent('by_name_ready'));}
+function matchByName(aContact,callbacks,options){var isSimContact=(Array.isArray(aContact.category)&&aContact.category.indexOf('sim')!==-1);if((isEmptyStr(aContact.familyName)||isEmptyStr(aContact.givenName))&&!isSimContact){notifyMismatch(callbacks);return;}
+var finalResult={};var resultsByName=[];if(!isEmptyStr(aContact.name)){var targetName=aContact.name[0].trim();var reqName=dataProvider.find({filterValue:targetName,filterBy:['name'],filterOp:'startsWith'});reqName.onsuccess=function(){resultsByName=reqName.result.filter(function(aResult){return filterFacebook(aResult,options);});notifyFindNameReady();};reqName.onerror=function(e){window.console.warn('Error while trying to find by name: ',e.target.error.name);notifyFindNameReady();};}
+else{notifyFindNameReady();}
+if(isEmptyStr(aContact.familyName)){endOfMatchByName(finalResult,aContact,resultsByName,callbacks);}
+else{var targetFamilyName=aContact.familyName[0].trim();var reqFamilyName=dataProvider.find({filterValue:targetFamilyName,filterBy:['familyName'],filterOp:'startsWith'});reqFamilyName.onsuccess=function(){var results=reqFamilyName.result;var givenNames=[];var targetGN=null;if(!isEmptyStr(aContact.givenName)){targetGN=Normalizer.toAscii(aContact.givenName[0].trim().toLowerCase()).replace(blankRegExp,'');}
+results.forEach(function(mContact){if(mContact.id===aContact.id||isEmptyStr(mContact.givenName)){return;}
+givenNames.push({contact:mContact,givenName:Normalizer.toAscii(mContact.givenName[0].trim().toLowerCase()).replace(blankRegExp,'')});});var finalMatchings=givenNames.filter(function(obj){var gn=obj.givenName;return((gn===targetGN||targetGN.startsWith(gn)||gn.startsWith(targetGN))&&filterFacebook(obj.contact,options));});finalMatchings.forEach(function(aMatching){finalResult[aMatching.contact.id]={matchings:{'name':[{target:targetFamilyName,matchedValue:Array.isArray(aMatching.contact.name)?aMatching.contact.name[0]:getCompleteName(aMatching.contact)}]},matchingContact:aMatching.contact};});if(resultsByName){endOfMatchByName(finalResult,aContact,resultsByName,callbacks);}
+else{document.addEventListener('by_name_ready',function nameReady(){document.removeEventListener('by_name_ready',nameReady);endOfMatchByName(finalResult,aContact,resultsByName,callbacks);});}};reqFamilyName.onerror=function(e){window.console.error('Error while trying to find by familyName: ',e.target.error.name);notifyMismatch(callbacks);};}}
+function getLinkedTo(contact){var out=null;if(Array.isArray(contact.category)){var idx=contact.category.indexOf(FB_LINKED);if(idx!==-1){out=contact.category[idx+1];}}
+return out;}
+function isFbLinked(contact){return(Array.isArray(contact.category)&&contact.category.indexOf(FB_LINKED)!==-1);}
+function isFbContact(contact){return(Array.isArray(contact.category)&&contact.category.indexOf(FB_CATEGORY)!==-1);}
+function filterFacebook(contact,linkParams){var out=false;if(!isFbContact(contact)){out=true;}
+else if(isFbLinked(contact)){var linkedTo=getLinkedTo(contact);var targetUid=linkParams.linkedTo||'';var linkedMatched=linkParams.linkedMatched||{};if(targetUid===linkedTo){out=true;}
+else if((Object.keys(linkedMatched).length===0||linkedMatched[linkedTo])&&!targetUid){linkedMatched[linkedTo]=linkedTo;out=true;}}
+return out;}
+function endOfMatchByName(finalResult,aContact,resultsByName,callbacks){resultsByName.forEach(function(aResult){if(aResult.id===aContact.id){return;}
+var matchingObj={matchings:{'name':[{target:(Array.isArray(aContact.name)&&(typeof aContact.name[0]==='string'))?aContact.name[0].trim():getCompleteName(aContact),matchedValue:Array.isArray(aResult.name)?aResult.name[0]:getCompleteName(aResult)}]},matchingContact:aResult};if(!finalResult[aResult.id]){finalResult[aResult.id]=matchingObj;}
+else{finalResult[aResult.id].matchings.name=matchingObj.matchings.name;}});if(Object.keys(finalResult).length>0){notifyMatch(callbacks,finalResult);}
+else{notifyMismatch(callbacks);}}
+function getCompleteName(contact){var givenName=Array.isArray(contact.givenName)?contact.givenName[0]:'';var familyName=Array.isArray(contact.familyName)?contact.familyName[0]:'';var completeName=givenName&&familyName?givenName+' '+familyName:givenName||familyName;return completeName;}
+function isEmpty(collection){return((!Array.isArray(collection)||!collection[0])||(collection[0]&&collection[0].value&&!collection[0].value.trim()));}
+function isEmptyStr(collection){return(!Array.isArray(collection)||(typeof collection[0]!=='string')||!(collection[0].trim()));}
+function hasName(aContact){return(!isEmptyStr(aContact.givenName)||!isEmptyStr(aContact.familyName));}
+function reconcileResults(incomingContact,nameMatches,phoneMailMatches,callbacks){var finalMatchings={};Object.keys(nameMatches).forEach(function(aNameMatching){var matchingContact=nameMatches[aNameMatching].matchingContact;var isPhoneMatching=Array.isArray(phoneMailMatches[aNameMatching].matchings.tel);var isMailMatching=Array.isArray(phoneMailMatches[aNameMatching].matchings.email);if(isPhoneMatching&&isMailMatching){finalMatchings[aNameMatching]=phoneMailMatches[aNameMatching];}
+else if(isPhoneMatching&&(isEmpty(incomingContact.email)||isEmpty(matchingContact.email))){finalMatchings[aNameMatching]=phoneMailMatches[aNameMatching];}
+else if(isMailMatching&&(isEmpty(incomingContact.tel)||isEmpty(matchingContact.tel))){finalMatchings[aNameMatching]=phoneMailMatches[aNameMatching];}});if(Object.keys(finalMatchings).length>0){notifyMatch(callbacks,finalMatchings);}
+else{notifyMismatch(callbacks);}}
+this.match=doMatch;Object.defineProperty(this,'dataProvider',{set:function(theProvider){dataProvider=theProvider;}});}
+exports.Matcher=new MatcherObj(navigator.mozContacts);}(window));

@@ -1,0 +1,110 @@
+var CustomDialog = function () {
+    var container = null;
+    var screen = null;
+    var dialog = null;
+    var header = null;
+    var message = null;
+    var yes = null;
+    var no = null;
+    return {
+        hide: function dialog_hide() {
+            if (screen === null) {
+                return;
+            }
+            if (!container) {
+                container = document.body;
+            }
+            container.removeChild(screen);
+            screen = null;
+            dialog = null;
+            header = null;
+            message = null;
+            yes = null;
+            no = null;
+        },
+        show: function dialog_show(title, msg, cancel, confirm, containerElement) {
+            container = containerElement || document.body;
+            if (screen === null) {
+                screen = document.createElement('form');
+                screen.setAttribute('role', 'dialog');
+                screen.setAttribute('data-type', 'confirm');
+                screen.id = 'dialog-screen';
+                dialog = document.createElement('section');
+                screen.appendChild(dialog);
+                var decorateWithOptions = function cd_decorateWithOptions(type, options, elm, dialog) {
+                    if ('string' === typeof options) {
+                        elm.setAttribute('data-l10n-id', options);
+                        return elm;
+                    }
+                    var icon = options.icon;
+                    var textElm = elm;
+                    if (icon && '' !== icon) {
+                        textElm = document.createElement('span');
+                        var iconImg = new Image();
+                        iconImg.src = icon;
+                        iconImg.classList.add('custom-dialog-' + type + '-icon');
+                        elm.insertBefore(iconImg, elm.firstChild);
+                        elm.appendChild(textElm);
+                    }
+                    if (options.id) {
+                        document.l10n.setAttributes(textElm, options.id, options.args);
+                    } else {
+                        var text = options[type];
+                        textElm.textContent = text;
+                    }
+                    return elm;
+                };
+                var setElementText = function (element, options) {
+                    if ('string' === typeof options) {
+                        element.setAttribute('data-l10n-id', options);
+                    }
+                    if (options.id) {
+                        document.l10n.setAttributes(element, options.id, options.args);
+                    }
+                };
+                header = document.createElement('h1');
+                header.id = 'dialog-title';
+                if (title && title !== '') {
+                    header = decorateWithOptions('title', title, header, dialog);
+                }
+                dialog.appendChild(header);
+                message = document.createElement('p');
+                message.id = 'dialog-message';
+                message = decorateWithOptions('message', msg, message, dialog);
+                dialog.appendChild(message);
+                var menu = document.createElement('menu');
+                menu.dataset.items = 1;
+                no = document.createElement('button');
+                no.type = 'button';
+                setElementText(no, cancel.title);
+                no.id = 'dialog-no';
+                no.addEventListener('click', clickHandler);
+                menu.appendChild(no);
+                if (confirm) {
+                    menu.dataset.items = 2;
+                    yes = document.createElement('button');
+                    yes.type = 'button';
+                    setElementText(yes, confirm.title);
+                    yes.id = 'dialog-yes';
+                    yes.className = confirm.recommend ? 'recommend' : 'danger';
+                    yes.addEventListener('click', clickHandler);
+                    menu.appendChild(yes);
+                } else {
+                    no.classList.add('full');
+                }
+                screen.appendChild(menu);
+                container.appendChild(screen);
+            }
+            screen.classList.add('visible');
+            function clickHandler(evt) {
+                screen.classList.remove('visible');
+                if (evt.target === yes && confirm.callback) {
+                    confirm.callback();
+                } else if (evt.target === no && cancel.callback) {
+                    cancel.callback();
+                }
+            }
+            return screen;
+        }
+    };
+}();

@@ -1,0 +1,2 @@
+
+define(['require','modules/settings_panel','panels/media_storage/media_storage'],function(require){'use strict';var SettingsPanel=require('modules/settings_panel');var MediaStorage=require('panels/media_storage/media_storage');return function ctor_media_storage_panel(){return SettingsPanel({onInit:function(){MediaStorage.init();}});};});

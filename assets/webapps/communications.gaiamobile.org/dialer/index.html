@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-group" content="theme-communications">
+    <meta name="theme-color" content="var(--header-background)">
+    <title>Dialer</title>
+
+    <!-- Localization -->
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/dialer.index.{locale}.json">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="/shared/style/animations.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/dialer/dialer.css">
+    <link rel="stylesheet" type="text/css" href="style/toolbar.css">
+
+    <link rel="stylesheet" type="text/css" href="/shared/style/dialer/keypad.css">
+    <link rel="stylesheet" type="text/css" href="/dialer/style/call_log.css">
+    <link rel="stylesheet" type="text/css" href="/dialer/style/suggestion.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/contacts/contact_in_overlay.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/dialer/overlay.css">
+
+    <link rel="stylesheet" type="text/css" href="/shared/style/tabs.css">
+
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia-icons/gaia-icons.css">
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia-icons/bidi-helper.css">
+
+    <link rel="stylesheet" type="text/css" href="/shared/style/option_menu.css">
+
+    <!-- JS -->
+    <!-- <script defer="" src="/shared/js/l10n.js"></script> -->
+    <!-- <script defer="" src="/shared/js/lazy_loader.js"></script> -->
+    <!-- <script defer="" src="/shared/js/font_size_utils.js"></script> -->
+    <!-- <script defer="" src="/dialer/js/index.js"></script> -->
+
+    <!-- <script defer="" src="/shared/js/dialer/contacts.js"></script> -->
+    <!-- <script defer="" src="/shared/js/dialer/dtmf_tone.js"></script> -->
+    <!-- <script defer="" src="/shared/js/dialer/font_size_manager.js"></script> -->
+    <!-- <script defer="" src="/shared/js/dialer/keypad.js"></script> -->
+    <!-- <script defer="" src="/shared/js/dialer/tone_player.js"></script> -->
+    <!-- <script defer="" src="/shared/js/dialer/utils.js"></script> -->
+    <!-- <script defer="" src="/shared/js/dialer/voicemail.js"></script> -->
+
+    <!-- <script defer="" src="/dialer/js/navigation.js"></script> -->
+    <!-- <script defer="" src="/dialer/js/dialer.js"></script> -->
+    <!-- <script defer="" src="/dialer/js/call_log.js"></script> -->
+    <!-- <script defer="" src="/dialer/js/call_log_db.js"></script> -->
+    <!-- <script defer="" src="/shared/js/accessibility_helper.js"></script> -->
+    <!-- <script defer="" src="/shared/js/async_storage.js"></script> -->
+    <!-- <script defer="" src="/shared/js/contact_photo_helper.js"></script> -->
+    <!-- <script defer="" src="/shared/js/multi_sim_action_button.js"></script> -->
+    <!-- <script defer="" src="/shared/js/notification_helper.js"></script> -->
+    <!-- <script defer="" src="/shared/js/simple_phone_matcher.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+
+    <!-- Lazy load all the things:
+    <link rel="stylesheet" type="text/css" href="/shared/style/action_menu.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/confirm.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/edit_mode.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/switches.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/lists.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/progress_activity.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/input_areas.css">
+    <link rel="stylesheet" type="text/css" href="/dialer/style/mmi.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/contacts/contacts_buttons.css">
+    <link rel="stylesheet" type="text/css" href="/shared/style/contacts.css">
+    <link rel="stylesheet" type="text/css" href="/dialer/style/buttons.css">
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia_menu/style.css">
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia_sim_picker/style.css">
+    <script defer src="/shared/elements/gaia_menu/script.js"></script>
+    <script defer src="/shared/elements/gaia_sim_picker/script.js"></script>
+    <script defer src="/shared/js/component_utils.js"></script>
+    <script defer src="/shared/js/mobile_operator.js"></script>
+    <script defer src="/shared/js/option_menu.js"></script>
+    <script defer src="/shared/js/settings_listener.js"></script>
+    <script defer src="/shared/js/confirm.js"></script>
+    <script defer src="/shared/js/fb/fb_request.js"></script>
+    <script defer src="/shared/js/fb/fb_data_reader.js"></script>
+    <script defer src="/shared/js/fb/fb_reader_utils.js"></script>
+    <script defer src="/shared/js/fb/fb_tel_index.js"></script>
+    <script defer src="/shared/js/binary_search.js"></script>
+    <script defer src="/shared/js/sticky_header.js"></script>
+    <script defer src="/shared/js/sim_settings_helper.js"></script>
+    <script defer src="/shared/js/dialer/telephony_messages.js"></script>
+    <script defer src="/shared/js/contacts/contacts_buttons.js"></script>
+    <script defer src="/shared/js/custom_dialog.js"></script>
+    <script defer src="/dialer/js/contact_data_manager.js"></script>
+    <script defer src="/dialer/js/suggestion_bar.js"></script>
+    <script defer src="/dialer/js/telephony_helper.js"></script>
+    <script defer src="/dialer/js/mmi.js"></script>
+    <script defer src="/dialer/js/mmi_ui.js"></script>
+    <script defer src="/shared/js/icc_helper.js"></script>
+    <script defer src="/shared/elements/config.js"></script>
+    <script defer src="/shared/elements/gaia-header/dist/gaia-header.js"></script>
+    <script defer src="/shared/js/text_normalizer.js"></script>
+    <script defer src="/shared/js/contacts/utilities/templates.js"></script>
+    <script defer src="/shared/js/contacts/sms_integration.js"></script>
+    -->
+
+    
+    
+    
+    
+    
+    
+    
+  <meta content="2.5" name="appVersion"></head>
+  <body role="application" class="skin-comms theme-communications">
+    <section id="views" role="tablist" class="bb-tablist">
+      <li role="presentation" class="view hidden" id="call-log-view">
+        <a aria-label="Recent calls" id="option-recents" role="tab" aria-controls="recents-panel" class="icon icon-recents" data-l10n-id="recents" aria-selected="false" data-destination="recents"></a>
+        <div id="recents-panel" role="tabpanel" class="bb-tabpanel" aria-labelledby="option-recents">
+          <section role="region">
+            <gaia-header>
+              <h1 data-l10n-id="callLog">Call log</h1>
+              <button aria-label="Edit call log" id="call-log-icon-edit" data-icon="edit" disabled="" data-l10n-id="callLogEditButton"></button>
+            </gaia-header>
+            <nav id="call-log-filter" class="recents-filter-container">
+              <ul role="tablist" class="bb-tablist" data-type="filter" aria-controls="call-log-container">
+                <li id="all-filter" role="presentation"><a aria-label="All" id="all-filter-tab" role="tab" aria-selected="true" data-action="all" data-l10n-id="all">All</a></li>
+                <li id="missed-filter" role="presentation"><a aria-label="Missed" id="missed-filter-tab" role="tab" aria-selected="false" data-action="missed" data-l10n-id="missed">Missed</a></li>
+              </ul>
+            </nav>
+            <div class="view-body">
+              <article id="call-log-container" role="tabpanel" class="view-body-inner active" data-type="list">
+                <div id="no-result-container" hidden="">
+                  <div id="no-result-message">
+                    <p id="no-result-msg1" data-l10n-id="no-logs-msg-1">No calls recorded</p>
+                    <p id="no-result-msg2" data-l10n-id="no-logs-msg-4">Start a conversation now</p>
+                    <p id="no-result-msg3" data-l10n-id="no-logs-msg-3" hidden="">No missed calls</p>
+                  </div>
+                </div>
+              </article>
+              <div id="sticky"></div>
+            </div>
+          </section>
+          <section id="call-info-view" role="region" hidden=""><!--
+
+  <gaia-header id="call-info-gaia-header" action="back">
+    <h1><bdi class="ellipsis-dir-fix" id="call-info-title" dir="auto"></bdi></h1>
+  </gaia-header>
+
+  <div class="ci__wrapper">
+    <div class="ci__calls-wrapper">
+      <div class="ci__group-info">
+        <p id="call-info-day" class="ci__grow"></p>
+        <p id="call-info-direction" class="ci__direction-icon"></p>
+      </div>
+
+      <div id="call-durations">
+      </div>
+    </div>
+
+    <div class="ci__contact-wrapper">
+      <div id="contact-detail">
+        <section id="phone-details-stub"></section>
+        <section id="email-details-stub"></section>
+        <ul id="call-info-list-details"></ul>
+      </div>
+
+      <div id="contact-actions">
+        <button id="call-info-details" class="activity" data-l10n-id="contactDetails" hidden=""></button>
+        <button id="call-info-add" class="activity" data-l10n-id="addToExistingContact" hidden=""></button>
+        <button id="call-info-create" class="activity" data-l10n-id="createNewContact" hidden=""></button>
+      </div>
+    </div>
+  </div>
+  --></section>
+        </div>
+      </li>
+      <li role="presentation" class="view" id="contacts-view">
+        <a aria-label="Contacts" id="option-contacts" role="tab" aria-controls="iframe-contacts-container" class="icon icon-contacts" data-l10n-id="contacts" aria-selected="false" data-destination="contacts"></a>
+        <div id="iframe-contacts-container" role="tabpanel" class="bb-tabpanel" aria-labelledby="option-contacts">
+        </div>
+      </li>
+      <li role="presentation" id="keyboard-view">
+        <a aria-label="Keypad" id="option-keypad" role="tab" aria-controls="keypad-panel" class="icon icon-keypad" data-l10n-id="keypad" aria-selected="true" data-destination="keypad"></a>
+        <div id="keypad-panel" role="tabpanel" class="bb-tabpanel" aria-labelledby="option-keypad">
+          <div id="phone-number-view-container" dir="ltr">
+            <div class="phone-number-view-wrapper-input">
+              <input aria-label="Phone number" id="phone-number-view" class="phone-number-font font-light textfield" readonly="readonly" data-l10n-id="phoneNumberInput" type="text">
+            </div>
+            <button aria-label="Delete" role="key" id="keypad-delete" class="reset-button" data-value="delete" data-l10n-id="keypadDelete">
+            </button>
+          </div>
+          <section id="suggestion-bar" class="suggestion-bar hide">
+            <div role="button" class="js-suggestion-item contact-item bb-button"><!--
+
+      <div class="js-name ci__name ellipsis" dir="auto"></div>
+      <div class="ci__details">
+        <span class="js-tel-type ci__tel-type ellipsis" dir="auto"></span>
+        <span class="js-separator"></span>
+        <span class="js-tel ellipsis" dir="ltr"></span>
+      </div>
+
+  --></div>
+            <div role="button" id="suggestion-count" class="suggestion-count more bb-button"></div>
+          </section>
+          <button role="button" id="contact-in-overlay-template" class="js-suggestion-item contact-item bb-button" hidden=""><!--
+
+      <div class="js-name ci__name ellipsis" dir="auto"></div>
+      <div class="ci__details">
+        <span class="js-tel-type ci__tel-type ellipsis" dir="auto"></span>
+        <span class="js-separator"></span>
+        <span class="js-tel ellipsis" dir="ltr"></span>
+      </div>
+
+  --></button>
+
+          <article id="keyboard-container" dir="ltr">
+            <section id="keypad">
+              <div class="keypad-row">
+                <div class="keypad-key" role="key" data-value="1">
+                  <span>1</span>
+                  <em aria-label="Voicemail" class="keypad-subicon voicemail" data-l10n-id="voiceMailKey"></em>
+                </div>
+                <div class="keypad-key" role="key" data-value="2">
+                  <span>2</span>
+                  <em>ABC</em>
+                </div>
+                <div class="keypad-key" role="key" data-value="3">
+                  <span>3</span>
+                  <em>DEF</em>
+                </div>
+              </div>
+              <div class="keypad-row">
+                <div class="keypad-key" role="key" data-value="4">
+                  <span>4</span>
+                  <em>GHI</em>
+                </div>
+                <div class="keypad-key" role="key" data-value="5">
+                  <span>5</span>
+                  <em>JKL</em>
+                </div>
+                <div class="keypad-key" role="key" data-value="6">
+                  <span>6</span>
+                  <em>MNO</em>
+                </div>
+              </div>
+              <div class="keypad-row">
+                <div class="keypad-key" role="key" data-value="7">
+                  <span>7</span>
+                  <em>PQRS</em>
+                </div>
+                <div class="keypad-key" role="key" data-value="8">
+                  <span>8</span>
+                  <em>TUV</em>
+                </div>
+                <div class="keypad-key" role="key" data-value="9">
+                  <span>9</span>
+                  <em>WXYZ</em>
+                </div>
+              </div>
+              <div class="keypad-row">
+                <div aria-label="Asterisk" class="keypad-key" role="key" data-value="*" data-l10n-id="asterisk">
+                  <span class="asterisk">*</span>
+                  <em>’</em>
+                </div>
+                <div class="keypad-key" role="key" data-value="0">
+                  <span>0</span>
+                  <em class="font-size-plus">+</em>
+                </div>
+                <div aria-label="Hash sign" class="keypad-key" role="key" data-type="dial" data-value="#" data-l10n-id="hashSign">
+                  <div class="sharp">#</div>
+                </div>
+              </div>
+            </section>
+            <section id="keypad-callbar">
+              <button aria-label="Add contact" id="keypad-callbar-add-contact" data-value="add-contact" class="reset-button keypad-callbar-button icon-add-contact disable-when-dialog-animates" data-l10n-id="dialerAddContact" disabled=""></button>
+              <button aria-label="Make call" id="keypad-callbar-call-action" class="reset-button" data-value="make-call" data-l10n-id="makeCall">
+                <div class="js-sim-indication"></div>
+              </button>
+            </section>
+          </article>
+        </div>
+      </li>
+    </section>
+
+    <form aria-label="Edit call log dialog" id="edit-mode" role="dialog" data-l10n-id="callLogEditDialog" data-type="edit" hidden=""><!--
+
+     <section role="region" class="theme-settings">
+       <gaia-header id="edit-mode-header" action="close">
+         <h1 id="header-edit-mode-text" data-l10n-id="edit"></h1>
+         <button id="delete-button" data-l10n-id="delete" disabled="">Delete</button>
+       </gaia-header>
+     </section>
+     <menu>
+       <button id="deselect-all-threads" class="edit-button" disabled="" data-l10n-id="deselectAll">Deselect all</button>
+       <button id="select-all-threads" class="edit-button" data-l10n-id="selectAll">Select all</button>
+     </menu>
+
+  --></form>
+
+    <form aria-label="Add Contact Dialog" id="add-contact-action-menu" role="dialog" data-l10n-id="dialerAddContactDialog" data-type="action" hidden=""><!--undefined--></form>
+
+    <gaia-sim-picker id="sim-picker" tabindex="-1"></gaia-sim-picker>
+
+    <form id="confirmation-message" class="hide no-opacity" role="dialog" data-type="confirm"><!--
+
+     <section>
+       <h1>Confirmation title</h1>
+       <p>Confirmation message</p>
+     </section>
+     <menu>
+       <button>Action 1</button>
+       <button>Action 2</button>
+     </menu>
+
+  --></form>
+
+    <form id="contact-list-overlay" role="dialog" data-type="action" class="overlay" aria-hidden="true"><!--
+
+    <header></header>
+    <menu id="contact-list">
+      <button id="contact-list-overlay-cancel" data-l10n-id="cancel">Cancel</button>
+    </menu>
+
+  --></form>
+
+    <section id="phone-details" hidden=""><!--
+    <li data-phone="" id="phone-details-template-#i#" data-template="" role="region" aria-label="Phone" data-l10n-id="phoneDetail">
+      <h2>
+        <span data-l10n-id="#type_l10n_id#">#type#</span>
+        <span class="carrier-wrapper" hidden="">
+          <span data-l10n-id="separator"></span>
+          <span class="carrier">#carrier#</span>
+        </span>
+      </h2>
+      <div class="item">
+        <div class="item-body-exp">
+          <div class="button activity call-action icon icon-call" id="call-or-pick-#i#">
+            <b aria-label="Call" data-l10n-id="makeCall"><bdi class="ellipsis-dir-fix">#value#</bdi></b>
+            <span class="js-sim-indication"></span>
+          </div>
+        </div>
+        <div class="item-media pull-right">
+          <button id="send-sms-button-#i#" class="activity send-sms icon icon-message" data-l10n-id="send-sms-button" aria-label="SMS"></button>
+        </div>
+      </div>
+    </li>
+  --></section>
+    <section id="email-details" hidden=""><!--
+    <li data-mail="" id="email-details-template-#i#" data-template="" role="region" aria-label="Email" data-l10n-id="emailDetail">
+      <h2 data-l10n-id="#type_l10n_id#">#type#</h2>
+      <div class="item">
+        <div class="item-body-exp">
+          <button id="email-or-pick-#i#" class="activity icon icon-email">
+            <b aria-label="Email" data-l10n-id="composeEmail" dir="ltr">#value#</b>
+          </button>
+        </div>
+        <div class="item-media pull-right">
+          <button id="send-sms-to-email-button-#i#" class="activity send-sms icon icon-message" data-l10n-id="send-sms-button" aria-label="SMS"></button>
+        </div>
+      </div>
+    </li>
+  --></section>
+
+    <article id="mmi-screen" role="region" hidden="">
+      <section role="region">
+        <gaia-header id="mmi-header" action="close">
+          <h1 id="header-title">USSD</h1>
+          <button id="send" data-l10n-id="send" disabled="">Send</button>
+        </gaia-header>
+      </section>
+      <section id="mmi-container" role="region">
+        <div id="message">
+        </div>
+      </section>
+      <form id="response" role="region">
+        <p>
+          <input id="response-text" data-l10n-id="type-your-response" placeholder="Type your response…" required="" disabled="" type="text">
+          <button id="response-text-reset" type="reset" data-l10n-id="clear-all-text">Clear all text</button>
+        </p>
+      </form>
+    </article>
+
+    <form data-type="confirm" role="dialog" id="loading-overlay" class="hide">
+      <section>
+        <h1 data-l10n-id="sending">Sending…</h1>
+        <p role="status">
+          <progress class="pack-activity" value="0" max="100"></progress>
+        </p>
+      </section>
+      <menu>
+        <button class="full" id="cancel" data-l10n-id="cancel">Cancel</button>
+      </menu>
+    </form>
+  </body>
+
+</html>

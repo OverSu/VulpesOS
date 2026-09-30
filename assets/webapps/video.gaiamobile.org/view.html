@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Videos</title>
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/view.{locale}.json">
+    <link rel="stylesheet" type="text/css" href="style/video.css">
+    <link rel="stylesheet" type="text/css" href="style/spinner.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/status.css">
+    <link rel="stylesheet" type="text/css" href="style/video_tablet.css" media="(min-height: 768px) and (min-width: 768px)">
+
+  <meta content="2.5" name="appVersion"></head>
+  <body role="application" class="skin-dark layout-fullscreen-player view-activity theme-media">
+    <!-- display this at startup while we create thumbnails -->
+    <div aria-valuetext="Loading" id="spinner-overlay" class="hidden" role="progress" data-l10n-id="spinner-overlay"><div id="spinner"></div></div>
+    <section role="region" id="player-view" class="video-controls-hidden">
+      <!-- video controls header -->
+      <gaia-header ignore-dir="" id="player-header" action="back" class="video-controls">
+        <h1 id="video-title"></h1>
+        <button id="save" data-l10n-id="save" hidden="">Save</button>
+      </gaia-header>
+      <!-- In order for the screen reader to be able to activate the container
+             to toggle controls, it must have the semantics of the button -->
+      <div id="video-container" role="button" tabindex="0">
+        <!-- Hiding the video element from the screen reader since the
+             controls are implemented elsewhere. -->
+        <video id="player" preload="metadata" aria-hidden="true"></video>
+      </div>
+      <!-- video controls footer toolbar -->
+      <div role="toolbar" class="video-controls bottom">
+        <!-- It is simpler and less verbose (for the screen reader) to not
+             expose that this block is a footer and consider it part of
+             its toolbar container. -->
+        <footer id="videoBar" role="presentation">
+          <div id="timeSlider" role="slider">
+            <!-- We need to use aria hideen for the text nodes in the slider
+                 subtree because the screen reader treats sliders as atomic
+                 elements and does not step inside their subtree. All the
+                 information is conveyed via the slider attributes instead -->
+            <span id="elapsed-text" aria-hidden="true"></span>
+            <div id="slider-wrapper" aria-hidden="true">
+              <div id="elapsedTime" class="progress"></div>
+              <div id="bufferedTime" class="progress"></div>
+              <div id="timeBackground" class="progress"></div>
+              <button id="playHead"></button>
+            </div>
+            <span id="duration-text" aria-hidden="true"></span>
+          </div>
+        </footer>
+        <!-- It is simpler and less verbose (for the screen reader) to not
+             expose that this block is a footer and consider it part of
+             its toolbar container. -->
+        <footer id="videoControlBar" role="presentation">
+          <div id="videoToolBar">
+            <button aria-label="Seek backward" id="seek-backward" class="player-controls-button" data-icon="skip-back" data-l10n-id="seek-backward"></button>
+            <button aria-label="Pause" id="play" data-l10n-id="pause-button" class="player-controls-button" data-icon="pause"></button>
+            <button aria-label="Seek forward" id="seek-forward" class="player-controls-button" data-icon="skip-forward" data-l10n-id="seek-forward"></button>
+          </div>
+        </footer>
+      </div>
+      <!-- display messages like "Cannot load video" here -->
+      <form id="in-use-overlay" role="dialog" data-type="confirm" class="hidden">
+        <section id="in-use-overlay-content">
+          <h1 id="in-use-overlay-title"></h1>
+          <p id="in-use-overlay-text"></p>
+        </section>
+      </form>
+    </section>
+    <section id="banner" role="status" hidden="">
+      <p id="message"></p>
+    </section>
+
+    <!-- Shared Libs -->
+    <script src="shared/js/intl/l20n.js"></script>
+    <script src="shared/js/device_storage/get_storage_if_available.js"></script>
+    <script src="shared/js/device_storage/get_unused_filename.js"></script>
+
+    <script defer="" src="shared/js/blobview.js"></script>
+    <script defer="" src="shared/js/mime_mapper.js"></script>
+    <script defer="" src="shared/js/media/get_video_rotation.js"></script>
+    <script defer="" src="shared/js/media/media_utils.js"></script>
+
+    <!-- Web Components -->
+    <script defer="" src="shared/elements/config.js"></script>
+    <link rel="stylesheet" type="text/css" href="shared/elements/gaia-icons/gaia-icons.css">
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+    <script defer="" src="shared/elements/gaia-header/dist/gaia-header.js"></script>
+
+    <!-- App Code -->
+    <script defer="" src="js/video_loading_checker.js"></script>
+    <script defer="" src="js/video_utils.js"></script>
+    <script defer="" src="js/forward_rewind_controller.js"></script>
+    <script defer="" src="js/seeker.js"></script>
+    <script defer="" src="js/view.js"></script>
+  </body>
+
+</html>

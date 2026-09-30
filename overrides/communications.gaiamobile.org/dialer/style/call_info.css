@@ -1,0 +1,78 @@
+#call-info-view {
+  position: absolute;
+  top: 0;
+  background: white;
+  width: 100vw;
+  height: calc(100vh - 4.5rem);
+  color: #333;
+}
+
+#call-info-view p {
+  margin: 0;
+}
+
+.ci__wrapper {
+  padding: 1.4rem 1.5rem 0;
+}
+
+.ci__calls-wrapper {
+  padding: 0 0.9rem 1.4rem;
+  padding-inline-start: 1.5rem;
+  margin-bottom: 1.6rem;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.ci__group-info {
+  display: flex;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.ci__grow {
+  flex-grow: 1;
+}
+
+.call-duration {
+  display: flex;
+  margin-top: 1rem;
+  font-size: 1.4rem;
+}
+
+.cd__duration {
+  text-align: end;
+}
+
+.ci__direction-icon {
+  width: 2rem;
+  height: 2rem;
+  background-size: cover;
+}
+
+.icon-outgoing {
+  background-image: image-set(url("images/call_info/callinfo_ic_outgoing.png") 1x, url("images/call_info/callinfo_ic_outgoing@1.5x.png") 1.5x, url("images/call_info/callinfo_ic_outgoing@2x.png") 2x, url("images/call_info/callinfo_ic_outgoing@2.25x.png") 2.25x);
+}
+
+.icon-incoming {
+  background-image: image-set(url("images/call_info/callinfo_ic_incoming.png") 1x, url("images/call_info/callinfo_ic_incoming@1.5x.png") 1.5x, url("images/call_info/callinfo_ic_incoming@2x.png") 2x, url("images/call_info/callinfo_ic_incoming@2.25x.png") 2.25x);
+}
+
+.icon-missed {
+  background-image: image-set(url("images/call_info/callinfo_ic_missed.png") 1x, url("images/call_info/callinfo_ic_missed@1.5x.png") 1.5x, url("images/call_info/callinfo_ic_missed@2x.png") 2x, url("images/call_info/callinfo_ic_missed@2.25x.png") 2.25x);
+}
+
+/**
+ * As <gaia-header> does not support <h1 dir="auto"> children, a <bdi> element
+ * must be nested and specific ellipsis rules must be applied.
+ *
+ * Horizontal padding must be applied in order to:
+ *  - not overlap the [action="back"] button
+ *  - keep the title centered
+ * (the magic 50px value corresponds to the size of the "back" button).
+ */
+#call-info-title {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding-left: 50px;
+  padding-right: 50px;
+}

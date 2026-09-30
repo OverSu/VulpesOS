@@ -1,0 +1,1 @@
+;'use strict';var files=[];var picking=(window.location.hash==='#pick');var photodb;

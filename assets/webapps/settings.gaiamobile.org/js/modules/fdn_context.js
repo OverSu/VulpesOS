@@ -1,0 +1,7 @@
+
+define([],function(){'use strict';var FdnContext={_fdnContacts:[],_cloneObject:function(obj){return JSON.parse(JSON.stringify(obj));},getContacts:function(cardIndex){var promise=new Promise((resolve,reject)=>{var iccId=navigator.mozMobileConnections[cardIndex].iccId;if(!iccId){console.log('can\'t get right iccId');reject();}
+var icc=navigator.mozIccManager.getIccById(iccId);if(!icc){console.log('Could not retrieve ICC object');reject();}
+var request=icc.readContacts('fdn');request.onerror=(error)=>{console.log('we got error when reading contacts from icc');console.log(error);reject();};request.onsuccess=()=>{var result=this._fdnContacts[cardIndex]=request.result;var contacts=[];for(var i=0,l=result.length;i<l;i++){contacts.push({id:i,name:result[i].name||'',number:result[i].tel[0].value||''});}
+resolve(contacts);};});return promise;},createAction:function(action,options){var simContact={};var cardIndex=options.cardIndex;var contact=options.contact;switch(action){case'add':simContact.name=[contact.name];simContact.tel=[{value:contact.number}];break;case'edit':simContact=this._cloneObject(this._fdnContacts[cardIndex][contact.id]);simContact.name[0]=contact.name;simContact.tel[0].value=contact.number;break;case'remove':simContact=this._cloneObject(this._fdnContacts[cardIndex][contact.id]);simContact.name[0]='';simContact.tel[0].value='';break;}
+var result=new window.mozContact(simContact);if('id'in simContact){result.id=simContact.id;}
+return result;}};return FdnContext;});

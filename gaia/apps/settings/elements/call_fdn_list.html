@@ -1,0 +1,26 @@
+<element name="call-fdnList" extends="section">
+  <template>
+
+    <gaia-header action="back" data-href="#call-fdnSettings">
+      <h1 data-l10n-id="fdn-authorizedNumbers-header"></h1>
+      <button class="fdnContact"><span data-l10n-id="add" class="icon icon-add"></span></button>
+    </gaia-header>
+
+    <gaia-menu hidden class="call-fdnList-action">
+      <header>
+        <span class="fdnAction-name"></span><br />
+        <span class="fdnAction-number"></span>
+      </header>
+      <button class="fdnAction-call" data-l10n-id="fdnAction-call"></button>
+      <button class="fdnAction-edit" data-l10n-id="fdnAction-edit"></button>
+      <button class="fdnAction-delete" data-l10n-id="fdnAction-delete"></button>
+    </gaia-menu>
+
+    <div>
+      <ul class="fdn-contactsContainer"></ul>
+    </div>
+
+    <panel data-path="panels/call_fdn_list/panel"></panel>
+
+  </template>
+</element>

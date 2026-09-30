@@ -1,0 +1,30 @@
+.hide {
+  display: none;
+}
+
+.no-opacity {
+  opacity: 0;
+}
+
+.ice-contacts-bar {
+  margin-top: -4.5rem;
+  height: 4.5rem;
+  font-size: 1.6rem;
+  font-style: italic;
+  width: 100%;
+  background-color: #e2443a;
+  color: #FFF;
+  line-height: 4.5rem;
+  padding: 0 1.6rem 0 1.5rem;
+}
+
+.ice-contacts-bar:after {
+  font-family: 'gaia-icons';
+  font-style: normal;
+  font-size: 3.7rem;
+  line-height: 4.5rem;
+  position: absolute;
+  offset-inline-end: 0.2rem;
+}
+html[dir="ltr"] .ice-contacts-bar:after { content: 'right-light'; }
+html[dir="rtl"] .ice-contacts-bar:after { content: 'left-light'; }

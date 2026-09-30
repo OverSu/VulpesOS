@@ -1,0 +1,2 @@
+;'use strict';(function(exports){var L10nLoader=function(){this.loadStarted=false;};L10nLoader.prototype.SCRIPT_URL='/shared/js/l10n.js';L10nLoader.prototype.load=function(){if(this.loadStarted){return;}
+this.loadStarted=true;document.documentElement.lang='x-untranslated';var script=document.createElement('script');script.src=this.SCRIPT_URL;document.body.appendChild(script);};exports.L10nLoader=L10nLoader;})(window);

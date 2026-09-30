@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+<meta charset="utf-8">
+<meta name="theme-group" content="theme-productivity">
+<meta name="theme-color" content="var(--header-background)" data-default="var(--header-background)" data-settings="#eeeeee">
+<title>Calendar</title>
+
+<!-- stylesheets -->
+<!-- need to keep shared styles on the markup so it gets copied to build_stage
+<link rel="stylesheet" type="text/css" href="/shared/style/tabs.css">
+<link rel="stylesheet" type="text/css" href="/shared/style/icons.css">
+-->
+<!-- lazy-loaded styles
+<link rel="stylesheet" type="text/css" href="/shared/style/buttons.css">
+<link rel="stylesheet" type="text/css" href="/shared/style/confirm.css">
+<link rel="stylesheet" type="text/css" href="/shared/style/status.css">
+<link rel="stylesheet" type="text/css" href="/shared/style/progress_activity.css">
+<link rel="stylesheet" type="text/css" href="/shared/style/input_areas.css">
+-->
+<link rel="stylesheet" type="text/css" href="/style/base.css">
+
+<!-- localization -->
+<meta name="defaultLanguage" content="en-US">
+<meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+<link rel="localization" href="/locales-obj/index.{locale}.json">
+
+<!-- <script defer="" src="/shared/js/date_time_helper.js"></script> -->
+<!-- <script defer="" src="/shared/js/intl_helper.js"></script> -->
+<!-- <script defer="" src="/shared/js/moz_intl.js"></script> -->
+<!-- <script defer="" src="/shared/js/l10n.js"></script> -->
+
+<!-- The following scripts are lazy loaded but left here to ensure
+     they get copied over from shared during the build -->
+<!-- <script defer src="/shared/js/gesture_detector.js"></script> -->
+<!-- <script defer src="/shared/js/input_parser.js"></script> -->
+<!-- <script defer src="/shared/js/lazy_loader.js"></script> -->
+<!-- <script defer src="/shared/js/notification_helper.js"></script> -->
+
+<!-- Web Components -->
+<!-- <script defer="" src="shared/js/component_utils.js"></script> -->
+<!-- <script defer="" src="shared/elements/gaia_subheader/script.js"></script> -->
+<!-- <script defer="" src="/shared/elements/gaia_checkbox/script.js"></script> -->
+<!-- <script defer="" src="/shared/elements/gaia_switch/script.js"></script> -->
+<!-- <script defer="" src="shared/elements/config.js"></script> -->
+<link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+<!-- <script defer="" src="shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+<link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/style.css">
+<!-- Icons are lazy loaded by gaia-header -->
+<!-- <link rel="stylesheet" type="text/css" href="shared/elements/gaia-icons/gaia-icons.css" /> -->
+
+<!-- <script defer="" src="/js/bundle.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+<meta content="2.5" name="appVersion"></head>
+
+<body role="application" class="loading theme-productivity">
+
+<section id="errors" role="status" aria-live="assertive" aria-atomic="true"><!--
+  <p class="errors"></p>
+  --></section>
+<section id="settings" role="region"><!--
+    <gaia-header id="settings-header" action="menu">
+      <h1></h1>
+    </gaia-header>
+
+    <div class="settings-shield"></div>
+
+    <div class="settings-drawer-container">
+      <div class="settings-drawer">
+        <ol class="calendars" role="listbox" aria-multiselectable="true" data-l10n-id="calendars">
+        </ol>
+
+        <ul role="tablist" class="bb-tablist">
+          <li class="settings">
+            <span class="icon" data-l10n-id="advanced-settings-short-icon-button"></span>
+          </li>
+          <li class="sync update">
+            <span class="icon" data-l10n-id="drawer-sync-icon-button"></span>
+            <span class="sync-progress" role="progressbar"></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  --></section>
+
+<section id="time-views" role="region">
+  <gaia-header id="time-header" action="menu">
+    <h1 id="current-month-year" aria-labelledby="current-time-indicator"></h1>
+    <a aria-label="Add event" href="/event/add/" data-icon="add" data-l10n-id="new-event-link"></a>
+  </gaia-header>
+
+  <div id="progress-indicator">
+    <div id="throbber"></div>
+  </div>
+
+  <section id="month-view" role="tabpanel" aria-labelledby="month"></section>
+
+  <!---
+  When a day is selected you have
+  access to the details here
+  -->
+  <section id="month-day-agenda" role="tabpanel">
+    <div id="event-list-date"></div>
+    <div id="empty-message" data-l10n-id="no-events" class="active">No Events</div>
+    <section id="event-list" class="day-events" role="listbox" aria-labelledby="event-list-date">
+    </section>
+  </section>
+
+  <section id="day-view" class="multi-day day-view" role="tabpanel" aria-labelledby="day"><!--
+    <div class="md__sticky">
+      <span class="md__all-day" data-icon="all-day" aria-hidden="true" data-l10n-id="all-day"></span>
+      <div class="md__alldays-wrapper">
+        <section class="md__alldays"></section>
+      </div>
+    </div>
+    <div class="md__main">
+      <div class="md__main-content">
+        <ol class="md__sidebar"></ol>
+        <div class="md__days-wrapper">
+          <section class="md__days"></section>
+        </div>
+      </div>
+    </div>
+  --></section>
+
+  <section id="week-view" class="multi-day week-view" role="tabpanel" aria-labelledby="week"><!--
+    <div class="md__sticky">
+      <span class="md__all-day" data-icon="all-day" aria-hidden="true" data-l10n-id="all-day"></span>
+      <div class="md__alldays-wrapper">
+        <section class="md__alldays"></section>
+      </div>
+    </div>
+    <div class="md__main">
+      <div class="md__main-content">
+        <ol class="md__sidebar"></ol>
+        <div class="md__days-wrapper">
+          <section class="md__days"></section>
+        </div>
+      </div>
+    </div>
+  --></section>
+
+  <ul id="view-selector" role="tablist" class="bb-tablist">
+    <li class="today" role="presentation" dir="ltr">
+      <a aria-label="Today" id="today" href="#today" data-l10n-id="present"><span class="gaia-icon icon-calendar-today"></span></a>
+    </li>
+    <li class="month" role="presentation"><a role="tab" aria-selected="true" aria-controls="month-view" id="month" data-l10n-id="show-month-view" href="/month/">Month</a></li>
+    <li class="week" role="presentation"><a role="tab" aria-selected="false" aria-controls="week-view" id="week" data-l10n-id="show-week-view" href="/week/">Week</a></li>
+    <li class="day" role="presentation"><a role="tab" aria-selected="false" aria-controls="day-view" id="day" data-l10n-id="show-day-view" href="/day/">Day</a></li>
+  </ul>
+</section>
+
+<section class="fullscreen-view theme-settings" id="create-account-view" role="region"><!--
+    <gaia-header id="create-account-header" action="back">
+      <h1 data-l10n-id="add-account"></h1>
+    </gaia-header>
+
+    <ol id="create-account-presets" class="link-list" role="listbox"></ol>
+  --></section>
+<section class="fullscreen-view in-progress theme-settings" role="region" id="advanced-settings-view"><!--
+    <gaia-header id="advanced-settings-header">
+      <h1 data-l10n-id="advanced-settings-header"></h1>
+      <a href="/settings/" data-l10n-id="done"></a>
+    </gaia-header>
+
+    <section class="content">
+      <div class="errors"></div>
+
+      <gaia-subheader id="account-list-header" class="account-list-header" skin="organic" role="heading" aria-level="2">
+        <span data-l10n-id="account-list-header">Accounts</span>
+      </gaia-subheader>
+
+      <ol class="account-list link-list" aria-labelledby="account-list-header" role="listbox">
+      </ol>
+
+      <ol role="presentation">
+        <li class="create-account-item" role="presentation">
+          <button class="create-account" href="/select-preset/" data-l10n-id="advanced-settings-add-account">
+            Add Account
+          </button>
+        </li>
+      </ol>
+
+      <gaia-subheader skin="organic" role="heading" aria-level="2">
+        <span data-l10n-id="advanced-settings-personalization">Personalization</span>
+      </gaia-subheader>
+
+      <ol class="settings-list link-list" role="presentation">
+        <li role="presentation">
+          <label>
+            <span data-l10n-id="sync-frequency">Sync Calendar</span>
+            <span class="button icon icon-dialog">
+              <select id="setting-sync-frequency" name="syncFrequency">
+                <option data-l10n-id="sync-frequency-15min" value="15">15 min</option>
+                <option data-l10n-id="sync-frequency-30min" value="30">30 min</option>
+                <option data-l10n-id="sync-frequency-manual" value="null">Manual</option>
+              </select>
+            </span>
+          </label>
+        </li>
+      </ol>
+
+      <gaia-subheader skin="organic" role="heading" aria-level="2">
+        <span data-l10n-id="advanced-settings-reminders">Reminders</span>
+      </gaia-subheader>
+
+      <ol class="settings-list link-list" role="presentation">
+        <li role="presentation">
+          <label id="default-event-alarm">
+            <span data-l10n-id="events">Events</span>
+            <span class="button icon icon-dialog"></span>
+          </label>
+        </li>
+        <li role="presentation">
+          <label id="default-allday-alarm">
+            <span data-l10n-id="allday-events">All-day Events</span>
+            <span class="button icon icon-dialog"></span>
+          </label>
+        </li>
+      </ol>
+    </section>
+  --></section>
+<section class="fullscreen-view" id="modify-event-view" role="region"><!--
+    <gaia-header id="modify-event-header" action="close">
+      <h1 data-l10n-id="new-event-header" class="save-text"></h1>
+      <h1 data-l10n-id="edit-event-header" class="done-text"></h1>
+      <button class="save">
+        <span data-l10n-id="save" class="save-text">Save</span>
+        <span data-l10n-id="done" class="done-text">Done</span>
+      </button>
+    </gaia-header>
+
+    <form>
+      <ol>
+        <li class="title">
+          <input name="title" data-l10n-id="event-title" x-inputmode="latin-prose" placeholder="Title" type="text">
+        </li>
+
+        <li class="location">
+          <input name="location" data-l10n-id="event-location" x-inputmode="latin-prose" placeholder="Where?" type="text">
+        </li>
+
+        <li class="allday">
+          <gaia-switch name="allday">
+            <label data-l10n-id="event-is-allday"></label>
+          </gaia-switch>
+        </li>
+
+        <li class="start-date">
+          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="start-date">
+            <input name="startDate" data-l10n-id="event-start-date" placeholder="Date" class="hidden-input" aria-hidden="true" type="date">
+            <span class="datetime" id="start-date-locale" data-type="date"></span>
+          </span>
+        </li>
+
+        <li class="start-time">
+          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="start-time">
+            <input data-l10n-id="event-start-time" placeholder="Start Time" name="startTime" class="hidden-input" aria-hidden="true" type="time">
+            <span class="datetime" id="start-time-locale" data-type="time"></span>
+          </span>
+        </li>
+
+        <li class="end-date">
+          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="end-date">
+            <input name="endDate" data-l10n-id="event-end-date" placeholder="Date" class="hidden-input" aria-hidden="true" type="date">
+            <span class="datetime" id="end-date-locale" data-type="date"></span>
+          </span>
+        </li>
+
+        <li class="end-time">
+          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="end-time">
+            <input data-l10n-id="event-end-time" placeholder="End Time" name="endTime" class="hidden-input" aria-hidden="true" type="time">
+            <span class="datetime" id="end-time-locale" data-type="time"></span>
+          </span>
+        </li>
+
+        <li class="current-calendar">
+          <span class="button icon icon-dialog" aria-disabled="true">
+            <input name="currentCalendar">
+          </span>
+        </li>
+
+        <li class="calendar-id">
+          <span class="button icon icon-dialog">
+            <select name="calendarId" class="loading">
+            </select>
+          </span>
+        </li>
+
+        <li>
+          <h3 data-l10n-id="remind-me" role="heading" aria-level="2">Remind me</h3>
+          <div class="alarms">
+          </div>
+        </li>
+
+        <li class="notes">
+          <textarea name="description" data-l10n-id="event-description" x-inputmode="latin-prose" placeholder="Notes"></textarea>
+        </li>
+
+      </ol>
+      <div class="delete">
+        <a role="button" data-l10n-id="event-delete" class="danger delete-record bb-button">
+          Delete Event
+        </a>
+      </div>
+
+      <section role="status">
+        <p class="errors"></p>
+      </section>
+    </form>
+  --></section>
+<section class="fullscreen-view" id="event-view" role="region"><!--
+    <gaia-header id="show-event-header" action="back">
+      <h1 id="view-event-header" data-l10n-id="view-event-header"></h1>
+      <button class="edit">
+        <span data-l10n-id="edit">Edit</span>
+      </button>
+    </gaia-header>
+
+    <section data-type="list">
+      <ul aria-labelledby="view-event-header">
+        <li class="title">
+          <h1 role="presentation"><span data-l10n-id="title" class="content"></span></h1>
+        </li>
+
+        <li class="location">
+          <span class="content" data-l10n-id="location"></span>
+        </li>
+
+        <li class="duration-time">
+          <span class="content" data-l10n-id="duration"></span>
+        </li>
+
+        <li class="current-calendar">
+          <div class="gaia-icon icon-calendar-dot" aria-hidden="true"></div>
+          <span class="content" data-l10n-id="calendar"></span>
+        </li>
+
+        <li class="alarms">
+          <span data-l10n-id="reminder">Reminder:</span>
+          <span class="content" role="list" data-l10n-id="alarms"></span>
+        </li>
+
+        <li class="description">
+          <span class="content" data-l10n-id="description"></span>
+        </li>
+      </ul>
+    </section>
+  --></section>
+<section class="fullscreen-view skin-dark" id="oauth2" role="region"><!--
+    <gaia-header id="oauth-header" action="back">
+      <h1 class="oauth-browser-title">
+        &nbsp;
+      </h1>
+    </gaia-header>
+    <div class="browser-container">
+    </div>
+  --></section>
+<section class="fullscreen-view skin-organic" id="modify-account-view" role="region"><!--
+    <gaia-header id="modify-account-header" action="back">
+      <h1 data-l10n-id="account-header"></h1>
+      <button class="save" data-l10n-id="save">Save</button>
+    </gaia-header>
+
+    <section class="during-progress" aria-live="assertive" aria-atomic="true">
+      <div>
+        <progress class="small" data-l10n-id="during-progress-loading"></progress>
+        <span data-l10n-id="modify-account-setting-up-2">SeTtiNg uP ACcOunt</span>
+      </div>
+    </section>
+
+    <form class="modify-account-form">
+      <fieldset>
+        <ol role="presentation">
+          <li class="user" role="presentation">
+            <input name="user" data-l10n-id="field-user" x-inputmode="verbatim" placeholder="Username">
+          </li>
+          <li class="password" role="presentation">
+            <input name="password" data-l10n-id="field-password" placeholder="Password" type="password">
+          </li>
+          <li class="full-url" role="presentation">
+            <input name="fullUrl" data-l10n-id="field-full-url" placeholder="URL" type="url">
+
+          </li>
+          <li class="sync-errors" role="presentation">
+            <p data-l10n-id="modify-account-unable-to-sync">&gt;uNaBle to SynC</p>
+          </li>
+          <li class="oauth2-sign-in" role="presentation">
+            <button data-l10n-id="modify-account-sign-in" class="force-oauth2"></button>
+          </li>
+          <li role="presentation">
+            <a data-l10n-id="remove-account-data" role="button" href="#remove-account-dialog" class="danger delete-record bb-button">
+              Remove Local Data
+            </a>
+          </li>
+        </ol>
+      </fieldset>
+    </form>
+
+    <section role="status" aria-live="assertive" aria-atomic="true">
+      <p class="errors"></p>
+    </section>
+
+    <form role="dialog" data-type="confirm" id="remove-account-dialog">
+      <section>
+        <h1 data-l10n-id="remove-account-dialog">Remove Account</h1>
+        <p data-l10n-id="remove-account-dialog-details">
+          Removing this account will also remove your local copy of associated calendars and events.
+        </p>
+      </section>
+      <menu>
+        <button class="delete-cancel" data-l10n-id="cancel">Cancel</button>
+        <button class="danger delete-confirm" data-l10n-id="confirm">Confirm</button>
+      </menu>
+    </form>
+  --></section>
+
+
+
+
+
+</body>
+</html>

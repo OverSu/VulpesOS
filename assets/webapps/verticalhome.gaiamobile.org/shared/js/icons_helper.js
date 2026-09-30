@@ -1,0 +1,32 @@
+;'use strict';(function IconsHelper(exports){const ICON_CACHE_PERIOD=24*60*60*1000;const FETCH_XHR_TIMEOUT=10000;const DEBUG=false;var dataStore=null;function getDefaultIconSize(){var dpr=window.devicePixelRatio;return(dpr&&dpr>1)?142:84;}
+function sizeIsNearer(size1,size2,targetSize){var delta1=Math.abs(targetSize-size1);var delta2=Math.abs(targetSize-size2);return(delta1<=delta2);}
+function getIcon(uri,iconTargetSize,placeObj={},siteObj={}){var iconUrl=null;iconTargetSize=iconTargetSize*window.devicePixelRatio;if(siteObj.webManifestUrl&&siteObj.webManifest){iconUrl=getBestIconFromWebManifest(siteObj.webManifest,iconTargetSize);if(DEBUG&&iconUrl){console.log('Icon from Web Manifest');}}
+if(!iconUrl&&siteObj.manifest&&siteObj.manifest.icons){iconUrl=getBestIconFromWebManifest({icons:_convertToWebManifestIcons(siteObj.manifest,siteObj.origin||siteObj.manifest.origin)},iconTargetSize);if(DEBUG&&iconUrl){console.log('Icon from Firefox App Manifest');}}
+if(!iconUrl&&placeObj&&placeObj.icons){iconUrl=getBestIconFromMetaTags(placeObj.icons,iconTargetSize);if(DEBUG&&iconUrl){console.log('Icon from Meta tags');}}
+if(!iconUrl){var a=document.createElement('a');a.href=uri;iconUrl=a.origin+'/favicon.ico';if(iconTargetSize){iconUrl+='#-moz-resolution='+iconTargetSize+','+iconTargetSize;}
+DEBUG&&console.log('Icon from favicon.ico');}
+return new Promise(resolve=>{resolve(iconUrl);});}
+function getIconBlob(uri,iconTargetSize,placeObj={},siteObj={}){return new Promise((resolve,reject)=>{getIcon(uri,iconTargetSize,placeObj,siteObj).then(iconUrl=>{getStore().then(iconStore=>{iconStore.get(iconUrl).then(iconObj=>{if(!iconObj||!iconObj.timestamp||Date.now()-iconObj.timestamp>=ICON_CACHE_PERIOD){return fetchIconBlob(iconUrl).then(iconBlob=>{var img=document.createElement('img');var icon=new Icon(img,uri);icon.renderBlob(iconBlob,{size:iconTargetSize,onLoad:function(blob){var iconObj={blob:blob,originalUrl:iconUrl.toString(),timestamp:Date.now()};resolve(iconObj);iconStore.add(iconObj,iconUrl);},onerror:function(e){reject(`Failed to fetch icon ${iconUrl}`);}});}).catch(err=>{reject(`Failed to fetch icon ${iconUrl}: ${err}`);});}
+return resolve(iconObj);}).catch(err=>{reject(`Failed to get icon from dataStore: ${err}`);});}).catch(err=>{reject(`Error opening the dataStore: ${err}`);});});});}
+function setElementIcon(icon,targetSize){return getIconBlob(icon.bookmark.url,targetSize,icon.bookmark,icon.bookmark).then(iconObj=>{if(iconObj.blob){icon.icon=iconObj.blob;return Promise.resolve();}else if(icon.bookmark.icon){return fetchIconBlob(icon.bookmark.icon).then(iconBlob=>{icon.icon=iconBlob;return Promise.resolve();},Promise.reject.bind(Promise));}
+return Promise.reject('No icon data found');},Promise.reject.bind(Promise));}
+function getBestIconFromWebManifest(webManifest,iconSize){var icons=webManifest.icons;if(!icons){return null;}
+var maxSize=10000;var bestSize=maxSize;var iconURL=null;iconSize=iconSize||getDefaultIconSize();icons.forEach((potentialIcon)=>{if(!iconURL){iconURL=potentialIcon.src;}
+var sizes=Array.from(potentialIcon.sizes);var nearestSize=getNearestSize(sizes,iconSize,bestSize);if(nearestSize!==bestSize&&sizeIsNearer(nearestSize,bestSize,iconSize)){iconURL=potentialIcon.src;bestSize=nearestSize;}});return iconURL?iconURL:null;}
+function _convertToWebManifestIcons(manifest,origin){return Object.keys(manifest.icons).map(function(size){var url=manifest.icons[size];var sizes=[size+'x'+size];url=url.indexOf('http')>-1?url:origin+url;return{src:new URL(url),sizes:sizes};});}
+function getBestIconFromMetaTags(icons,iconSize){if(!icons){return null;}
+iconSize=iconSize||getDefaultIconSize();var iconURL=null;var bestSize=10000;Object.keys(icons).forEach((uri)=>{var potentialIcon=icons[uri];if(!iconURL){iconURL=uri;}
+var sizes=Array.from(potentialIcon.sizes);var nearestSize=getNearestSize(sizes,iconSize,bestSize);if(nearestSize!==bestSize&&sizeIsNearer(nearestSize,bestSize,iconSize)){iconURL=uri;bestSize=nearestSize;}
+if(potentialIcon.rel==='apple-touch-icon'||potentialIcon.rel==='apple-touch-icon-precomposed'){var moreInfoUrl='https://developer.mozilla.org/en-US/'+'Apps/Build/Icon_implementation_for_apps#General_icons_for_web_apps';console.warn('Warning: The apple-touch icons are being used '+'as a fallback only. They will be deprecated in '+'the future. See '+moreInfoUrl);}});return iconURL||null;}
+function getNearestSize(sizes,iconSize,bestSize){var bogusSize=10000;if(!bestSize){bestSize=bogusSize;}
+var nearestSize=sizes.reduce(function(nearestSize,sizeString,idx){var size=widthFromSizeString(sizeString);if(isNaN(size)){return nearestSize;}
+if(sizeIsNearer(size,nearestSize,iconSize)){return size;}else{return nearestSize;}},bestSize);return nearestSize===bogusSize?-1:nearestSize;}
+function widthFromSizeString(size){size=size||'';var xIndex=size.indexOf('x');if(!xIndex){return NaN;}
+return parseInt(size.substr(0,xIndex));}
+function getStore(){return new Promise(resolve=>{if(dataStore){return resolve(dataStore);}
+navigator.getDataStores('icons').then(stores=>{dataStore=stores[0];return resolve(dataStore);});});}
+function clear(){return getStore().then(iconStore=>{iconStore.clear();});}
+function fetchIcon(iconUrl){return new Promise((resolve,reject)=>{fetchIconBlob(iconUrl).then((iconBlob)=>{var img=document.createElement('img');img.src=URL.createObjectURL(iconBlob);img.onload=()=>{var iconSize=Math.max(img.naturalWidth,img.naturalHeight);resolve({blob:iconBlob,url:iconUrl,size:iconSize,timestamp:Date.now()});};img.onerror=()=>{reject(new Error(`Error while loading image.`));};}).catch((e)=>{reject(new Error(`Error while loading image: ${e}`));});});}
+function fetchIconBlob(iconUrl){return new Promise((resolve,reject)=>{var xhr=new XMLHttpRequest({mozAnon:true,mozSystem:true});xhr.open('GET',iconUrl,true);xhr.responseType='blob';xhr.timeout=FETCH_XHR_TIMEOUT;xhr.send();xhr.onload=()=>{if(xhr.readyState===XMLHttpRequest.DONE&&xhr.status===200){var iconBlob=xhr.response;resolve(iconBlob);return;}
+reject(new Error(`Got HTTP status ${xhr.status} trying to load ${iconUrl}.`));};xhr.onerror=xhr.ontimeout=()=>{reject(new Error(`Error while getting ${iconUrl}.`));};});}
+exports.IconsHelper={getIcon:getIcon,getIconBlob:getIconBlob,setElementIcon:setElementIcon,getBestIconFromWebManifest:getBestIconFromWebManifest,getBestIconFromMetaTags:getBestIconFromMetaTags,fetchIcon:fetchIcon,fetchIconBlob:fetchIconBlob,get defaultIconSize(){return getDefaultIconSize();},clear:clear,getNearestSize:getNearestSize,};})(window);

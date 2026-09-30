@@ -1,0 +1,15 @@
+{
+  "source": "archived simulator-2.6/firefox/fonts",
+  "version": "3.109",
+  "license": "SIL OFL 1.1 or later",
+  "files": {
+    "FiraSans-Bold.otf": "e04e88a46354e016479b29aca26b8ecceef782a41717b473be49b7185e51b0ae",
+    "FiraSans-BoldItalic.otf": "51370d21caf05bb24e1a7df8136fa0b3c64ac460ee1ed06d80dfa727d65ff913",
+    "FiraSans-Italic.otf": "c2623a8a40ae303b75a7a43cfa425da1be45ce557113f70e1101ffae5d47d6e2",
+    "FiraSans-Light.otf": "3e77b02c1cc5a941946d04bfa3cf9f2a966f9346dea49733826dafb82649de53",
+    "FiraSans-LightItalic.otf": "ea9a0f4adc7291f33d7197f38d71b67ebf545c789c1277a12ed70c06dc3c75c9",
+    "FiraSans-Medium.otf": "d077a6912740716e40e32d8fe7ac1872b4e1b301a1a81b0ded6e2e8c9e6f4c87",
+    "FiraSans-MediumItalic.otf": "51ac0ad63c173c5ad9167069c52bd71f5d816c2b8e28f35eff5166acefa31f26",
+    "FiraSans-Regular.otf": "1138cf82e69c6b20d6a7e2732069136c3d3a947949cbcaf8743f0c1e7101fe84"
+  }
+}

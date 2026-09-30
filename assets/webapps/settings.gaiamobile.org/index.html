@@ -1,0 +1,4619 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-group" content="theme-settings">
+    <meta name="theme-color" content="var(--header-background)">
+    <title>Settings</title>
+
+    <!-- Debug/DUMP method support -->
+    <!-- <script defer="" src="/shared/js/dump.js"></script> -->
+
+    <!-- Common style -->
+    <link rel="stylesheet" type="text/css" href="shared/style/headers.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/status.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/buttons.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/input_areas.css">
+
+    <!-- Specific style -->
+    <link rel="stylesheet" type="text/css" href="style/lists.css">
+    <link rel="stylesheet" type="text/css" href="style/icons.css">
+    <link rel="stylesheet" type="text/css" href="style/settings.css">
+    
+    <link rel="stylesheet" type="text/css" href="style/settings_phone.css" data-device-type="phone">
+    <link rel="stylesheet" type="text/css" href="style/dialog.css">
+    <link rel="stylesheet" type="text/css" href="style/icc.css">
+    <!-- Panel Stylesheets
+    <link rel="stylesheet" type="text/css" href="shared/elements/gaia-icons/bidi-helper.css">
+    <link rel="stylesheet" type="text/css" href="shared/style/confirm.css"/>
+    <link rel="stylesheet" type="text/css" href="shared/style/progress_activity.css"/>
+    <link rel="stylesheet" type="text/css" href="style/homescreens.css"/>
+    <link rel="stylesheet" type="text/css" href="style/achievements.css"/>
+    <link rel="stylesheet" type="text/css" href="style/apps.css"/>
+    <link rel="stylesheet" type="text/css" href="style/screen_lock.css"/>
+    <link rel="stylesheet" type="text/css" href="style/simcard.css"/>
+    <link rel="stylesheet" type="text/css" href="style/updates.css"/>
+    <link rel="stylesheet" type="text/css" href="style/downloads.css"/>
+    <link rel="stylesheet" type="text/css" href="style/developer_service_workers.css"/>
+    <script defer="" src="shared/elements/gaia_buttons/script.js"></script>
+    <script defer="" src="shared/elements/gaia_confirm/script.js"></script>
+    <script defer="" src="shared/elements/gaia_menu/script.js"></script>
+    -->
+
+    <!-- Shared resources
+    <link rel="resource" type="application/json" href="shared/resources/tz.json"/>
+    <link rel="resource" type="application/json" href="shared/resources/apn.json"/>
+    <link rel="resource" type="application/json" href="shared/resources/apn_tz.json"/>
+    <link rel="resource" type="application/json" href="shared/resources/languages.json"/>
+    <link rel="resource" type="application/json" href="shared/resources/media/ringtones/"/>
+    <link rel="resource" type="application/json" href="shared/resources/media/notifications/"/>
+    <link rel="resource" type="application/json" href="shared/resources/keyboard_layouts.json"/>
+    <link rel="resource" type="image/png" href="shared/resources/branding/privacy_sprite.png"/>
+    <link rel="resource" type="application/json" href="shared/js/search_providers.json"/>
+    -->
+
+    <!-- Components -->
+    <!-- <script defer="" src="shared/elements/config.js"></script> -->
+    <link rel="stylesheet" type="text/css" href="/shared/elements/gaia-icons/gaia-icons.css">
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+    <!-- <script defer="" src="shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+    <!-- <script defer="" src="shared/js/component_utils.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_checkbox/script.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_menu/script.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_radio/script.js"></script> -->
+    <!-- <script defer="" src="shared/elements/gaia_switch/script.js"></script> -->
+
+    <!-- Localization -->
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+
+    <link rel="localization" href="/locales-obj/index.{locale}.json">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- <script src="shared/js/intl/l20n.js"></script> -->
+    <!-- <script src="shared/js/moz_intl.js"></script> -->
+    <!-- <script defer="" src="shared/js/date_time_helper.js"></script> -->
+
+    <!-- Lazy loader -->
+    <!-- <script src="shared/js/lazy_loader.js"></script> --><script src="./gaia_build_index.js" type="text/javascript"></script>
+
+    <!-- Screen layout watcher -->
+    <!-- <script defer="" src="shared/js/screen_layout.js"></script> --><script src="./gaia_build_defer_index.js" defer="" type="text/javascript"></script>
+
+    <!-- shared helper library -->
+    <!--<script defer src="shared/js/addons/match_pattern.js"></script>-->
+    <!--<script defer src="shared/js/download/download_store.js"></script>-->
+    <!--<script defer src="shared/js/download/download_helper.js"></script>-->
+    <!--<script defer src="shared/js/download/download_ui.js"></script>-->
+    <!--<script defer src="shared/js/mime_mapper.js"></script>-->
+    <!--<script defer src="shared/js/download/download_formatter.js"></script>-->
+    <!--<script defer src="shared/js/icc_helper.js"></script>-->
+    <!--<script defer src="shared/js/input_mgmt/input_app_list.js"></script>-->
+    <!--<script defer src="shared/js/keyboard_helper.js"></script>-->
+    <!--<script defer src="shared/js/language_list.js"></script>-->
+    <!--<script defer src="shared/js/manifest_helper.js"></script>-->
+    <!--<script defer src="shared/js/mobile_operator.js"></script>-->
+    <!--<script defer src="shared/js/async_storage.js"></script>-->
+    <!--<script defer src="shared/js/wifi_helper.js"></script>-->
+    <!--<script defer src="shared/js/settings_helper.js"></script> -->
+    <!--<script defer src="shared/js/settings_listener.js"></script> -->
+    <!--<script defer src="shared/js/airplane_mode_helper.js"></script> -->
+    <!--<script defer src="shared/js/toaster.js"></script> -->
+    <!--<script defer src="shared/js/lazy_loader.js"></script> -->
+    <!--<script defer src="shared/js/screen_layout.js"></script> -->
+    <!--<script defer src="shared/js/fxa_iac_client.js"></script> -->
+    <!--<script defer src="shared/js/text_normalizer.js"></script> -->
+    <!--<script defer src="shared/js/settings_url.js"></script> -->
+    <!--<script defer src="shared/js/simslot.js"></script> -->
+    <!--<script defer src="shared/js/simslot_manager.js"></script> -->
+    <!--<script defer src="shared/js/omadrm/fl.js"></script> -->
+    <!--<script defer src="shared/js/device_storage/enumerate_all.js"></script> -->
+    <!--<script defer src="shared/js/tz_select.js"></script> -->
+    <!--<script defer src="shared/js/sim_settings_helper.js"></script> -->
+    <!--<script defer src="shared/js/sanitizer.js"></script> -->
+    <!--<script defer src="shared/js/format.js"></script> -->
+    <!--<script defer src="shared/js/search_provider.js"></script> -->
+    <!--<script defer src="shared/js/homescreens/homescreen_settings.js"></script> -->
+    <!--<script defer src="shared/js/stk_helper.js"></script>-->
+    <!--<script defer src="shared/js/uuid.js"></script>-->
+    <!--<script defer src="shared/js/passcode_helper.js"></script>-->
+    <!--<script defer src="shared/js/sync/errors.js"></script>-->
+    <!--<script defer src="shared/js/findmydevice_iac_api.js"></script>-->
+
+    <!-- all non-#root panels will lazy-load their own scripts -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- Call Forwarding -->
+    
+    
+    
+    
+    
+
+    <!-- Call Barring -->
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- <link rel="import" href="/elements/achievements.html"> -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  <meta content="2.5" name="appVersion"></head>
+  <body class="skin-organic uninit theme-settings">
+    <!--
+      - Lazy-Loading: to avoid parsing all settings panels before necessary, the
+      - HTML markup is included in a comment node and applied with `.innerHTML'
+      - when the sub-panel is loaded.
+      -
+      - When a panel includes <script> nodes, these scripts might require all
+      - sub-panels to be loaded to work properly. We rely on the panel ID to get
+      - its dependencies, e.g. the #wifi panel depends on all panels matching
+      - the « section[id^="wifi-"] » selector.
+      -
+      - Long story short: BE VERY CAREFUL WHEN CHANGING A SECTION ID!
+      -
+      - Regarding data-require-sub-panels: This is a temporary declarative way
+      - to say that a panel requires the all subpanels which match the pattern
+      - 'section[id^="' + panel.id + '-"]' to be loaded before loading.
+      - This is to be removed soon in bug 922658.
+      -->
+
+    <!--
+      - Note: the panels are stacked in reverse order on purpose - the main
+      - panel always comes last.  With this order, no 'z-index' rule is required
+      - to handle the panel transitions.
+      -->
+
+    <!-- Connectivity :: Wi-Fi :: Network Status -->
+    <section role="region" class="dialog" id="wifi-status"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-ssid=""> Network Status </h1>
+      <button type="submit"><span data-l10n-id="forget"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a>
+            <span data-l10n-id="security"></span>
+            <span data-security=""></span>
+          </a>
+        </li>
+        <li>
+          <a>
+            <span data-l10n-id="signalStrength"></span>
+            <span data-signal=""></span>
+          </a>
+        </li>
+        <li>
+          <a>
+            <span data-l10n-id="ipAddress"></span>
+            <span data-ip=""></span>
+          </a>
+        </li>
+        <li>
+          <a>
+            <span data-l10n-id="linkSpeed"></span>
+            <span data-speed=""></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/wifi_status/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi :: Network Authentication -->
+    <section role="region" class="dialog" id="wifi-auth"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-ssid=""></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a>
+            <span data-l10n-id="security"></span>
+            <span data-security="">WPA-PSK</span>
+          </a>
+        </li>
+        <li>
+          <a>
+            <span data-l10n-id="signalStrength"></span>
+            <span data-signal="">good</span>
+          </a>
+        </li>
+        <li class="eap">
+          <p data-l10n-id="eap">EAP method</p>
+          <span class="button icon icon-dialog" data-eapmethod="">
+            <select>
+              <option value="SIM">SIM</option>
+              <option value="PEAP">PEAP</option>
+              <option value="TTLS">TTLS</option>
+            </select>
+          </span>
+        </li>
+        <li class="auth-phase2">
+          <p data-l10n-id="auth-phase2"></p>
+          <span class="button icon icon-dialog">
+            <select>
+              <option value="No">No</option>
+              <option value="PAP">PAP</option>
+              <option value="MSCHAP">MSCHAP</option>
+              <option value="MSCHAPV2">MSCHAP V2</option>
+              <option value="GTC">GTC</option>
+            </select>
+          </span>
+        </li>
+        <li class="identity">
+          <p data-l10n-id="wifi-auth-username"></p>
+          <input data-ignore="" name="identity" dir="auto" type="text">
+        </li>
+        <li class="password">
+          <p data-l10n-id="wifi-auth-password"></p>
+          <input data-ignore="" name="password" maxlength="63" x-inputmode="verbatim" type="password">
+          <gaia-checkbox data-ignore="" name="show-pwd" id="pwd-auth" class="inline">
+            <label data-l10n-id="showPassword"></label>
+          </gaia-checkbox>
+        </li>
+        <li class="server-certificate">
+          <p data-l10n-id="server-certificate"></p>
+          <span class="button icon icon-dialog">
+            <select>
+              <option value="none">--</option>
+            </select>
+          </span>
+        </li>
+        <li class="description server-certificate-description">
+          <p data-l10n-id="import-certificate-msg"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/wifi_auth/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi :: Join Hidden Network -->
+    <section role="region" class="dialog" id="wifi-joinHidden"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="authentication-header"></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <p data-l10n-id="ssid-name"></p>
+          <input data-ignore="" name="ssid" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="security"></p>
+          <span class="button icon icon-dialog">
+            <select name="security">
+              <option data-l10n-id="securityNone"></option>
+              <option>WEP</option>
+              <option selected="">WPA-PSK</option>
+              <option>WPA-EAP</option>
+            </select>
+          </span>
+        </li>
+        <li class="eap">
+          <p data-l10n-id="eap"></p>
+          <span class="button icon icon-dialog" data-eapmethod="">
+            <select name="eap">
+              <option value="SIM">SIM</option>
+              <option value="PEAP">PEAP</option>
+              <option value="TTLS">TTLS</option>
+            </select>
+          </span>
+        </li>
+        <li class="auth-phase2">
+          <p data-l10n-id="auth-phase2"></p>
+          <span class="button icon icon-dialog">
+            <select>
+              <option value="No">No</option>
+              <option value="PAP">PAP</option>
+              <option value="MSCHAP">MSCHAP</option>
+              <option value="MSCHAPV2">MSCHAP V2</option>
+              <option value="GTC">GTC</option>
+            </select>
+          </span>
+        </li>
+        <li class="identity">
+          <p data-l10n-id="wifi-join-username"></p>
+          <input data-ignore="" name="identity" dir="auto" type="text">
+        </li>
+        <li class="password">
+          <p data-l10n-id="wifi-join-password"></p>
+          <input data-ignore="" name="password" maxlength="63" type="password">
+          <gaia-checkbox data-ignore="" name="show-pwd" id="pwd-joinHidden" class="inline">
+            <label data-l10n-id="showPassword"></label>
+          
+        </gaia-checkbox></li>
+        <li class="server-certificate">
+          <p data-l10n-id="server-certificate"></p>
+          <span class="button icon icon-dialog">
+            <select>
+              <option value="none">--</option>
+            </select>
+          </span>
+        </li>
+        <li class="description server-certificate-description">
+          <p data-l10n-id="import-certificate-msg"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/wifi_join_hidden/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi :: WPS -->
+    <section role="region" class="dialog" id="wifi-wps"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="wpsMessage-header"></h1>
+      <button type="submit"><span data-l10n-id="ok">OK</span></button>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="wpsMethodSelection"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-radio data-setting="wifi.wps.method" name="wpsMethodSelection" value="pbc" checked="">
+            <label data-l10n-id="wpsPbcLabel"></label>
+          </gaia-radio>
+        </li>
+        <li>
+          <gaia-radio data-setting="wifi.wps.method" name="wpsMethodSelection" value="myPin">
+            <label data-l10n-id="wpsMyPinLabel"></label>
+          </gaia-radio>
+        </li>
+        <li hidden="">
+          <gaia-radio data-setting="wifi.wps.method" name="wpsMethodSelection" value="apPin">
+            <label data-l10n-id="wpsApPinLabel"></label>
+          </gaia-radio>
+        </li>
+        <li class="wifi-wps-pin-area">
+          <p data-l10n-id="wpsPinDescription"></p>
+          <input x-inputmode="digit" size="8" maxlength="8" type="password">
+        </li>
+        <li class="wifi-wps-pin-aps">
+          <p data-l10n-id="wpsPinAps"></p>
+          <span class="button icon icon-dialog">
+            <select></select>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/wifi_wps/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi :: Saved Networks -->
+    <section role="region" id="wifi-manageNetworks"><!--
+
+    <gaia-header action="back" data-href="#wifi">
+      <h1 data-l10n-id="manageNetworks-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <span data-l10n-id="macAddress"></span>
+          <small data-name="deviceinfo.mac"></small>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="knownNetworks"></h2>
+      </header>
+      <ul class="wifi-knownNetworks" data-state="ready">
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="hiddenNetworks"></h2>
+      </header>
+      <ul>
+        <li>
+          <a class="menu-item joinHidden" href="#">
+            <span data-l10n-id="joinHiddenNetwork"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <form role="dialog" data-type="confirm" hidden="">
+      <section>
+        <h1 data-l10n-id="forgetNetwork-confirmation"></h1>
+        <p data-l10n-id="forgetNetwork-dialog"></p>
+      </section>
+      <menu>
+        <button data-l10n-id="cancel" type="reset"></button>
+        <button data-l10n-id="device-option-confirm" id="confirm-option" class="danger"></button>
+      </menu>
+    </form>
+
+    <panel data-path="panels/wifi_manage_networks/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi :: Manage Certificates -->
+    <section role="region" id="wifi-manageCertificates"><!--
+
+    <gaia-header action="back" data-href="#wifi">
+      <h1 data-l10n-id="manageCertificates-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="certificateList"></h2>
+      </header>
+      <ul class="wifi-certificateList">
+      </ul>
+      <ul class="operate-certificate">
+        <li>
+          <button class="icon deleteCertificate" data-l10n-id="deleteCertificate" disabled="true"></button>
+        </li>
+        <li>
+          <a class="menu-item importCertificate" href="#wifi-selectCertificateFile">
+            <span data-l10n-id="importCertificate"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <form role="dialog" data-type="confirm" class="certificate-deletion-failed" hidden="">
+      <section>
+        <h1 data-l10n-id="certificate-deletion-failed"></h1>
+        <p data-l10n-id="certificate-deletion-failed-description"></p>
+      </section>
+      <menu>
+        <button data-l10n-id="ok" class="full danger" id="certificate-deletion-failed-confirm"></button>
+      </menu>
+    </form>
+
+    <panel data-path="panels/wifi_manage_certificates/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi :: Select Certificate File -->
+    <section role="region" id="wifi-selectCertificateFile"><!--
+
+    <gaia-header action="back" data-href="#wifi-manageCertificates">
+      <h1 data-l10n-id="selectCertificateFile"></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="wifi-certificate-files-List">
+      </ul>
+    </div>
+
+    <panel data-path="panels/wifi_select_certificate_file/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi :: Enter Certificate Nickname -->
+    <section role="region" class="dialog" id="wifi-enterCertificateNickname"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="enterCertificateNickname"></h1>
+      <button type="submit"><span data-l10n-id="done"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="nickname">
+          <p data-l10n-id="nickname"></p>
+          <input class="certificate-file-nickname" dir="auto" type="text">
+        </li>
+        <li class="description">
+          <p data-l10n-id="enter-certificate-name-msg"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/wifi_enter_certificate_nickname/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Wi-Fi -->
+    <section role="region" id="wifi"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="wifi-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="wifi-enabled">
+          <gaia-switch data-ignore="">
+            <label data-l10n-id="wifi"></label>
+          </gaia-switch>
+        </li>
+        <li hidden="">
+          <gaia-checkbox name="wifi.notification">
+            <label data-l10n-id="networkNotification"></label>
+          </gaia-checkbox>
+          <small data-l10n-id="networkNotification-expl" class="explanation"></small>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="availableNetworks"></h2>
+      </header>
+      <ul class="wifi-availableNetworks" data-state="off">
+        <li class="explanation" data-state="off" data-l10n-id="wifi-disabled"></li>
+        <li data-state="on">
+          <progress></progress><span data-l10n-id="scanning"></span>
+        </li>
+        <li data-state="ready">
+          <button data-l10n-id="scanNetworks"></button>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="advancedSettings"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-switch name="wifi.sleepMode">
+            <label data-l10n-id="wifi-sleep"></label>
+            <details data-l10n-id="wifi-sleep-description"></details>
+          </gaia-switch>
+        </li>
+        <li>
+          <a class="menu-item" href="#wifi-manageNetworks">
+            <span data-l10n-id="manageNetworks"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#wifi-manageCertificates">
+            <span data-l10n-id="manageCertificates"></span>
+          </a>
+        </li>
+        <li class="wps-column">
+          <a class="menu-item" href="#">
+            <span data-l10n-id="wpsMessage"></span>
+            <small data-l10n-id="wpsDescription2"></small>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/wifi/panel"></panel>
+  --></section>
+    <!-- Connectivity :: Call :: Call Forwarding Not Reachable -->
+    <section role="region" class="dialog" id="call-cf-not-reachable-settings"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="callForwarding-header"></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul id="cf-notreachable-advanced">
+        <li>
+          <p data-l10n-id="cf-numberWhenUnreachable"></p>
+          <input id="cf-notreachable-number" data-setting="ril.cf.notreachable.number" type="tel">
+        </li>
+        <li>
+          <gaia-switch data-setting="ril.cf.notreachable.enabled">
+            <label data-l10n-id="callForwardingForward"></label>
+            <details data-l10n-id="callForwardingNotReachableShort"></details>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_forwarding_details/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Call Forwarding No Reply -->
+    <section role="region" class="dialog" id="call-cf-no-reply-settings"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="callForwarding-header"></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul id="cf-noreply-advanced">
+        <li>
+          <p data-l10n-id="cf-numberWhenUnanswered"></p>
+          <input id="cf-noreply-number" data-setting="ril.cf.noreply.number" type="tel">
+        </li>
+        <li>
+          <gaia-switch data-setting="ril.cf.noreply.enabled">
+            <label data-l10n-id="callForwardingForward"></label>
+            <details data-l10n-id="callForwardingNoReplyShort"></details>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_forwarding_details/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Call Forwarding Mobile Busy -->
+    <section role="region" class="dialog" id="call-cf-mobile-busy-settings"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="callForwarding-header"></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul id="cf-mobilebusy-advanced">
+        <li>
+          <p data-l10n-id="cf-numberWhenBusy"></p>
+          <input id="cf-mobilebusy-number" data-setting="ril.cf.mobilebusy.number" type="tel">
+        </li>
+        <li>
+          <gaia-switch data-setting="ril.cf.mobilebusy.enabled">
+            <label data-l10n-id="callForwardingForward"></label>
+            <details data-l10n-id="callForwardingMobileBusyShort"></details>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_forwarding_details/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Call Forwarding Unconditional -->
+    <section role="region" class="dialog" id="call-cf-unconditional-settings"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="callForwarding-header"></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul id="cf-unconditional-advanced">
+        <li>
+          <p data-l10n-id="cf-alwaysUseThisNumber"></p>
+          <input id="cf-unconditional-number" data-setting="ril.cf.unconditional.number" type="tel">
+        </li>
+        <li>
+          <gaia-switch data-setting="ril.cf.unconditional.enabled">
+            <label data-l10n-id="callForwardingForward"></label>
+            <details data-l10n-id="callForwardingUnconditionalShort"></details>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_forwarding_details/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Call Forwarding Settings -->
+    <section role="region" id="call-forwarding"><!--
+
+    <gaia-header action="back" data-href="#call">
+      <h1 data-l10n-id="callForwarding-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul id="list-callForwarding">
+        <li id="li-cfu-desc">
+          <a class="callForwardingUnconditional" href="#">
+            <span data-l10n-id="callForwardingUnconditional"></span>
+            <small id="cfu-desc"></small>
+          </a>
+        </li>
+        <li id="li-cfmb-desc">
+          <a class="callForwardingMobileBusy" href="#">
+            <span data-l10n-id="callForwardingMobileBusy"></span>
+            <small id="cfmb-desc"></small>
+          </a>
+        </li>
+        <li id="li-cfnrep-desc">
+          <a class="callForwardingNoReply" href="#">
+            <span data-l10n-id="callForwardingNoReply"></span>
+            <small id="cfnrep-desc"></small>
+          </a>
+        </li>
+        <li id="li-cfnrea-desc">
+          <a class="callForwardingNotReachable" href="#">
+            <span data-l10n-id="callForwardingNotReachable"></span>
+            <small id="cfnrea-desc"></small>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_forwarding/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Call Barring Settings -->
+    <section role="region" id="call-cbSettings"><!--
+
+    <gaia-header action="back" data-href="#call">
+      <h1 data-l10n-id="callBarring-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header id="header-cb-outgoing">
+        <h2 data-l10n-id="callBarring-outgoing"></h2>
+      </header>
+      <ul id="list-callBarring-outgoing">
+        <li id="li-cb-baoc">
+          <gaia-switch>
+            <label data-l10n-id="callBarring-baoc"></label>
+            <details id="baoc-desc"></details>
+          
+        </gaia-switch></li>
+        <li id="li-cb-boic">
+          <gaia-switch>
+            <label data-l10n-id="callBarring-boic"></label>
+            <details id="boic-desc"></details>
+          
+        </gaia-switch></li>
+        <li id="li-cb-boicExhc">
+          <gaia-switch>
+            <label data-l10n-id="callBarring-boicExhc"></label>
+            <details id="boicExhc-desc"></details>
+          
+        </gaia-switch></li>
+      </ul>
+
+      <header id="header-cb-incoming">
+        <h2 data-l10n-id="callBarring-incoming"></h2>
+      </header>
+      <ul id="list-callBarring-incoming">
+        <li id="li-cb-baic">
+          <gaia-switch>
+            <label data-l10n-id="callBarring-baic"></label>
+            <details id="baic-desc"></details>
+          
+        </gaia-switch></li>
+        <li id="li-cb-baicR">
+          <gaia-switch>
+            <label data-l10n-id="callBarring-baicR"></label>
+            <details id="bairR-desc"></details>
+          
+        </gaia-switch></li>
+      </ul>
+
+      <header id="header-cb-passcode">
+        <h2 data-l10n-id="callBarring-passcode"></h2>
+      </header>
+      <ul id="list-callBarring-passcode">
+        <li id="li-cb-pswd">
+          <a class="bb-button" data-href="#call-barring-passcode-change" data-l10n-id="callBarring-change-passcode"></a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_barring/panel"></panel>
+
+    <form data-type="confirm" role="dialog" id="cb-passcode" hidden="">
+      <input x-inputmode="digit" class="passcode-input" type="number">
+      <div class="passcode-container">
+        <h1 id="cb-passcode-title" data-l10n-id="callBarring-passcode-enter"></h1>
+        <div class="passcode" id="cb-passcode-pseudo-input">
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+        </div>
+        <p id="cb-passcode-def" data-l10n-id="callBarring-passcode-unknown"></p>
+      </div>
+      <menu>
+        <button id="cb-passcode-cancel-btn" data-l10n-id="cancel"></button>
+        <button id="cb-passcode-ok-btn" data-l10n-id="ok" class="recommend" disabled=""></button>
+      </menu>
+    </form>
+
+  --></section>
+    <!-- Connectivity :: Call :: Call Barring Passcode Change -->
+    <section role="region" id="call-barring-passcode-change"><!--
+
+    <gaia-header action="back" data-href="#call-cbSettings">
+      <h1 data-l10n-id="callBarring-current-passcode" data-mode="edit"></h1>
+      <h1 data-l10n-id="callBarring-new-passcode" data-mode="new"></h1>
+      <button id="passcode-confirm" class="passcode-change" data-mode="new" data-l10n-id="change">Change</button>
+    </gaia-header>
+
+    <div class="passcode-overlay">
+      <input x-inputmode="digit" class="passcode-input" type="number">
+      <div class="passcode-container">
+        <div class="passcode" id="passcode-pseudo-input">
+          <label data-l10n-id="callBarring-create-passcode" data-mode="new"></label>
+          <label data-l10n-id="callBarring-passcode" data-mode="edit"></label>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+        </div>
+        <div class="passcode" data-mode="new" id="passcode-pseudo-confirm-input">
+          <label data-l10n-id="callBarring-confirm-passcode" data-mode="new"></label>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+        </div>
+        <div class="passcode-error" data-l10n-id="callBarring-passcode-error-incorrect"></div>
+      </div>
+    </div>
+
+    <panel data-path="panels/call_barring_passcode_change/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Fixed Dialing Numbers (FDN) :: Authorized Numbers :: Add -->
+    <section role="region" class="dialog" id="call-fdnList-add"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 class="fdnContact-title"></h1>
+      <button type="submit" class="fdnContact-submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <p data-l10n-id="fdnContact-name"></p>
+          <input x-inputmode="verbatim" class="fdnContact-name" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="fdnContact-number"></p>
+          <input x-inputmode="verbatim" class="fdnContact-number" type="tel">
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_fdn_list_add/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Fixed Dialing Numbers (FDN) :: Authorized Numbers -->
+    <section role="region" id="call-fdnList" data-require-sub-panels="true"><!--
+
+    <gaia-header action="back" data-href="#call-fdnSettings">
+      <h1 data-l10n-id="fdn-authorizedNumbers-header"></h1>
+      <button class="fdnContact"><span data-l10n-id="add" class="icon icon-add"></span></button>
+    </gaia-header>
+
+    <gaia-menu class="call-fdnList-action" hidden="">
+      <header>
+        <span class="fdnAction-name"></span><br>
+        <span class="fdnAction-number"></span>
+      </header>
+      <button class="fdnAction-call" data-l10n-id="fdnAction-call"></button>
+      <button class="fdnAction-edit" data-l10n-id="fdnAction-edit"></button>
+      <button class="fdnAction-delete" data-l10n-id="fdnAction-delete"></button>
+    </gaia-menu>
+
+    <div>
+      <ul class="fdn-contactsContainer"></ul>
+    </div>
+
+    <panel data-path="panels/call_fdn_list/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Fixed Dialing Numbers (FDN) -->
+    <section role="region" id="call-fdnSettings"><!--
+
+    <gaia-header action="back" data-href="#call">
+      <h1 data-l10n-id="fdnSettings-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="description">
+          <p>
+            <span data-l10n-id="fdn-explanation1"></span>
+            <small data-l10n-id="fdn-explanation2"></small>
+          </p>
+        </li>
+        <li class="fdn-enabled">
+          <gaia-switch data-ignore="">
+            <label data-l10n-id="fdnSettings"></label>
+            <details></details>
+          </gaia-switch>
+        </li>
+        <li>
+          <a class="menu-item" href="#call-fdnList">
+            <span data-l10n-id="fdn-authorizedNumbers"></span>
+            <small data-l10n-id="fdn-authorizedNumbers-desc"></small>
+          </a>
+        </li>
+        <li class="fdn-resetPIN2" hidden="">
+          <button data-l10n-id="fdnReset"></button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_fdn_settings/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: Voice Mail -->
+    <section role="region" class="dialog" id="call-voiceMailSettings"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="voiceMail-header"></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <p data-l10n-id="voiceMail-number"></p>
+          <input class="vm-number" type="tel">
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_voice_mail_settings/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call :: ICCs -->
+    <section role="region" id="call-iccs"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="selectASIMCard"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li id="menuItem-call-sim1" aria-disabled="true">
+          <a class="menu-item" href="#call">
+            <span data-l10n-id="sim1"></span>
+            <small></small>
+          </a>
+        </li>
+        <li id="menuItem-call-sim2" aria-disabled="true">
+          <a class="menu-item" href="#call">
+            <span data-l10n-id="sim2"></span>
+            <small></small>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/call_iccs/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Call -->
+    <section role="region" id="call" data-require-sub-panels="true"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="callSettings-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a class="menu-item menuItem-voicemail" href="#">
+            <span data-l10n-id="voiceMail"></span>
+            <small id="voiceMail-desc"></small>
+          </a>
+        </li>
+        <li id="menuItem-voicePrivacyMode" hidden="">
+          <gaia-switch data-ignore="">
+            <label data-l10n-id="voicePrivacyMode"></label>
+          </gaia-switch>
+        </li>
+        <li id="menuItem-callWaiting" aria-disabled="true" data-state="off" hidden="">
+          <gaia-switch data-ignore="">
+            <label data-l10n-id="callWaiting"></label>
+          </gaia-switch>
+          <span class="cw-alert-icon" hidden=""></span>
+        </li>
+        <li id="menuItem-callerId" aria-disabled="true" hidden="">
+          <a data-l10n-id="callerId"></a>
+          <span class="button icon icon-dialog">
+            <select id="ril-callerId" data-setting="ril.callerId">
+              <option value="CLIR_DEFAULT" data-l10n-id="callerId-default"></option>
+              <option value="CLIR_INVOCATION" data-l10n-id="callerId-hide"></option>
+              <option value="CLIR_SUPPRESSION" data-l10n-id="callerId-show"></option>
+            </select>
+          </span>
+        </li>
+        <li id="menuItem-callFdn" hidden="">
+          <a class="menu-item" href="#">
+            <span data-l10n-id="fdnSettings"></span>
+            <small id="fdnSettings-desc"></small>
+          </a>
+        </li>
+        <li id="menuItem-callForwarding" hidden="">
+          <a class="menu-item" href="#">
+            <span data-l10n-id="callForwarding"></span>
+            <small id="li-cf-desc"></small>
+          </a>
+        </li>
+        <li id="menuItem-callBarring" hidden="">
+          <a class="menu-item" data-href="#call-cbSettings">
+            <span data-l10n-id="callBarring"></span>
+            <small id="li-cb-desc"></small>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <form role="dialog" data-type="confirm" class="cw-alert" hidden="">
+      <section>
+        <h1 data-l10n-id="confirmCallWaitingTitle"></h1>
+        <p>
+          <strong data-l10n-id="confirmCallWaitingDesc"></strong>
+        </p>
+        <p class="cw-alert-sub-p">
+          <gaia-switch class="cw-alert-checkbox" data-ignore="">
+            <label data-l10n-id="callWaiting"></label>
+          </gaia-switch>
+        </p>
+      </section>
+      <menu>
+        <button class="cw-alert-cancel" data-l10n-id="cancel"></button>
+        <button class="cw-alert-set recommend" data-l10n-id="set"></button>
+      </menu>
+    </form>
+
+    <panel data-path="panels/call/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Messaging :: Details -->
+    <section role="region" id="messaging-details"><!--
+
+    <gaia-header action="back" data-href="#messaging">
+      <h1 data-l10n-id="messaging-sim-settings"></h1>
+    </gaia-header>
+
+    <div class="options-container"></div>
+
+    <panel data-path="panels/messaging_details/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Messaging -->
+    <section role="region" id="messaging"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="messagingSettings-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="message-confirmation"></h2>
+      </header>
+      <ul id="general-message-list">
+        <li id="menuItem-deliveryReport" aria-disabled="true">
+          <gaia-switch name="ril.sms.requestStatusReport.enabled">
+            <label data-l10n-id="message-delivery-reports"></label>
+            <details data-l10n-id="message-delivery-reports-details"></details>
+          </gaia-switch>
+        </li>
+      </ul>
+      <header>
+        <h2><bdi data-l10n-id="mmsTitle"></bdi></h2>
+      </header>
+      <ul class="mmsSettings-list">
+        <li id="menuItem-readReport" aria-disabled="true">
+          <gaia-switch name="ril.mms.requestReadReport.enabled">
+            <label data-l10n-id="message-read-reports"></label>
+            <details data-l10n-id="message-read-reports-details"></details>
+          </gaia-switch>
+        </li>
+        <li id="menuItem-autoRetrieve" aria-disabled="true" class="hint">
+          <span data-l10n-id="auto-retrieve"></span>
+          <p class="explanation" data-l10n-id="auto-retrieve-details"></p>
+          <span class="button icon icon-dialog">
+            <select name="ril.mms.retrieval_mode">
+              <option value="manual" data-l10n-id="manual-retrieve"></option>
+              <option value="automatic" data-l10n-id="auto-roaming-retrieve"></option>
+              <option value="automatic-home" data-l10n-id="auto-no-roaming-retrieve"></option>
+            </select>
+          </span>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="wapPushMessages"></h2>
+      </header>
+      <ul>
+        <li id="menuItem-wapPush" aria-disabled="true">
+          <gaia-switch name="wap.push.enabled">
+            <label data-l10n-id="wapPush"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+      <div class="options-container"></div>
+      <ul class="simcards-container" hidden="">
+        <header>
+          <h2 data-l10n-id="simSettings"></h2>
+        </header>
+        <li aria-disabled="true" class="sim1">
+          <a class="menu-item" data-card-index="0" href="#">
+            <span data-l10n-id="sim1"></span>
+            <small></small>
+          </a>
+        </li>
+        <li aria-disabled="true" class="sim2">
+          <a class="menu-item" data-card-index="1" href="#">
+            <span data-l10n-id="sim2"></span>
+            <small></small>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/messaging/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Cellular & Data :: Network Operator -->
+    <section role="region" id="operator-settings"><!--
+
+    <gaia-header action="back" data-href="#carrier">
+      <h1 data-l10n-id="netOperator-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="preferred-network-type">
+          <p data-l10n-id="operator-networkType"></p>
+          <span class="button icon icon-dialog">
+            <select>
+            </select>
+          </span>
+        </li>
+        <li class="operator-roaming-preference" hidden="">
+          <p data-l10n-id="operator-roamingPreference"></p>
+          <span class="button icon icon-dialog">
+            <select>
+              <option data-l10n-id="operator-roamingPreference-home" value="home"></option>
+              <option data-l10n-id="operator-roamingPreference-any" value="any"></option>
+            </select>
+          </span>
+        </li>
+        <li class="auto-select">
+          <gaia-switch data-ignore="">
+            <label data-l10n-id="operator-autoSelect"></label>
+          
+        </gaia-switch></li>
+      </ul>
+
+      <div class="available-operators">
+        <header class="available-operators-header">
+          <h2 data-l10n-id="availableOp"></h2>
+        </header>
+        <ul class="available-operators-list" hidden="">
+        </ul>
+        <ul class="available-operators-info">
+          <li class="search-info explanation"></li>
+          <li class="search-btn-li">
+            <button class="search-btn" data-l10n-id="scanNetworks"></button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <panel data-path="panels/operator_settings/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Connectivity :: Cellular & Data :: APN Settings -->
+    <section role="region" id="apn-settings"><!--
+
+    <gaia-header action="back" data-href="#carrier">
+      <h1 data-l10n-id="apnSettings-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a class="menu-item" data-apn-type="default" href="#">
+            <span data-l10n-id="dataSettings"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" data-apn-type="mms" href="#">
+            <span data-l10n-id="messageSettings"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" data-apn-type="supl" href="#">
+            <span data-l10n-id="suplSettings"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" data-apn-type="dun" href="#">
+            <span data-l10n-id="dunSettings"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" data-apn-type="ims" href="#">
+            <span data-l10n-id="imsSettings"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" data-apn-type="fota" href="#">
+            <span data-l10n-id="fotaSettings"></span>
+          </a>
+        </li>
+        <li>
+          <button class="icon reset-apn danger" data-l10n-id="reset-apn"></button>
+        </li>
+      </ul>
+    </div>
+
+    <script src="shared/js/apn_helper.js"></script>
+    <panel data-path="panels/apn_settings/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Connectivity :: Cellular & Data :: APN List -->
+    <section role="region" id="apn-list"><!--
+
+    <gaia-header action="back">
+      <h1></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="apn-list"></ul>
+      <ul>
+        <li>
+          <button class="add-apn" data-l10n-id="add-apn"></button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/apn_list/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Connectivity :: Cellular & Data :: APN Editor -->
+    <section role="region" id="apn-editor"><!--
+
+    <gaia-header action="back" data-href="#apn-list">
+      <h1 data-l10n-id="apn-editor-header"></h1>
+      <button class="ok"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div class="panel">
+      <ul class="apnSettings-advanced">
+        <li>
+          <p data-l10n-id="apn"></p>
+          <input x-inputmode="verbatim" class="apn" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="identity"></p>
+          <input class="user" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="password"></p>
+          <input class="password" dir="auto" type="password">
+        </li>
+        <li>
+          <p data-l10n-id="httpProxyHost"></p>
+          <input class="proxy" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="httpProxyPort"></p>
+          <input x-inputmode="digits" class="port" dir="auto" type="number">
+        </li>
+        <li>
+          <p data-l10n-id="mmsproxy"></p>
+          <input x-inputmode="verbatim" class="mmsproxy" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="mmsport"></p>
+          <input x-inputmode="digits" class="mmsport" dir="auto" type="number">
+        </li>
+        <li>
+          <p data-l10n-id="mmsc"></p>
+          <input x-inputmode="verbatim" class="mmsc" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="apn-authType"></p>
+          <span class="button icon icon-dialog">
+            <select class="authtype">
+              <option value="notDefined" data-l10n-id="apn-authType-notDefined"></option>
+              <option value="none" data-l10n-id="apn-authType-none"></option>
+              <option value="pap" data-l10n-id="apn-authType-pap"></option>
+              <option value="chap" data-l10n-id="apn-authType-chap"></option>
+              <option value="papOrChap" data-l10n-id="apn-authType-papOrChap"></option>
+            </select>
+          </span>
+        </li>
+        <li>
+          <p data-l10n-id="apn-type"></p>
+          <input x-inputmode="verbatim" class="types" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="apn-protocol"></p>
+          <span class="button icon icon-dialog">
+            <select class="protocol">
+              <option value="notDefined" data-l10n-id="apn-protocol-notDefined"></option>
+              <option value="IP" data-l10n-id="apn-protocol-ip"></option>
+              <option value="IPV6" data-l10n-id="apn-protocol-ipv6"></option>
+              <option value="IPV4V6" data-l10n-id="apn-protocol-ipv4v6"></option>
+            </select>
+          </span>
+        </li>
+        <li>
+          <p data-l10n-id="apn-roaming-protocol"></p>
+          <span class="button icon icon-dialog">
+            <select class="roaming_protocol">
+              <option value="notDefined" data-l10n-id="apn-protocol-notDefined"></option>
+              <option value="IP" data-l10n-id="apn-protocol-ip"></option>
+              <option value="IPV6" data-l10n-id="apn-protocol-ipv6"></option>
+              <option value="IPV4V6" data-l10n-id="apn-protocol-ipv4v6"></option>
+            </select>
+          </span>
+        </li>
+        <li>
+        <p data-l10n-id="apn-mtu"></p>
+        <input x-inputmode="digits" class="mtu" dir="auto" type="number">
+        </li>
+      </ul>
+      <ul class="apnSettings-btns">
+        <li class="delete">
+          <button class="icon danger" data-l10n-id="delete-apn"></button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/apn_editor/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Connectivity :: Cellular & Data :: Detail -->
+    <section role="region" id="carrier-detail"><!--
+
+    <gaia-header action="back" data-href="#carrier">
+      <h1 data-l10n-id="netOperator-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a class="menu-item" href="#operator-settings">
+            <span data-l10n-id="netOperator"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#apn-settings">
+            <span data-l10n-id="apnSettings"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Connectivity :: Cellular & Data -->
+    <section role="region" id="carrier" data-require-sub-panels="true"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="cellularAndData-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="carrier-info" hidden="">
+        <li>
+          <span data-l10n-id="dataOperator"></span>
+          <small id="dataNetwork-desc"></small>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="dataConnectivity"></h2>
+      </header>
+      <ul>
+        <li id="menuItem-enableDataCall" aria-disabled="true">
+          <gaia-switch>
+            <label data-l10n-id="dataConnection"></label>
+            <details id="dataConnection-expl" data-l10n-id="dataConnection-warning-message-short"></details>
+          </gaia-switch>
+        </li>
+        <li id="menuItem-enableDataRoaming">
+          <gaia-switch>
+            <label data-l10n-id="dataRoaming"></label>
+            <details id="dataRoaming-expl" data-l10n-id="dataRoaming-warning-message-short"></details>
+          </gaia-switch>
+        </li>
+      </ul>
+
+      <div class="carrier-advancedSettings" hidden="">
+        <header>
+          <h2 data-l10n-id="advancedSettings"></h2>
+        </header>
+        <ul>
+          <li>
+            <a class="menu-item" href="#operator-settings">
+              <span data-l10n-id="netOperator"></span>
+            </a>
+          </li>
+          <li>
+            <a class="menu-item" href="#apn-settings">
+              <span data-l10n-id="apnSettings"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="carrier-simSettings" hidden="">
+        <header>
+          <h2 data-l10n-id="simSettings"></h2>
+        </header>
+        <ul>
+          <li id="menuItem-carrier-sim1" aria-disabled="true">
+            <a class="menu-item" href="#carrier-detail">
+              <span data-l10n-id="sim1"></span>
+              <small></small>
+            </a>
+          </li>
+          <li id="menuItem-carrier-sim2" aria-disabled="true">
+            <a class="menu-item" href="#carrier-detail">
+              <span data-l10n-id="sim2"></span>
+              <small></small>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <panel data-path="panels/carrier/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Bluetooth -->
+    <section role="region" id="bluetooth"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="bluetooth-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="bluetooth-status">
+          <gaia-switch data-ignore="">
+            <label data-l10n-id="bluetooth"></label>
+            <details data-l10n-id="bluetooth-enable-msg" class="bluetooth-enable-msg"></details>
+          </gaia-switch>
+        </li>
+        <li class="device-visible" hidden="">
+          <gaia-switch data-ignore="">
+            <label data-l10n-id="bluetooth-visible-to-all"></label>
+            <details><bdi class="bluetooth-device-name"></bdi></details>
+          </gaia-switch>
+        </li>
+        <li class="bluetooth-rename" hidden="">
+          <button data-l10n-id="rename-device" class="rename-device" disabled=""></button>
+        </li>
+      </ul>
+
+      <header class="bluetooth-paired-title">
+        <h2 data-l10n-id="bluetooth-paired-devices"></h2>
+      </header>
+      <ul class="bluetooth-paired-devices devices">
+      </ul>
+
+      <header class="bluetooth-found-title">
+        <h2 data-l10n-id="bluetooth-devices-in-area"></h2>
+      </header>
+      <ul class="bluetooth-devices devices">
+      </ul>
+      <div data-l10n-id="search-for-device" class="bluetooth-searching explanation"></div>
+      <ul class="bluetooth-search" hidden="">
+        <li>
+          <button data-l10n-id="search-device" class="search-device" disabled=""></button>
+        </li>
+      </ul>
+    </div>
+
+    <gaia-menu class="paired-device-option" hidden="">
+      <button data-l10n-id="device-option-connect" class="connect-option"></button>
+      <button data-l10n-id="device-option-disconnect" class="disconnect-option"></button>
+      <button data-l10n-id="device-option-unpair" class="unpair-option"></button>
+    </gaia-menu>
+
+    <panel data-path="views/phone/bluetooth/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Internet Sharing :: Portable Wi-Fi Hotspot -->
+    <section role="region" class="dialog" id="hotspot-wifiSettings"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1 data-l10n-id="hotspotSettings-header"></h1>
+      <button class="save-hotspotSettings" type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <p data-l10n-id="ssid-name"></p>
+          <input data-setting="tethering.wifi.ssid" maxlength="32" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="wifi-security"></p>
+          <span class="button icon icon-dialog">
+            <select class="security-selector" data-setting="tethering.wifi.security.type"></select>
+          </span>
+        </li>
+        <li class="description password-description">
+          <p data-l10n-id="hotspot-password-desc"></p>
+        </li>
+        <li class="password">
+          <p data-l10n-id="wifi-password"></p>
+          <input name="password" x-inputmode="verbatim" data-setting="tethering.wifi.security.password" type="password">
+          <gaia-checkbox data-ignore="" name="show_password">
+            <label data-l10n-id="showPassword"></label>
+          </gaia-checkbox>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/hotspot_wifi_settings/panel"></panel>
+
+  --></section>
+    <!-- Connectivity :: Internet Sharing -->
+    <section role="region" id="hotspot"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="internetSharing-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="internetSharing-wifi"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-switch id="tethering-wifi-enabled">
+            <label data-l10n-id="wifi-hotspot"></label>
+            <details id="wifi-hotspot-msg"></details>
+          </gaia-switch>
+        </li>
+        <li class="description">
+          <p data-l10n-id="internetSharing-wifi-description"></p>
+        </li>
+        <li id="hotspot-settings-section">
+          <a class="menu-item" href="#">
+            <span data-l10n-id="hotspotSettings"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="internetSharing-usb"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-switch id="tethering-usb-enabled">
+            <label data-l10n-id="usb-tethering"></label>
+          </gaia-switch>
+        </li>
+        <li class="description">
+          <p data-l10n-id="internetSharing-usb-description"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/hotspot/panel"></panel>
+
+  --></section>
+
+    <!-- Personalization :: Sound -->
+    <section role="region" id="sound"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="sound-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="vibration-setting">
+          <gaia-switch name="vibration.enabled" checked="">
+            <label data-l10n-id="vibrate"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="volume">Volume</h2>
+      </header>
+      <ul>
+        <li class="sound-setting">
+          <label class="range-icons volume media">
+            <p data-l10n-id="media-sound">Media</p>
+            <span data-icon="sound-max" aria-hidden="true"></span>
+            <input step="1" min="0" value="8" max="15" type="range">
+          </label>
+        </li>
+        <li class="sound-setting">
+          <label class="range-icons volume notification">
+            <p data-l10n-id="ringtone-and-notification-sound"></p>
+            <span data-icon="call-ringing" aria-hidden="true"></span>
+            <input step="1" min="0" value="8" max="15" type="range">
+          </label>
+        </li>
+        <li class="sound-setting">
+          <label class="range-icons volume alarm">
+            <p data-l10n-id="alarm-sound"></p>
+            <span data-icon="alarm-clock" aria-hidden="true"></span>
+            <input step="1" min="0" value="8" max="15" type="range">
+          </label>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="tones"></h2>
+      </header>
+      <ul>
+        <li class="ringer" hidden="">
+          <a class="menu-item ring-tone-selection" href="#">
+            <span data-l10n-id="ringtones"></span>
+            <small><bdi class="desc"></bdi></small>
+          </a>
+        </li>
+        <li id="alerts">
+          <a class="menu-item alert-tone-selection" href="#">
+            <span data-l10n-id="alerts"></span>
+            <small><bdi class="desc"></bdi></small>
+          </a>
+        </li>
+        <li class="touch-tone-selector" hidden="">
+          <a data-l10n-id="touch-tones"></a>
+          <span class="button icon icon-dialog">
+            <select name="phone.dtmf.type">
+              <option value="short" data-l10n-id="touch-tone-short"></option>
+              <option value="long" data-l10n-id="touch-tone-long"></option>
+            </select>
+          </span>
+        </li>
+        <li id="manage-tones">
+          <a class="manage-tones-button menu-item" href="#">
+            <span data-l10n-id="manage-tones"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="other-sounds"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-checkbox name="phone.ring.keypad" checked="">
+            <label data-l10n-id="dialpad"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="camera.sound.enabled" checked="">
+            <label data-l10n-id="camera"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="message.sent-sound.enabled" checked="">
+            <label data-l10n-id="sent-message"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="lockscreen.unlock-sound.enabled" checked="">
+            <label data-l10n-id="unlock-screen"></label>
+          </gaia-checkbox>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/sound/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Display -->
+    <section role="region" id="display"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="display-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch name="screen.orientation.lock">
+            <label data-l10n-id="lock-orientation"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+
+      <header>
+        <h2 id="brightness-heading" data-l10n-id="brightness"></h2>
+      </header>
+      <ul>
+        <li class="brightness-auto">
+          <gaia-checkbox name="screen.automatic-brightness">
+            <label data-l10n-id="brightness-autoAdjust"></label>
+          </gaia-checkbox>
+        </li>
+        <li class="brightness-manual">
+          <label class="range-icons brightness">
+            <span data-icon="moon" aria-hidden="true"></span>
+            <input aria-labelledby="brightness-heading" step="0.01" min="0.1" value="0.5" max="1" type="range">
+            <span data-icon="brightness" aria-hidden="true"></span>
+          </label>
+        </li>
+        <li id="screen-timeout">
+          <p data-l10n-id="screen-timeout"></p>
+          <span class="button icon icon-dialog">
+            <select name="screen.timeout" data-value-type="integer">
+              <option value="60" data-l10n-id="one-minute" selected=""></option>
+              <option value="120" data-l10n-id="two-minutes"></option>
+              <option value="300" data-l10n-id="five-minutes"></option>
+              <option value="600" data-l10n-id="ten-minutes"></option>
+              <option value="0" data-l10n-id="screen-timeout-never"></option>
+            </select>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/display/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Home Screens -->
+    <section role="region" id="homescreens"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="home-screens"></h1>
+    </gaia-header>
+
+    <div>
+      <section data-type="list">
+        <header>
+          <h2 data-l10n-id="wallpaper"></h2>
+        </header>
+        <div class="wallpaper">
+          <img class="wallpaper-preview" alt="wallpaper preview">
+          <button class="wallpaper-button">
+            <span data-icon="change-wallpaper" data-l10n-id="changeWallpaperButton"></span>
+          </button>
+        </div>
+
+        <header>
+          <h2 data-l10n-id="homescreen-layout"></h2>
+        </header>
+        <ul>
+          <li>
+            <p data-l10n-id="homescreen-icon-layout"></p>
+            <div class="button icon icon-dialog">
+              <select name="grid.layout.cols">
+                <option value="3" data-l10n-id="homescreen-three-columns"></option>
+                <option value="4" data-l10n-id="homescreen-four-columns"></option>
+              </select>
+            </div>
+          </li>
+        </ul>
+
+        <header>
+          <h2 data-l10n-id="replaceable-home-screen"></h2>
+        </header>
+        <ul>
+          <li>
+            <a class="menu-item" href="#homescreens-list">
+              <span data-l10n-id="change-home-screen"></span>
+              <small>
+                <bdi class="current-homescreen"></bdi>
+              </small>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <panel data-path="panels/homescreens/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Home Screens :: Home Screens List -->
+    <section role="region" id="homescreens-list"><!--
+
+    <gaia-header action="back" data-href="#homescreens">
+      <h1 data-l10n-id="change-home-screen"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a class="menu-item get-more-home-screens" href="#">
+            <span data-l10n-id="get-more-home-screens"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="my-home-screens"></h2>
+      </header>
+      <ul class="my-home-screens"></ul>
+    </div>
+
+    <panel data-path="panels/homescreens_list/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Home Screens :: Home Screens List :: Home Screen Details -->
+    <section role="region" id="homescreen-details"><!--
+
+    <gaia-header action="back" data-href="#homescreens-list">
+      <h1 class="detail-title"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <label class="addon-details-info developer-infos">
+            <img class="addon-details-icon">
+            <span class="addon-details-title title"></span>
+            <small class="addon-details-name name"></small>
+          </label>
+          <p class="version"></p>
+          <p class="description"></p>
+          <p class="url"><small><a href="#" target="_blank"></a></small></p>
+        </li>
+      </ul>
+
+      <ul class="uninstall-homescreen-container">
+        <li>
+          <button class="danger uninstall-homescreen" data-l10n-id="delete-home-screen-button"></button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/homescreen_details/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Search -->
+    <section role="region" id="search"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="search-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <p data-l10n-id="search-engine"></p>
+          <div class="button icon icon-dialog">
+            <select name="search.provider">
+            </select>
+          </div>
+        </li>
+        <li>
+          <gaia-switch name="search.suggestions.enabled">
+            <label data-l10n-id="search-suggestions"></label>
+          </gaia-switch>
+        </li>
+        <li class="description">
+          <p data-l10n-id="search-suggestions-description"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/search/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Navigation -->
+    <section role="region" id="navigation"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="navigation-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch name="edgesgesture.enabled">
+            <label data-l10n-id="edge-swipe-navigation"></label>
+            <details data-l10n-id="edge-swipe-navigation-enable-msg"></details>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Personalization :: Notifications -->
+    <section role="region" id="notifications"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="notifications-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch name="lockscreen.notifications-preview.enabled">
+            <label data-l10n-id="lockscreen-notifications"></label>
+          </gaia-switch>
+        </li>
+        <li>
+          <gaia-switch name="notifications.resend">
+            <label data-l10n-id="notifications-resend"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Personalization :: Date & Time -->
+    <section role="region" id="dateTime"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="dateAndTime-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="time-auto" data-state="auto" hidden="">
+        <li>
+          <gaia-switch name="time.clock.automatic-update.enabled">
+            <label data-l10n-id="setTimeAutomatically"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+      <ul class="time-manual">
+        <li>
+          <input class="date-picker" min="1970-1-1" max="2035-12-31" type="date">
+          <p data-l10n-id="dateMessage"></p>
+          <span class="clock-date button icon icon-dialog"></span>
+        </li>
+        <li>
+          <input class="time-picker" type="time">
+          <p data-l10n-id="timeMessage"></p>
+          <span class="clock-time button icon icon-dialog"></span>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="timezoneMessage"></h2>
+      </header>
+      <ul class="timezone">
+        <li class="timezone-picker">
+          <p data-l10n-id="tz-region"></p>
+          <span class="button icon icon-dialog">
+            <select class="timezone-region"></select>
+          </span>
+        </li>
+        <li class="timezone-picker">
+          <p data-l10n-id="tz-city"></p>
+          <span class="button icon icon-dialog">
+            <select class="timezone-city"></select>
+          </span>
+        </li>
+        <li class="timezone-info" hidden="">
+          <span class="timezone-info-text"></span>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="time-format"></h2>
+      </header>
+      <ul class="time-format-auto" data-state="auto">
+        <li>
+          <gaia-switch checked="">
+            <label data-l10n-id="useDefaultTimeFormat"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+      <ul class="timeformat disabled">
+        <li>
+          <p data-l10n-id="time-format-time"></p>
+          <span class="button icon icon-dialog">
+            <select class="time-format-time"></select>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/date_time/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Personalization :: Language & Region -->
+    <section role="region" id="languages"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="language-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <p data-l10n-id="language"></p>
+          <span class="button icon icon-dialog">
+            <select name="language.current"></select>
+          </span>
+        </li>
+        <li hidden="">
+          <p data-l10n-id="region"></p>
+          <span class="button icon icon-dialog">
+            <select name="region.current">
+              <option value="BR">Brasil</option>
+              <option value="CO">Columbia</option>
+              <option value="ES">España</option>
+              <option value="FR">France</option>
+              <option value="PT">Portugal</option>
+              <option value="TW">Taiwan</option>
+              <option value="UK">United Kingdom</option>
+              <option value="US">United States</option>
+              <option value="VZ">Venezuela</option>
+            </select>
+          </span>
+        </li>
+        <li class="more-languages" hidden="">
+          <a class="menu-item menuItem-more-languages" href="#">
+            <span data-l10n-id="more-languages"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="sample-format"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p id="region-date"></p>
+          <p id="region-time"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/languages/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: SIM card manager -->
+    <section role="region" id="sim-manager"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="simManager-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="sim-card-container"></ul>
+      <header class="sim-manager-settings-header">
+        <h2 data-l10n-id="simSettings"></h2>
+      </header>
+      <ul class="sim-manager-select-list">
+        <li class="sim-manager-security-entry">
+          <a class="menu-item" href="#simpin">
+            <span data-l10n-id="simSecurity"></span>
+          </a>
+        </li>
+        <li>
+          <p data-l10n-id="sim-manager-outgoing-calls"></p>
+          <p data-l10n-id="sim-manager-outgoing-call-desc" class="explanation"></p>
+          <span class="button icon icon-dialog">
+            <select class="sim-manager-outgoing-call-select"></select>
+          </span>
+        </li>
+        <li>
+          <p data-l10n-id="sim-manager-outgoing-messages"></p>
+          <p data-l10n-id="sim-manager-outgoing-messages-desc" class="explanation"></p>
+          <span class="button icon icon-dialog">
+            <select class="sim-manager-outgoing-messages-select"></select>
+          </span>
+        </li>
+        <li>
+          <p data-l10n-id="sim-manager-outgoing-data"></p>
+          <p data-l10n-id="sim-manager-outgoing-data-description" class="explanation"></p>
+          <span class="button icon icon-dialog">
+            <select class="sim-manager-outgoing-data-select"></select>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/simcard_manager/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Keyboard :: Select Keyboard :: Add More Keyboards -->
+    <section role="region" id="keyboard-selection-addMore"><!--
+
+    <gaia-header action="back" data-href="#keyboard">
+      <h1 data-l10n-id="selectKeyboards-header"></h1>
+    </gaia-header>
+
+    <div class="keyboardAppContainer"></div>
+
+    <panel data-path="panels/keyboard_add_layouts/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Keyboard :: Select Keyboard -->
+    <section role="region" id="keyboard-selection"><!--undefined--></section>
+    <!-- Personalization :: Keyboard -->
+    <section role="region" id="keyboard"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="keyboards-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="keyboardSettings">Keyboard Settings</h2>
+      </header>
+      <ul class="allKeyboardList" hidden="">
+      </ul>
+      <header>
+        <h2 data-l10n-id="selectedKeyboards">Selected Keyboards</h2>
+      </header>
+      <ul class="enabledKeyboardList">
+      </ul>
+      <ul>
+        <li>
+          <a class="menu-item" href="#keyboard-selection-addMore">
+            <span data-l10n-id="selectKeyboards">Select Keyboards</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/keyboard/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Themes -->
+    <section role="region" id="themes"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="themes-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="theme-list"></ul>
+    </div>
+
+    <panel data-path="panels/themes/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Addons -->
+    <section role="region" id="addons"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="addons-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a class="menu-item get-more-addons" href="#">
+            <span data-l10n-id="get-more-addons"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="my-addons"></h2>
+      </header>
+      <ul class="addon-list"></ul>
+    </div>
+
+    <panel data-path="panels/addons/panel"></panel>
+
+  --></section>
+    <!-- Personalization :: Addons :: details -->
+    <section role="region" id="addon-details"><!--
+
+    <gaia-header action="back" data-href="#addons" hidden="">
+      <h1 class="addon-details-header" data-l10n-id="addon-details-header1"></h1>
+    </gaia-header>
+
+    <div class="addon-details-body" hidden="">
+      <ul role="status" class="addon-obsolete-status" hidden="">
+        <li class="addon-obsolete" role="presentation">
+          <i class="addon-obsolete-icon" data-icon="exclamation" aria-hidden="true"></i>
+          <p class="addon-obsolete-info"></p>
+        </li>
+      </ul>
+
+      <ul>
+        <li>
+          <gaia-switch class="addon-enabled">
+            <label data-l10n-id="addon"></label>
+            <details></details>
+          </gaia-switch>
+        </li>
+      </ul>
+
+      <ul>
+        <li>
+          <label class="addon-details-info">
+            <img class="addon-details-icon">
+            <span class="addon-details-name"></span>
+            <small class="addon-developer"></small>
+          </label>
+          <p class="addon-details-version"></p>
+          <p class="addon-description-text addon-paragraph"></p>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="addon-targets"></h2>
+      </header>
+      <ul>
+        <li>
+          <p class="addon-targets addon-paragraph"></p>
+        </li>
+      </ul>
+
+      <ul>
+        <li>
+          <button class="addon-delete danger" data-l10n-id="addon-delete">
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/addon_details/panel"></panel>
+
+  --></section>
+    <!-- Accounts :: Achievements -->
+    <!-- <section role="region" is="achievements" id="achievements"></section> -->
+
+    <!-- Accounts :: Find My Device -->
+    <section role="region" id="findmydevice"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="findmydevice"></h1>
+    </gaia-header>
+
+    <div>
+      <div class="findmydevice-signin" hidden="">
+        <ul>
+          <li class="description">
+            <p data-l10n-id="findmydevice-signup-description"></p>
+          </li>
+          <li class="findmydevice-login">
+            <button data-l10n-id="findmydevice-create-account" disabled=""></button>
+          </li>
+          <li class="description findmydevice-fxa-unverified-error" hidden="">
+            <p data-l10n-id="fxa-please-verify"></p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="findmydevice-settings" hidden="">
+        <ul>
+          <li class="findmydevice-enabled">
+            <gaia-switch data-ignore="">
+              <label data-l10n-id="findmydevice-enable"></label>
+            </gaia-switch>
+          </li>
+        </ul>
+
+        <ul>
+          <li class="description">
+            <p class="findmydevice-tracking"></p>
+          </li>
+        </ul>
+
+        <header>
+          <h2 data-l10n-id="findmydevice-about"></h2>
+        </header>
+        <ul>
+          <li class="description">
+            <p>
+              <span data-l10n-id="findmydevice-settings-description"></span>
+              <br>
+              <br>
+              <a class="link-text" href="https://find.firefox.com">find.firefox.com</a>
+            </p>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <panel data-path="panels/findmydevice/panel"></panel>
+
+  --></section>
+
+    <!-- Accounts :: FxSync -->
+    
+    <section role="region" id="fxsync"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="fxsync"></h1>
+    </gaia-header>
+
+    <div class="fxsync-logged-out" hidden="">
+      <ul role="presentation">
+        <li role="presentation" class="description">
+          <div class="fxsync-intro"></div>
+          <p data-l10n-id="fxsync-overview" id="fxsync-logged-out-description"></p>
+        </li>
+        <li role="presentation">
+          <button class="recommend fxsync-login">
+            <span data-l10n-id="fxsync-get-started"></span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="fxsync-logged-in" hidden="">
+      <ul role="presentation">
+        <li role="presentation">
+          <p class="description" data-l10n-id="fxsync-sync-user"></p>
+          <p class="explanation">
+            <span class="fxsync-user"></span>
+          </p>
+        </li>
+        <li role="presentation" class="fxsync-unverified description" hidden="">
+          <p class="fxsync-warning" data-l10n-id="fxa-please-verify"></p>
+        </li>
+        <li role="presentation" class="fxsync-empty-account description" hidden="">
+          <p class="fxsync-warning" data-l10n-id="fxsync-empty-account"></p>
+        </li>
+        <li role="presentation">
+          <label>
+            <button class="fxsync-logout">
+              <span data-l10n-id="fxsync-disable"></span>
+            </button>
+          </label>
+        </li>
+        <li role="presentation">
+          <button class="fxsync-sync-now" data-l10n-id="fxsync-sync-now"></button>
+          <p class="explanation fxsync-last-sync hidden">
+            <span data-l10n-id="fxsync-last-synced"></span>
+          </p>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="fxsync-collections">Collections</h2>
+      </header>
+      <ul role="presentation">
+        <li role="presentation" hidden="">
+          <gaia-switch class="fxsync-collections-bookmarks" name="sync.collections.bookmarks.enabled">
+            <label data-l10n-id="fxsync-collections-bookmarks"></label>
+          </gaia-switch>
+        </li>
+        <li role="presentation">
+          <gaia-switch class="fxsync-collections-history" name="sync.collections.history.enabled">
+            <label data-l10n-id="fxsync-collections-history"></label>
+          </gaia-switch>
+        </li>
+        <li role="presentation" hidden="">
+          <gaia-switch class="fxsync-collections-passwords" name="sync.collections.passwords.enabled">
+            <label data-l10n-id="fxsync-collections-passwords"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="fxsync-legal"></h2>
+      </header>
+      <ul role="presentation">
+        <li role="presentation">
+          <label>
+            <button class="fxsync-tos">
+              <span data-l10n-id="fxsync-tos"></span>
+            </button>
+          </label>
+        </li>
+        <li role="presentation">
+          <label>
+            <button class="fxsync-privacy">
+              <span data-l10n-id="fxsync-privacy"></span>
+            </button>
+          </label>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/firefox_sync/panel"></panel>
+
+  --></section>
+    
+
+    <!-- Security :: Screen Lock :: PIN Input -->
+    <section role="region" class="dialog" id="screenLock-passcode"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1></h1>
+      <button type="submit"><span data-l10n-id="ok"></span></button>
+    </gaia-header>
+
+    <div class="passcode-overlay">
+      <input x-inputmode="digit" class="passcode-input" type="number">
+      <div class="passcode-container">
+        <div class="passcode" id="passcode-pseudo-input">
+          <label data-l10n-id="create-a-passcode" data-mode="new,create"></label>
+          <label data-l10n-id="passcode" data-mode="confirm,confirmLock,edit"></label>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+        </div>
+        <div class="passcode" data-mode="new,create" id="passcode-pseudo-confirm-input">
+          <label data-l10n-id="confirm-passcode" data-mode="new,create"></label>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+          <span class="passcode-digit"></span>
+        </div>
+        <div class="passcode-error" data-l10n-id="incorrect-passcode" data-type="incorrect"></div>
+        <div class="passcode-error" data-l10n-id="passcode-doesnt-match" data-type="mismatch"></div>
+      </div>
+    </div>
+
+    <panel data-path="panels/screen_lock_passcode/panel"></panel>
+
+  --></section>
+    <!-- Security :: Screen Lock -->
+    <section role="region" id="screenLock" data-passcode-enabled="false" data-lockscreen-enabled="false"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="screenLock-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch name="lockscreen.enabled" class="lockscreen-enable">
+            <label data-l10n-id="lockScreen"></label>
+          </gaia-switch>
+        </li>
+        <li class="lockscreen-enabled">
+          <gaia-switch name="lockscreen.passcode-lock.enabled" class="passcode-enable">
+            <label data-l10n-id="passcode-lock"></label>
+          </gaia-switch>
+        </li>
+        <li class="passcode-enabled" id="passcode-timeout-row">
+          <p data-l10n-id="require-passcode"></p>
+          <span class="button icon icon-dialog">
+            <select name="lockscreen.passcode-lock.timeout">
+              <option value="0" data-l10n-id="immediately" selected=""></option>
+              <option value="60" data-l10n-id="after-one-minute"></option>
+              <option value="300" data-l10n-id="after-five-minutes"></option>
+              <option value="900" data-l10n-id="after-fifteen-minutes"></option>
+              <option value="1800" data-l10n-id="after-thirty-minutes"></option>
+              <option value="3600" data-l10n-id="after-one-hour"></option>
+            </select>
+          </span>
+        </li>
+        <li class="passcode-enabled">
+          <button class="passcode-edit" data-l10n-id="change-passcode"></button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/screen_lock/panel"></panel>
+
+  --></section>
+    <!-- Security :: SIM Security :: SIM PIN Input -->
+    <section role="region" class="dialog" id="simpin-dialog"><!--
+
+    <gaia-header>
+      <button type="reset"><span data-icon="close" data-l10n-id="closeButton"></span></button>
+      <h1></h1>
+      <button data-l10n-id="done" type="submit"></button>
+    </gaia-header>
+
+    <div class="pin-dialog">
+      <div class="sim-errorMsg error" hidden="">
+        <div class="sim-messageHeader"></div>
+        <span class="sim-messageBody"></span>
+      </div>
+      <div class="sim-triesLeft" data-l10n-id="inputCodeRetriesLeft" hidden=""></div>
+
+      <div class="sim-code-area sim-pinArea">
+        <div></div>
+        <input x-inputmode="digit" size="8" maxlength="8" type="password">
+      </div>
+
+      <div class="sim-code-area sim-pukArea">
+        <div></div>
+        <input x-inputmode="digit" size="8" maxlength="8" type="password">
+      </div>
+
+      <div class="sim-code-area sim-newPinArea">
+        <div></div>
+        <input x-inputmode="digit" size="8" maxlength="8" type="password">
+      </div>
+
+      <div class="sim-code-area sim-confirmPinArea">
+        <div></div>
+        <input x-inputmode="digit" size="8" maxlength="8" type="password">
+      </div>
+    </div>
+
+    <panel data-path="panels/simpin_dialog/panel"></panel>
+
+  --></section>
+    <!-- Security :: SIM Security -->
+    <section role="region" id="simpin" data-require-sub-panels="true"><!--
+
+    <gaia-header class="simpin-header" action="back" data-href="#root">
+      <h1 data-l10n-id="simSecurity-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="whatIsSimPin"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="simPinIntro1"></p>
+          <p data-l10n-id="simPinIntro2"></p>
+        </li>
+      </ul>
+      <ul class="simpin-container"></ul>
+    </div>
+
+    <panel data-path="panels/simpin/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Security :: Application Permissions :: Details -->
+    <section role="region" id="appPermissions-details"><!--
+
+    <gaia-header action="back">
+      <h1 class="detail-title"></h1>
+    </gaia-header>
+
+    <div>
+      <header id="developer-header" class="developer-header">
+        <h2 data-l10n-id="author"></h2>
+      </header>
+      <ul>
+        <li id="developer-infos" class="developer-infos">
+          <a target="_blank" href="http://github.com/mozilla-b2g/gaia/">
+            <span dir="auto">The Gaia Team</span>
+            <small dir="auto">http://github.com/mozilla-b2g/gaia/</small>
+          </a>
+        </li>
+      </ul>
+
+      <header id="permissionsListHeader" class="permissionsListHeader">
+        <h2 data-l10n-id="permissions"></h2>
+      </header>
+      <ul>
+      </ul>
+
+      <div class="uninstall-app">
+        <button data-l10n-id="uninstallApp" class="danger"></button>
+      </div>
+    </div>
+
+
+    <panel data-path="panels/app_permissions_detail/panel"></panel>
+
+  --></section>
+    <!-- Security :: Application Permissions -->
+    <section role="region" id="appPermissions"><!--
+
+    <gaia-header action="back" data-href="root">
+      <h1 data-l10n-id="appPermissions-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul class="app-list"></ul>
+    </div>
+
+    <panel data-path="panels/app_permissions_list/panel"></panel>
+
+  --></section>
+    <!-- Security :: Do Not Track -->
+    <section role="region" id="doNotTrack"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="doNotTrack-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="description">
+          <gaia-radio name="privacy.donottrackheader.value" value="1">
+            <label data-l10n-id="doNotTrackActions"></label>
+          </gaia-radio>
+        </li>
+        <li class="description">
+          <gaia-radio name="privacy.donottrackheader.value" value="0">
+            <label data-l10n-id="allowTracking"></label>
+          </gaia-radio>
+        </li>
+        <li class="description">
+          <gaia-radio name="privacy.donottrackheader.value" value="-1">
+            <label data-l10n-id="doNotHavePrefOnTracking"></label>
+          </gaia-radio>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="doNotTrack-dt"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="doNotTrack-dd1"></p>
+          <p data-l10n-id="doNotTrack-dd2"></p>
+          <p>
+            <a href="http://dnt.mozilla.org" data-l10n-id="learn-more" class="link-text"></a>
+          </p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/do_not_track/panel"></panel>
+
+  --></section>
+    <!-- Security :: Browser -->
+    <section role="region" id="browsingPrivacy"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="browsingPrivacy-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch name="browser.private.default">
+            <label data-l10n-id="privateBrowsing"></label>
+            <details data-l10n-id="privateBrowsingDetails"></details>
+            <a href="https://support.mozilla.org/kb/private-browsing-firefox-os" data-l10n-id="learn-more"></a>
+          </gaia-switch>
+        </li>
+        <li>
+          <gaia-switch name="privacy.trackingprotection.enabled">
+            <label data-l10n-id="trackingProtection"></label>
+            <details data-l10n-id="trackingProtectionDetails"></details>
+            <a data-l10n-id="learn-more" href="https://support.mozilla.org/kb/tracking-protection-firefox-os"></a>
+          </gaia-switch>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="browser-privacy-history-header"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="browser-privacy-history-desc"></p>
+        </li>
+        <li>
+          <button class="clear-history-button" data-l10n-id="browser-privacy-history-button">
+          </button>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="browser-privacy-cookies-cache-header"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="browser-privacy-cookies-cache-desc"></p>
+        </li>
+        <li>
+          <button class="clear-private-data-button" data-l10n-id="browser-privacy-cookies-cache-button">
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/browsing_privacy/panel"></panel>
+
+  --></section>
+
+    <!-- Device :: Information :: More Information -->
+    <section role="region" id="about-moreInfo"><!--
+
+    <gaia-header action="back" data-href="#about">
+      <h1 data-l10n-id="more-info-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <span data-l10n-id="os-version"></span>
+          <small data-name="deviceinfo.os"></small>
+        </li>
+        <li>
+          <span data-l10n-id="firmware_revision"></span>
+          <small data-name="deviceinfo.firmware_revision"></small>
+        </li>
+        <li>
+          <span data-l10n-id="hardware_manufacturer"></span>
+          <small data-name="deviceinfo.product_manufacturer"></small>
+        </li>
+        <li>
+          <span data-l10n-id="hardware_platform"></span>
+          <small data-name="deviceinfo.hardware"></small>
+        </li>
+        <li>
+          <span data-l10n-id="hardware_revision"></span>
+          <small data-name="deviceinfo.product_device"></small>
+        </li>
+        <li>
+          <span data-l10n-id="macAddress"></span>
+          <small data-name="deviceinfo.mac"></small>
+        </li>
+        <li class="list-imeis">
+          <span data-l10n-id="deviceInfo-IMEI"></span>
+          <small class="deviceInfo-imeis multiline"></small>
+        </li>
+        <li>
+          <span data-l10n-id="build_number"></span>
+          <small data-name="deviceinfo.build_number"></small>
+        </li>
+        <li class="list-iccids">
+          <span data-l10n-id="deviceInfo-ICCID"></span>
+          <small class="deviceInfo-iccids multiline"></small>
+        </li>
+        <li>
+          <span data-l10n-id="platform_version"></span>
+          <small data-name="deviceinfo.platform_version"></small>
+        </li>
+        <li>
+          <span data-l10n-id="build-id"></span>
+          <small data-name="deviceinfo.platform_build_id"></small>
+        </li>
+        <li>
+          <span data-l10n-id="update-channel"></span>
+          <small data-name="app.update.channel"></small>
+        </li>
+        <li>
+          <span data-l10n-id="bluetooth-address"></span>
+          <small data-name="deviceinfo.bt_address"></small>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="gitInfo"></h2>
+      </header>
+      <ul>
+        <li>
+          <span class="gaia-commit-date"></span>
+          <small class="gaia-commit-hash"></small>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="devSettings"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-switch name="developer.menu.enabled">
+            <label data-l10n-id="developer-menu"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/about_more_info/panel"></panel>
+
+  --></section>
+    <!-- Device :: Information :: Your Rights -->
+    <section role="region" id="about-yourRights"><!--
+
+    <gaia-header action="back" data-href="#about">
+      <h1 data-l10n-id="your-rights-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="about-your-rights-0"></p>
+        </li>
+        <li class="description">
+          <p data-l10n-id="about-your-rights-1"></p>
+        </li>
+        <li class="description">
+          <p data-l10n-id="about-your-rights-2"></p>
+        </li>
+        <li class="description">
+          <p data-l10n-id="about-your-rights-3"></p>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Device :: Information :: Your Privacy -->
+    <section role="region" id="about-yourPrivacy"><!--
+
+    <gaia-header action="back" data-href="#about">
+      <h1 data-l10n-id="your-privacy-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2> Mozilla </h2>
+      </header>
+      <ul>
+        <li>
+          <a class="menu-item privacy-menuitem privacy-browserOS" href="https://www.mozilla.org/privacy/firefox-os/">
+            <span data-l10n-id="brandShortName"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item privacy-menuitem privacy-marketPlace" href="https://marketplace.firefox.com/privacy-policy">
+            <span>Marketplace</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Device :: Information :: Legal :: Open Source Notices -->
+    <section role="region" id="about-licensing"><!--
+
+    <gaia-header action="back" data-href="#about-legal">
+      <h1 data-l10n-id="open-source-notices-header"></h1>
+    </gaia-header>
+
+    <iframe src="resources/open_source_license.html" id="os-license"></iframe>
+
+  --></section>
+    <!-- Device :: Information :: Legal :: Obtaining Source Code -->
+    <section role="region" id="about-source-code"><!--
+
+    <gaia-header action="back" data-href="#about-legal">
+      <h1 data-l10n-id="obtaining-source-code-header"></h1>
+    </gaia-header>
+    <iframe src="resources/obtaining_source_code.html" id="obtain-sc"></iframe>
+
+  --></section>
+    <!-- Device :: Information :: Legal -->
+    <section role="region" id="about-legal"><!--
+
+    <gaia-header action="back" data-href="#about">
+      <h1 data-l10n-id="about-legal-info-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="about-mozilla"></h2>
+      </header>
+      <ul>
+        <li>
+          <a class="menu-item" href="#about-licensing">
+            <span data-l10n-id="open-source-notices"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#about-source-code">
+            <span data-l10n-id="obtaining-source-code"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header hidden="">
+        <h2 data-l10n-id="about-other"></h2>
+      </header>
+    </div>
+
+  --></section>
+    <!-- Device :: Information -->
+    <section role="region" id="about"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="deviceInfo-header"></h1>
+    </gaia-header>
+
+    <div>
+<div data-vulpes-brand="start"></div>
+      <section class="vulpes-brand" aria-label="Project Vulpes" style="box-sizing:border-box;text-align:center;background:#071d35;color:#f5f8fa;padding:24px 20px;margin:0 0 18px">
+        <img src="/shared/resources/branding/vulpes-symbol.png" alt="Vulpes" style="width:112px;height:112px;object-fit:contain">
+        <h2 style="background:none;color:inherit;font-size:28px;padding:6px;margin:0">Vulpes 2.7</h2>
+        <p style="font-size:16px;margin:8px 0;color:#52c7e8">A community continuation of Firefox OS</p>
+        <p style="font-size:13px;line-height:1.5;margin:12px 0">Based on Mozilla&#x27;s open-source Boot to Gecko / Firefox OS code.</p>
+        <p style="font-size:12px;line-height:1.5;margin:12px 0 0">Vulpes is an independent community project and is not affiliated with or endorsed by Mozilla.</p>
+      </section>
+      <div data-vulpes-brand="end"></div>
+      <ul>
+        <li class="deviceinfo-phone-num">
+          <span data-l10n-id="deviceInfo-MSISDN"></span>
+          <small class="deviceInfo-msisdns multiline"></small>
+        </li>
+        <li>
+          <span id="model-name" data-l10n-id="model-name"></span>
+          <small data-name="deviceinfo.product_model"></small>
+        </li>
+        <li>
+          <span id="os-version" data-l10n-id="software"></span>
+          <small data-name="deviceinfo.software"></small>
+        </li>
+        <li>
+          <span data-l10n-id="last-updated"></span>
+          <small class="last-update-date"></small>
+        </li>
+        <li>
+          <a class="menu-item" href="#about-moreInfo">
+            <span data-l10n-id="more-info"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="softwareUpdates"></h2>
+      </header>
+      <ul>
+        <li>
+          <p data-l10n-id="check-for-updates"></p>
+          <span class="button icon icon-dialog">
+            <select name="app.update.interval">
+              <option value="86400" data-l10n-id="check-update-daily" selected=""></option>
+              <option value="604800" data-l10n-id="check-update-weekly"></option>
+              <option value="2592000" data-l10n-id="check-update-monthly"></option>
+            </select>
+          </span>
+        </li>
+        <li>
+          <button class="check-update-now" data-l10n-id="check-update-now"></button>
+        </li>
+        <li class="update-status description update-status">
+          <p>
+            <span class="general-information" data-l10n-id="checking-for-update"></span>
+            <span class="system-update-status"></span>
+          </p>
+        </li>
+        <li>
+          <gaia-switch name="addons.auto_update">
+            <label data-l10n-id="addons-auto-update"></label>
+          </gaia-switch>
+        </li>
+        <li class="addon-update-notify hidden">
+          <gaia-checkbox name="addons.update_notify">
+            <label data-l10n-id="addons-update-notify"></label>
+          </gaia-checkbox>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="aboutBrowserOS"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="browser-os-desc"></p>
+        </li>
+        <li>
+          <a class="menu-item" href="#about-yourRights">
+            <span data-l10n-id="your-rights"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#about-yourPrivacy">
+            <span data-l10n-id="your-privacy"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#about-legal">
+            <span data-l10n-id="about-legal-info"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="https://www.mozilla.org/credits/">
+            <span data-l10n-id="about-credit-info"></span>
+          </a>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="reset-head"></h2>
+      </header>
+      <ul>
+        <li>
+          <button class="reset-phone" data-l10n-id="reset-device"></button>
+        </li>
+      </ul>
+    </div>
+
+    <form role="dialog" data-type="confirm" class="reset-phone-dialog" hidden="">
+      <section>
+        <h1 data-l10n-id="reset-warning-title"></h1>
+        <p data-l10n-id="reset-warning-body"></p>
+      </section>
+      <menu>
+        <button data-l10n-id="cancel" class="cancel-reset-phone"></button>
+        <button data-l10n-id="reset" class="confirm-reset-phone danger"></button>
+      </menu>
+    </form>
+
+    <panel data-path="panels/about/panel"></panel>
+
+  --></section>
+    <!-- Device :: Downloads -->
+    <section role="region" id="downloads"><!--
+
+    <gaia-header id="downloads-header" action="back" data-href="#root">
+      <h1 data-l10n-id="downloads"></h1>
+      <button id="downloads-edit-button" data-icon="edit" data-l10n-id="editButton"></button>
+    </gaia-header>
+    <gaia-header id="downloads-edit-header" action="close" hidden="hidden">
+      <h1 id="downloads-title-edit" data-l10n-id="downloads-edit"></h1>
+      <button disabled="" id="downloads-delete-button" data-l10n-id="downloads-delete"></button>
+    </gaia-header>
+
+    <section id="download-list-empty" hidden="hidden">
+      <span id="dle-vertical"></span>
+      <span id="dle-text" data-l10n-id="no-downloads"></span>
+    </section>
+    <section id="downloadList" data-type="list">
+      <ul>
+      </ul>
+    </section>
+    <gaia-buttons id="downloads-edit-menu" transition="slide" hidden="">
+      <button id="downloads-edit-deselect-all" data-l10n-id="downloads-deselect-all" disabled="" class="downloads-edit-menu-item">
+      </button>
+      <button id="downloads-edit-select-all" data-l10n-id="downloads-select-all" class="downloads-edit-menu-item">
+      </button>
+    </gaia-buttons>
+    <panel data-path="panels/downloads/panel"></panel>
+  --></section>
+    <!-- Device :: Battery -->
+    <section role="region" id="battery"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="battery-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <span id="battery-level" data-l10n-id="battery-current-level"></span>
+          <small id="battery-time"></small>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="powerSaveModeTitle"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-switch name="powersave.enabled" class="uninit">
+            <label data-l10n-id="powerSaveMode"></label>
+          </gaia-switch>
+        </li>
+        <li>
+          <p data-l10n-id="turnOnAuto"></p>
+          <span class="button icon icon-dialog">
+            <select name="powersave.threshold">
+              <option value="0.05" data-l10n-id="powerSave-threshold" data-l10n-args="{&quot;level&quot;:  &quot;5&quot;}">5% battery left</option>
+              <option value="0.15" data-l10n-id="powerSave-threshold" data-l10n-args="{&quot;level&quot;: &quot;15&quot;}">15% battery left</option>
+              <option value="0.25" data-l10n-id="powerSave-threshold" data-l10n-args="{&quot;level&quot;: &quot;25&quot;}">25% battery left</option>
+              <option value="-1" data-l10n-id="powerSave-never">Never</option>
+            </select>
+          </span>
+        </li>
+        <li class="description">
+          <p data-l10n-id="powerSave-explanation"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/battery/panel"></panel>
+
+  --></section>
+    <!-- Storage :: USB Transfer Protocol -->
+    <section role="region" id="usbStorage"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="enableUSBStorage1"></h1>
+    </gaia-header>
+
+    <ul>
+      <li>
+        <gaia-switch class="ums-switch" data-ignore="">
+          <label data-l10n-id="enableUSBStorage1"></label>
+          <details class="ums-switch-desc"></details>
+        </gaia-switch>
+      </li>
+      <header>
+        <h2 data-l10n-id="transferProtocol-header"></h2>
+      </header>
+      <li class="description">
+        <gaia-radio name="usb.transfer" value="1">
+          <label dir="auto" data-l10n-id="protocol-mtp"></label>
+        </gaia-radio>
+      </li>
+      <li class="description">
+        <gaia-radio name="usb.transfer" value="0">
+          <label dir="auto" data-l10n-id="protocol-ums"></label>
+        </gaia-radio>
+      </li>
+    </ul>
+
+    <panel data-path="panels/usb_storage/panel"></panel>
+
+  --></section>
+    <!-- Storage :: Device Storage -->
+    <section role="region" id="applicationStorage"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="appStorage-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <progress class="apps-space-bar" min="0" value="0" max="100"></progress>
+        </li>
+
+        <li>
+          <a>
+            <span data-l10n-id="apps-total-space"></span>
+            <span class="apps-total-space"></span>
+          </a>
+        </li>
+        <li>
+          <a>
+            <span data-l10n-id="apps-used-space"></span>
+            <span class="apps-used-space"></span>
+          </a>
+        </li>
+        <li>
+          <a>
+            <span data-l10n-id="apps-free-space"></span>
+            <span class="apps-free-space"></span>
+          </a>
+        </li>
+        <li class="description two-column-description">
+          <p data-l10n-id="storage-details"></p>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/app_storage/panel"></panel>
+
+  --></section>
+    <!-- Storage :: Media Storage -->
+    <section role="region" id="mediaStorage"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="mediaStorage-header"></h1>
+    </gaia-header>
+
+    <div>
+      <div id="volume-list">
+      </div>
+      <header>
+        <h2 data-l10n-id="advanced"></h2>
+      </header>
+      <ul>
+        <li class="default-media-location">
+          <p data-l10n-id="default-media-location"></p>
+          <span class="button icon icon-dialog">
+            <select id="defaultMediaLocation" name="device.storage.writable.name">
+            </select>
+          </span>
+        </li>
+        <li data-l10n-id="default-media-location-msg" class="explanation"></li>
+      </ul>
+    </div>
+    <panel data-path="panels/media_storage/panel"></panel>
+
+  --></section>
+    <!-- Device :: Accessibility :: Color Filter -->
+    <section role="region" id="accessibility-colors"><!--
+
+    <gaia-header action="back" data-href="#accessibility">
+      <h1 data-l10n-id="colorFilter-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch name="accessibility.colors.enable">
+            <label data-l10n-id="colorFilter-toggle"></label>
+          </gaia-switch>
+        </li>
+        <li data-show-name="accessibility.colors.enable" hidden="">
+          <gaia-switch name="accessibility.colors.invert">
+            <label data-l10n-id="colorFilter-invert"></label>
+          </gaia-switch>
+        </li>
+        <li data-show-name="accessibility.colors.enable" hidden="">
+          <gaia-switch name="accessibility.colors.grayscale">
+            <label data-l10n-id="colorFilter-grayscale"></label>
+          </gaia-switch>
+        </li>
+        <li data-show-name="accessibility.colors.enable" hidden="">
+          <label>
+            <p data-l10n-id="colorFilter-contrast">Contrast</p>
+            <input name="accessibility.colors.contrast" step="0.1" min="-1" value="0" max="1" type="range">
+          </label>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Device :: Accessibility :: Audio -->
+    <section role="region" id="accessibility-audio"><!--
+
+    <gaia-header action="back" data-href="#accessibility">
+      <h1 data-l10n-id="accessibility-audio"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch id="monoaudio-enable" name="accessibility.monoaudio.enable">
+            <label data-l10n-id="accessibility-audio-monoAudio"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Device :: Accessibility :: Screen Reader -->
+    <section role="region" id="accessibility-screenreader"><!--
+
+    <gaia-header action="back" data-href="#accessibility">
+      <h1 data-l10n-id="screenReader-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch class="screenreader-enable" data-ignore="">
+            <label data-l10n-id="screenReader-toggle"></label>
+            <details data-l10n-id="screenReader-enable-msg" id="screenreader-enable-msg"></details>
+          </gaia-switch>
+        </li>
+        <li class="sound-setting" data-show-name="accessibility.screenreader" hidden="">
+          <label>
+            <p data-l10n-id="screen-reader-speech-volume"></p>
+            <input name="accessibility.screenreader-volume" step="0.1" min="0" value="1" max="1" type="range">
+          </label>
+        </li>
+        <li class="sound-setting" data-show-name="accessibility.screenreader" hidden="">
+          <label>
+            <p data-l10n-id="screen-reader-speech-rate"></p>
+            <input name="accessibility.screenreader-rate" step="1" min="-4" value="0" max="9" type="range">
+          </label>
+        </li>
+        <li data-show-name="accessibility.screenreader" hidden="">
+          <gaia-switch name="accessibility.screenreader-captions">
+            <label data-l10n-id="screenReader-captions"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+    </div>
+
+    <form role="dialog" data-type="confirm" id="screenreader-confirm-dialog" hidden="">
+      <section>
+        <h1></h1>
+        <p></p>
+      </section>
+      <menu>
+        <button data-l10n-id="cancel"></button>
+        <button class="danger"></button>
+      </menu>
+    </form>
+
+    <panel data-path="panels/accessibility_screenreader/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Device :: Accessibility :: Input -->
+    <section role="region" id="accessibility-input"><!--
+
+    <gaia-header ignore-dir="" action="back" data-href="#accessibility">
+      <h1 data-l10n-id="accessibility-input"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <p data-l10n-id="tap-hold-delay"></p>
+          <span class="button icon icon-dialog">
+            <select name="ui.click_hold_context_menus.delay" data-value-type="integer">
+              <option value="400" data-l10n-id="short-hold-delay" selected=""></option>
+              <option value="800" data-l10n-id="medium-hold-delay"></option>
+              <option value="1600" data-l10n-id="long-hold-delay"></option>
+            </select>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Device :: Accessibility -->
+    <section role="region" id="accessibility"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="accessibility-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a class="menu-item" href="#accessibility-colors">
+            <span data-l10n-id="colorFilter"></span>
+            <small id="colorFilter-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#accessibility-audio">
+            <span data-l10n-id="accessibility-audio"></span>
+            <small id="audio-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#accessibility-input">
+            <span data-l10n-id="accessibility-input"></span>
+            <small data-l10n-id="accessibility-input-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" href="#accessibility-screenreader">
+            <span data-l10n-id="screenReader"></span>
+            <small id="screenReader-desc"></small>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/accessibility/panel"><panel>
+
+  </panel></panel>--></section>
+    <!-- Device :: Developer :: HUD -->
+    <section role="region" id="developer-hud"><!--
+
+    <gaia-header action="back" data-href="#developer">
+      <h1 data-l10n-id="hud-settings-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-checkbox name="debug.fps.enabled" class="color-preview fps-monitor">
+            <label data-l10n-id="hud-fps"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="debug.ttl.enabled" class="color-preview ttl-monitor">
+            <label data-l10n-id="hud-ttl"></label>
+          </gaia-checkbox>
+        </li>
+        <header>
+          <h2 data-l10n-id="hud-devtools-header"></h2>
+        </header>
+        <li>
+          <gaia-switch name="devtools.overlay">
+            <label data-l10n-id="hud-devtools"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+      <ul class="hud-widgets disabled">
+        <li class="hud-separator">
+          <gaia-checkbox name="hud.logging">
+            <label data-l10n-id="hud-logging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="devtools.overlay.system">
+            <label data-l10n-id="hud-system"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.hide">
+            <label data-l10n-id="hud-hide"></label>
+          </gaia-checkbox>
+        </li>
+        <header>
+          <h2 data-l10n-id="hud-problems"></h2>
+        </header>
+        <li>
+          <gaia-checkbox name="hud.warnings" class="color-preview warning-counter">
+            <label data-l10n-id="hud-warnings"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.errors" class="color-preview error-counter">
+            <label data-l10n-id="hud-errors"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.security" class="color-preview security-counter">
+            <label data-l10n-id="hud-security"></label>
+          </gaia-checkbox>
+        </li>
+        <header>
+          <h2 data-l10n-id="hud-performance"></h2>
+        </header>
+        <li class="hud-separator">
+          <gaia-checkbox name="hud.reflows" class="color-preview reflow-counter">
+            <label data-l10n-id="hud-reflows"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <p data-l10n-id="hud-reflows-threshold"></p>
+          <span class="button icon icon-dialog">
+            <select name="hud.reflows.duration" data-value-type="integer">
+              <option value="0">0</option>
+              <option value="10" selected="">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </span>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.jank" class="color-preview jank-monitor">
+            <label data-l10n-id="hud-jank"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <p data-l10n-id="hud-jank-threshold"></p>
+          <span class="button icon icon-dialog">
+            <select name="devtools.eventlooplag.threshold" data-value-type="integer">
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100" selected="">100</option>
+              <option value="200">200</option>
+            </select>
+          </span>
+        </li>
+        <header>
+          <h2 data-l10n-id="hud-memory"></h2>
+        </header>
+        <li>
+          <gaia-checkbox name="hud.uss" class="color-preview uss-monitor">
+            <label data-l10n-id="hud-uss"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.appmemory" class="color-preview memory-monitor">
+            <label data-l10n-id="hud-appmemory"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.jsobjects" class="color-preview memory-item">
+            <label data-l10n-id="hud-jsobjects"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.jsstrings" class="color-preview memory-item">
+            <label data-l10n-id="hud-jsstrings"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.jsother" class="color-preview memory-item">
+            <label data-l10n-id="hud-jsother"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.dom" class="color-preview memory-item">
+            <label data-l10n-id="hud-dom"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.style" class="color-preview memory-item">
+            <label data-l10n-id="hud-style"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="hud.other" class="color-preview memory-item">
+            <label data-l10n-id="hud-other"></label>
+          </gaia-checkbox>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/developer_hud/panel"></panel>
+
+  --></section>
+    <!-- Device :: Developer :: Service Workers -->
+    <section role="region" id="developer-service-workers"><!--
+
+    <gaia-header action="back" data-href="#developer">
+      <h1 data-l10n-id="service-worker"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <gaia-switch id="service-workers-interception-enabled" name="dom.serviceWorkers.interception.enabled">
+            <label data-l10n-id="service-workers-interception"></label>
+          </gaia-switch>
+        </li>
+        <li>
+          <gaia-switch id="service-workers-testing-enabled" name="dom.serviceWorkers.testing.enabled">
+            <label data-l10n-id="service-workers-testing"></label>
+          </gaia-switch>
+        </li>
+        <li id="service-workers-list-section">
+          <ul id="service-workers-list"></ul>
+        </li>
+        <li id="service-workers-empty-section" class="hidden">
+          <span id="empty-text" data-l10n-id="service-worker-no-registrations"></span>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/developer_service_workers/panel"></panel>
+
+  --></section>
+    <!-- Device :: Developer -->
+    <section role="region" id="developer"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="developer-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 data-l10n-id="developer-tools"></h2>
+      </header>
+      <ul>
+        <li>
+          <p data-l10n-id="remote-debugging-usb"></p>
+          <span class="button icon icon-dialog">
+            <select name="debugger.remote-mode" data-value-type="string">
+              <option value="disabled" data-l10n-id="debugger-disabled" selected=""></option>
+              <option value="adb-only" data-l10n-id="debugger-adb-only"></option>
+              <option value="adb-devtools" data-l10n-id="debugger-adb-and-devtools"></option>
+            </select>
+          </span>
+        </li>
+        <li data-show-name="devtools.remote.wifi.visible" hidden="">
+          <gaia-checkbox name="devtools.remote.wifi.enabled">
+            <label data-l10n-id="devtools-wifi"></label>
+          </gaia-checkbox>
+        </li>
+        <li data-show-name="devtools.remote.wifi.visible" hidden="">
+            <p data-l10n-id="devtools-device-name"></p>
+            <input name="devtools.discovery.device" dir="auto" type="text">
+        </li>
+        <li>
+          <a class="menu-item" href="#developer-hud">
+            <span data-l10n-id="hud-settings-button"></span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" data-l10n-id="service-worker" href="#developer-service-workers"></a>
+        </li>
+
+      </ul>
+      <header>
+        <h2 data-l10n-id="graphics"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-checkbox name="debug.paint-flashing.enabled">
+            <label data-l10n-id="paint-flashing"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="apz.overscroll.enabled">
+            <label data-l10n-id="apz-overscroll"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layers.enable-tiles">
+            <label data-l10n-id="tiling"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layers.low-precision">
+            <label data-l10n-id="low-precision"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layers.low-opacity">
+            <label data-l10n-id="low-opacity"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layers.composer2d.enabled">
+            <label data-l10n-id="hardware-composer"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layers.draw-tile-borders">
+            <label data-l10n-id="draw-tile-borders"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layers.draw-borders">
+            <label data-l10n-id="draw-layer-borders"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layers.dump">
+            <label data-l10n-id="dumps-layers"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="layout.display-list.dump">
+            <label data-l10n-id="dumps-display-list"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="gfx.layerscope.enabled">
+            <label data-l10n-id="dumps-layerscope"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="app.cards_view.screenshots.enabled">
+            <label data-l10n-id="cards-view-screenshots"></label>
+          </gaia-checkbox>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="window-management"></h2>
+      </header>
+      <ul>
+        <li class="software-home-button">
+          <gaia-checkbox name="software-button.enabled">
+            <label data-l10n-id="software-home-button"></label>
+          </gaia-checkbox>
+        </li>
+        <li class="homegesture">
+          <gaia-checkbox name="homegesture.enabled">
+            <label data-l10n-id="home-gesture"></label>
+          </gaia-checkbox>
+        </li>
+        <li id="continuoustransition">
+          <gaia-checkbox name="continuous-transition.enabled">
+            <label data-l10n-id="continuous-transition"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="app-transition.enabled">
+            <label data-l10n-id="app-transition"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="app-suspending.enabled">
+            <label data-l10n-id="app-suspending"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="copypaste.enabled">
+            <label data-l10n-id="copypaste"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="multiscreen.enabled">
+            <label data-l10n-id="multi-screen"></label>
+          </gaia-checkbox>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="debug"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-checkbox name="devtools.pseudolocalization.enabled">
+            <label data-l10n-id="devtools-pseudolocalization"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="debug.log-animations.enabled">
+            <label data-l10n-id="log-animations"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="geolocation.debugging.enabled">
+            <label data-l10n-id="geolocation-debugging-enabled"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="geolocation.debugging.gps-locations-ignored">
+            <label data-l10n-id="geolocation-debugging-gps-locations-ignored"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="wifi.debugging.enabled">
+            <label data-l10n-id="wifi-debugging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="bluetooth.debugging.enabled">
+            <label data-l10n-id="bluetooth-debugging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="bluetooth.snoop.enabled">
+            <label data-l10n-id="bluetooth-snoop-debugging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="nfc.debugging.enabled">
+            <label data-l10n-id="nfc-debugging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="ril.debugging.enabled">
+            <label data-l10n-id="ril-debugging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="network.debugging.enabled">
+            <label data-l10n-id="network-debugging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="mms.debugging.enabled">
+            <label data-l10n-id="mms-debugging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="debug.console.enabled">
+            <label data-l10n-id="console-enabled"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="debug.gaia.enabled">
+            <label data-l10n-id="debug-gaia-enabled"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="dom.mozApps.use_reviewer_certs">
+            <label data-l10n-id="use-reviewer-certs"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="devtools.logshake.enabled">
+            <label data-l10n-id="shake-to-log"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="devtools.logshake.qa_enabled">
+            <label data-l10n-id="enable-logshake-qa"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="debug.verbose_app_permissions">
+            <label data-l10n-id="verbose-app-permissions"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="dev.gaia.pinning_the_web">
+            <label data-l10n-id="pinning-the-web"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox name="dev.gaia.view_source">
+            <label data-l10n-id="view-source"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <gaia-checkbox class="homescreen-paging">
+            <label data-l10n-id="homescreen-paging"></label>
+          </gaia-checkbox>
+        </li>
+        <li>
+          <button class="ftuLauncher" data-l10n-id="launch-ftu"></button>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="unlock-privileges"></h2>
+      </header>
+      <ul>
+        <li>
+          <gaia-switch name="devtools.unrestricted" class="reset-devtools">
+            <label data-l10n-id="full-devtools"></label>
+          </gaia-switch>
+        </li>
+      </ul>
+      <header>
+        <h2 data-l10n-id="softwareUpdates"></h2>
+      </header>
+      <ul>
+        <li>
+          <p data-l10n-id="update-channel"></p>
+          <input name="app.update.channel" dir="auto" type="text">
+        </li>
+        <li>
+          <p data-l10n-id="update-url"></p>
+          <input name="app.update.url" dir="auto" type="text">
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/developer/panel"></panel>
+
+  --></section>
+    <!-- Device :: Improve Browser OS :: Crash Reports-->
+    <section role="region" id="crashReports"><!--
+
+    <gaia-header action="back" data-href="#improveBrowserOS">
+      <h1 data-l10n-id="crashReports-header"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="crash-reports-description-1"></p>
+          <p data-l10n-id="crash-reports-description-2"></p>
+          <p>
+            <span data-l10n-id="crash-reports-description-3-start"></span><a href="https://www.mozilla.org/privacy/" data-l10n-id="crash-reports-description-3-privacy" class="link-text"></a><span data-l10n-id="crash-reports-description-3-end"></span>
+          </p>
+        </li>
+      </ul>
+    </div>
+
+  --></section>
+    <!-- Device :: Send Feedback -->
+    <section role="region" id="improveBrowserOS-sendFeedback"><!--
+
+  	<gaia-header action="back" id="feedback-header">
+      <h1 id="feedback-title"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="feedback-mood-explain"></p>
+          <textarea id="feedback-description" name="description" x-inputmode="latin-prose" dir="auto"></textarea>
+          <p data-l10n-id="feedback-public-description"></p>
+        </li>
+        <li class="description">
+          <gaia-checkbox id="email-enable">
+            <label data-l10n-id="feedback-contactyou" id="feedback-contactyou"></label>
+          
+        </gaia-checkbox></li>
+        <li id="feedback-emailbar" class="description" hidden="false">
+          <p data-l10n-id="email-address1"></p>
+          <input id="feedback-email" type="email">
+          <p data-l10n-id="email-keepprivate"></p>
+        </li>
+        <li>
+          <button id="feedback-send-btn" data-l10n-id="feedback-sendbtn"></button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/feedback_send/panel"></panel>
+
+  --></section>
+    <!-- Device :: Send Feedback -->
+    <section role="region" id="improveBrowserOS-chooseFeedback"><!--
+
+  	<gaia-header action="back" data-href="#improveBrowserOS">
+      <h1 data-l10n-id="sendFeedbackTitle"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="feedback-description"></p>
+        </li>
+        <li>
+          <ul class="feedback-choose" id="feedback-mood">
+            <li id="feedback-happy">
+              <span class="feedback-choose-face"></span>
+              <span data-l10n-id="feedback-happy" class="feedback-face-caption"></span>
+            </li>
+            <li id="feedback-sad">
+              <span class="feedback-choose-face"></span>
+              <span data-l10n-id="feedback-sad" class="feedback-face-caption"></span>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <span class="feedback-feel" data-l10n-id="feedback-mood-description"></span>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/feedback_choose/panel"></panel>
+
+  --></section>
+    <!-- Device :: Improve Browser OS -->
+    <section role="region" id="improveBrowserOS"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="improveBrowserOSTitle"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li>
+          <a class="menu-item" href="#improveBrowserOS-chooseFeedback">
+            <span data-l10n-id="sendMozillaFeedback"></span>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="performanceAndUsageData"></h2>
+      </header>
+      <ul>
+        <li>
+          <a id="appUsageByRegion" class="menu-item">
+            <span data-l10n-id="appUsageByRegion"></span>
+          </a>
+        </li>
+        <li>
+          <p class="description">
+            <span data-l10n-id="helpImprove"></span>
+          </p>
+          <p class="description">
+            <span data-l10n-id="learn-more-privacy">
+              <a href="http://www.mozilla.org/privacy/firefox-os" class="link-text"></a>
+            </span>
+          </p>
+        </li>
+        <li>
+          <gaia-radio name="metricsGroup" id="metrics-basic" value="Basic">
+            <label data-l10n-id="basicMetricsRadio"></label>
+            <p data-l10n-id="basicMetricsExplain" class="metrics-explain"></p>
+          </gaia-radio>
+        </li>
+        <li>
+          <gaia-radio name="metricsGroup" id="metrics-enhanced" value="Enhanced">
+            <label data-l10n-id="enhancedMetricsRadio"></label>
+            <p data-l10n-id="enhancedMetricsExplain" class="metrics-explain"></p>
+          </gaia-radio>
+        </li>
+        <li>
+          <gaia-radio name="metricsGroup" id="metrics-none" value="None">
+            <label data-l10n-id="noneMetricsRadio"></label>
+            <p data-l10n-id="noneMetricsExplain" class="metrics-explain"></p>
+          </gaia-radio>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="crashReports"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p>
+            <span data-l10n-id="crashReportInfo"></span>
+            <a href="#crashReports" data-l10n-id="learn-more" class="link-text"></a>
+          </p>
+        </li>
+        <li id="menuItem-alwaysSendReport">
+          <gaia-radio name="app.reportCrashes" value="always">
+            <label data-l10n-id="alwaysSendReport"></label>
+          </gaia-radio>
+        </li>
+        <li id="menuItem-neverSendReport">
+          <gaia-radio name="app.reportCrashes" value="never">
+            <label data-l10n-id="neverSendReport"></label>
+          </gaia-radio>
+        </li>
+        <li id="menuItem-askToSendReport2">
+          <gaia-radio name="app.reportCrashes" value="ask" checked="">
+            <label data-l10n-id="askToSendReport2"></label>
+          </gaia-radio>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/improve_browser_os/panel"></panel>
+  --></section>
+    <!-- Device :: Help -->
+    <section role="region" id="help"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="help"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="support-info">
+          <span id="online-support-link">
+            <span data-l10n-id="online-support"></span>
+            <span id="help-online-support-text"></span>
+          </span>
+        </li>
+        <li class="support-info">
+          <span id="call-support-link">
+            <span data-l10n-id="call-support"></span>
+            <span id="help-call-support-numbers"></span>
+          </span>
+        </li>
+        <li>
+          <a class="menu-item" id="user-guide" href="#">
+            <span data-l10n-id="user-guide"></span>
+          </a>
+        </li>
+        <li class="no-support-info description" data-l10n-id="default-support">
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/help/panel"></panel>
+
+  --></section>
+    <!-- SIM Toolkit -->
+    <section role="region" id="icc"><!--
+
+    <gaia-header id="icc-stk-main-header" action="back">
+      <h1 id="icc-stk-header" data-l10n-id="simToolkit-header"></h1>
+    </gaia-header>
+
+    <div>
+      <header>
+        <h2 id="icc-stk-subheader"></h2>
+      </header>
+
+      <ul id="icc-stk-list">
+      </ul>
+    </div>
+
+    <script src="js/panels/icc/icc.js"></script>
+  --></section>
+    <!-- Firefox Accounts -->
+    <section role="region" id="fxa"><!--
+
+    <gaia-header action="back" data-href="#root">
+      <h1 data-l10n-id="fxa-accounts-header"></h1>
+    </gaia-header>
+
+    <div id="fxa-logged-out" hidden="">
+      <ul>
+        <li class="description">
+          <div class="fxa-logo"></div>
+          <p data-l10n-id="fxa-overview" id="fxa-logged-out-description"></p>
+        </li>
+        <li>
+          <label>
+            <button id="fxa-login">
+              <span data-l10n-id="fxa-invitation"></span>
+            </button>
+          </label>
+        </li>
+      </ul>
+    </div>
+    <div id="fxa-unverified" hidden="">
+      <header>
+        <h2 data-l10n-id="fxa-confirm-account"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p id="fxa-unverified-text">
+            We will send an email to: foo@bar.com
+          </p>
+          <p data-l10n-id="fxa-please-verify"></p>
+          <p id="fxa-resend-email" data-l10n-id="fxa-dont-see-email-resend">
+            Don't see an email? <a href="#" id="fxa-resend">Resend</a>.
+          </p>
+        </li>
+        <li>
+          <label>
+            <button class="danger" id="fxa-cancel-confirmation">
+              <span data-l10n-id="fxa-cancel-confirmation"></span>
+            </button>
+          </label>
+        </li>
+      </ul>
+    </div>
+    <div id="fxa-logged-in" hidden="">
+      <header>
+        <h2 data-l10n-id="fxa-about"></h2>
+      </header>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="fxa-overview"></p>
+          <p data-l10n-id="fxa-logged-in-text" id="fxa-logged-in-text"></p>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="fxa-options"></h2>
+      </header>
+      <ul>
+        <li>
+          <label>
+            <button id="fxa-logout">
+              <span data-l10n-id="fxa-sign-out"></span>
+            </button>
+          </label>
+        </li>
+      </ul>
+    </div>
+    <panel data-path="panels/firefox_accounts/panel"></panel>
+  --></section>
+    <!-- Iframe -->
+    <section role="region" id="frame"><!--
+    <panel data-path="panels/frame/panel"><panel>
+  </panel></panel>--></section>
+    <!-- Full Developer Mode -->
+    <section role="region" id="full-developer-mode"><!--
+    <div class="full-dev-mode-warning" hidden="">
+      <gaia-confirm>
+        <h1 data-l10n-id="enable-full-dev-mode-first-warning-title"></h1>
+        <p>
+          <span data-l10n-id="enable-full-dev-mode-first-warning-msg-1"></span>
+          <br>
+          <br>
+          <span data-l10n-id="enable-full-dev-mode-first-warning-msg-2"></span>
+        </p>
+        <gaia-buttons skin="dark">
+          <button type="reset" data-l10n-id="cancel"></button>
+          <button type="submit" data-l10n-id="enable" class="danger"></button>
+        </gaia-buttons>
+      </gaia-confirm>
+    </div>
+
+    <div class="dev-menu-disabled-warning" hidden="">
+      <gaia-confirm>
+        <h1 data-l10n-id="developer-menu-disabled-warning-title"></h1>
+        <p>
+          <span data-l10n-id="developer-menu-disabled-warning-msg-1"></span>
+          <br>
+          <br>
+          <span data-l10n-id="developer-menu-disabled-warning-msg-2"></span>
+        </p>
+        <gaia-buttons skin="dark">
+          <button type="submit" data-l10n-id="close"></button>
+        </gaia-buttons>
+      </gaia-confirm>
+    </div>
+
+    <panel data-path="panels/full_developer_mode/panel"></panel>
+
+  --></section>
+    <!-- Full Developer Mode Warning-->
+    <section role="region" class="dialog" id="full-developer-mode-warning"><!--
+    <div class="full-dev-mode-warning" hidden="">
+      <gaia-confirm>
+        <h1 data-l10n-id="enable-full-dev-mode-first-warning-title"></h1>
+        <p>
+          <span data-l10n-id="enable-full-dev-mode-first-warning-msg-1"></span>
+          <br>
+          <br>
+          <span data-l10n-id="enable-full-dev-mode-first-warning-msg-2"></span>
+        </p>
+        <gaia-buttons skin="dark">
+          <button data-l10n-id="cancel" class="cancel-btn"></button>
+          <button data-l10n-id="enable" class="danger enable-btn"></button>
+        </gaia-buttons>
+      </gaia-confirm>
+    </div>
+
+    <div class="dev-menu-disabled-warning" hidden="">
+      <gaia-confirm>
+        <h1 data-l10n-id="developer-menu-disabled-warning-title"></h1>
+        <p>
+          <span data-l10n-id="developer-menu-disabled-warning-msg-1"></span>
+          <br>
+          <br>
+          <span data-l10n-id="developer-menu-disabled-warning-msg-2"></span>
+        </p>
+        <gaia-buttons skin="dark">
+          <button data-l10n-id="close" class="close-btn"></button>
+        </gaia-buttons>
+      </gaia-confirm>
+    </div>
+
+    <panel data-path="panels/full_developer_mode_warning/panel"></panel>
+
+  --></section>
+    <!-- Full Developer Mode Final Warning -->
+    <section role="region" class="dialog" id="full-developer-mode-final-warning"><!--
+    <div class="warning-dialog">
+      <gaia-confirm>
+        <h1 data-l10n-id="enable-full-dev-mode-final-warning-title"></h1>
+        <p class="warning-info"></p>
+        <gaia-buttons skin="dark">
+          <button type="reset" data-l10n-id="cancel"></button>
+          <button type="submit" data-l10n-id="enable" class="danger"></button>
+        </gaia-buttons>
+      </gaia-confirm>
+    </div>
+
+    <panel data-path="panels/full_developer_mode_final_warning/panel"></panel>
+
+  --></section>
+    <!-- Partial Ums Warnings -->
+    <section role="region" class="dialog" id="ums-partial-warning"><!--
+    <gaia-confirm>
+      <h1 data-l10n-id="ums-partial-support-warning-title"></h1>
+      <p>
+        <span data-l10n-id="ums-partial-support-warning-msg-1"></span>
+        <br>
+        <br>
+        <span data-l10n-id="ums-partial-support-warning-msg-2"></span>
+      </p>
+      <gaia-buttons skin="dark">
+        <button type="reset" data-l10n-id="cancel"></button>
+        <button type="submit" data-l10n-id="ok"></button>
+      </gaia-buttons>
+    </gaia-confirm>
+  --></section>
+    <!-- SettingsDialog :: AlertDialog -->
+    <section role="region" class="dialog" id="settings-alert-dialog"><!--
+    <gaia-confirm>
+      <h1 class="settings-dialog-title" data-l10n-id="settings-alert-dialog-header"></h1>
+      <p class="settings-dialog-message"></p>
+      <gaia-buttons skin="dark">
+        <button type="submit" data-l10n-id="ok" class="recommend full"></button>
+      </gaia-buttons>
+    </gaia-confirm>
+  --></section>
+    <!-- SettingsDialog :: ConFirmDialog -->
+    <section role="region" class="dialog" id="settings-confirm-dialog"><!--
+    <gaia-confirm>
+      <h1 class="settings-dialog-title" data-l10n-id="settings-confirm-dialog-header"></h1>
+      <p class="settings-dialog-message"></p>
+      <gaia-buttons skin="dark">
+        <button type="reset" data-l10n-id="cancel" class=""></button>
+        <button type="submit" data-l10n-id="ok" class="recommend"></button>
+      </gaia-buttons>
+    </gaia-confirm>
+  --></section>
+    <!-- SettingsDialog :: PromptDialog -->
+    <section role="region" class="dialog" id="settings-prompt-dialog"><!--
+    <form role="dialog" data-type="confirm">
+      <section>
+        <h1 class="settings-dialog-title" data-l10n-id="settings-prompt-dialog-header"></h1>
+        <p>
+          <input class="settings-dialog-input" type="text">
+          <span class="settings-dialog-message">
+        </span></p>
+      </section>
+      <menu>
+        <button type="reset" data-l10n-id="cancel" class=""></button>
+        <button type="submit" data-l10n-id="ok" class="recommend"></button>
+      </menu>
+    </form>
+  --></section>
+
+    <!-- templates -->
+    <!-- templates :: Messaging -->
+    <section role="region" id="template-messaging"><!--
+
+    <header>
+      <h2 data-l10n-id="cellBroadcastMessages"></h2>
+    </header>
+
+    <ul>
+      <li id="menuItem-cellBroadcast" aria-disabled="true">
+        <gaia-switch data-ignore="" disabled="">
+          <label data-l10n-id="cellBroadcast"></label>
+        </gaia-switch>
+      </li>
+      <li id="menuItem-emergencyAlert" aria-disabled="true">
+        <gaia-switch data-ignore="" disabled="">
+          <label data-l10n-id="emergencyAlert"></label>
+        </gaia-switch>
+      </li>
+    </ul>
+
+    <header>
+      <h2 data-l10n-id="messagingInformation"></h2>
+    </header>
+
+    <ul>
+      <li class="hint smsc">
+        <span data-l10n-id="messaging-SMSC"></span>
+        <p class="explanation"></p>
+      </li>
+    </ul>
+
+  --></section>
+
+    <!-- Main List -->
+    <section role="region" id="root"><!--
+
+    <gaia-header id="main-header">
+      <h1 id="main-list-title" data-l10n-id="settings"></h1>
+      <a id="activityDoneButton" role="menuitem" data-l10n-id="done"></a>
+    </gaia-header>
+
+    <div>
+      <header data-category="connectivity">
+        <h2 data-l10n-id="networkAndConnectivity"></h2>
+      </header>
+      <ul>
+        <li data-category="connectivity">
+          <gaia-switch class="airplaneMode-input uninit" disabled="">
+            <label id="menuItem-airplaneMode" class="menu-item" data-icon="airplane" data-l10n-id="airplaneMode"></label>
+          </gaia-switch>
+        </li>
+        <li>
+          <gaia-switch name="geolocation.enabled" class="uninit">
+            <label id="menuItem-gps" class="menu-item" data-icon="location" data-l10n-id="geolocation"></label>
+          </gaia-switch>
+        </li>
+        <li data-category="connectivity">
+          <a id="menuItem-wifi" class="menu-item" data-icon="wifi-4" href="#wifi" data-l10n-id="wifiSection" aria-describedby="wifi-desc">
+            <span data-l10n-id="wifi"></span>
+            <small id="wifi-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li id="simCardManager-settings">
+          <a id="menuItem-simManager" class="menu-item" data-icon="sim" href="#sim-manager" data-l10n-id="simManagerSection" aria-describedby="simmanager-desc">
+            <span data-l10n-id="simManager"></span>
+            <small id="simmanager-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li id="call-settings">
+          <a id="menuItem-callSettings" class="menu-item" data-icon="call" href="#call" data-l10n-id="callSettingsSection" aria-describedby="call-desc">
+            <span data-l10n-id="callSettings"></span>
+            <small id="call-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li id="messaging-settings">
+          <a id="menuItem-messagingSettings" class="menu-item" data-icon="messages" href="#messaging" data-l10n-id="messagingSettingsSection" aria-describedby="messaging-desc">
+            <span data-l10n-id="messagingSettings"></span>
+            <small id="messaging-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li id="data-connectivity" data-category="connectivity">
+          <a id="menuItem-cellularAndData" class="menu-item" data-icon="signal-5" href="#carrier" data-l10n-id="cellularAndDataSection" aria-describedby="data-desc">
+            <span data-l10n-id="cellularAndData"></span>
+            <small id="data-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a id="menuItem-bluetooth" class="menu-item" data-icon="bluetooth" href="#bluetooth" data-l10n-id="bluetoothSection" aria-describedby="bluetooth-desc">
+            <span data-l10n-id="bluetooth"></span>
+            <small class="bluetooth-desc menu-item-desc"></small>
+          </a>
+        </li>
+        <li class="nfc-settings" hidden="">
+          <gaia-switch id="nfc-input" name="nfc.enabled" class="uninit">
+            <label id="menuItem-nfc" class="menu-item" data-icon="nfc" data-l10n-id="nfc"></label>
+          </gaia-switch>
+        </li>
+        <li>
+          <a id="menuItem-internetSharing" class="menu-item" data-icon="tethering" href="#hotspot" data-l10n-id="internetSharingSection" aria-describedby="internetSharing-desc">
+            <span data-l10n-id="internetSharing"></span>
+            <small id="internetSharing-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="personalization"></h2>
+      </header>
+      <ul>
+        <li>
+          <a id="menuItem-sound" class="menu-item" data-icon="sound-max" href="#sound" data-l10n-id="sound"></a>
+        </li>
+        <li>
+          <a id="menuItem-display" class="menu-item" data-icon="brightness" href="#display" data-l10n-id="display"></a>
+        </li>
+        <li>
+          <a id="menuItem-homescreens" class="menu-item" data-icon="homescreen" href="#homescreens" data-l10n-id="home-screens"></a>
+        </li>
+        <li>
+          <a id="menuItem-search" class="menu-item" data-icon="search" href="#search" data-l10n-id="search"></a>
+        </li>
+        <li>
+          <a id="menuItem-navigation" class="menu-item" data-icon="gesture" href="#navigation" data-l10n-id="navigation"></a>
+        </li>
+        <li>
+          <a id="menuItem-notifications" class="menu-item" data-icon="notifications" href="#notifications" data-l10n-id="notifications"></a>
+        </li>
+        <li>
+          <a id="menuItem-dateAndTime" class="menu-item" data-icon="time" href="#dateTime" data-l10n-id="dateAndTimeSection" aria-describedby="time-desc">
+            <span data-l10n-id="dateAndTime"></span>
+            <small id="time-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a class="menuItem-languageAndRegion menu-item" data-icon="languages" href="#languages" data-l10n-id="languageSection" aria-describedby="language-desc">
+            <span data-l10n-id="language"></span>
+            <small id="language-desc" class="language-desc menu-item-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a id="menuItem-keyboard" class="menu-item" data-icon="keyboard" href="#keyboard" data-l10n-id="keyboardsSection" aria-describedby="keyboard-desc">
+            <span data-l10n-id="keyboards"></span>
+            <small id="keyboard-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li class="themes-section" hidden="">
+          <a id="menuItem-themes" class="menu-item" data-icon="themes" href="#themes" data-l10n-id="themes"></a>
+        </li>
+        <li id="addons-section" hidden="">
+          <a id="menuItem-addons" class="menu-item" data-icon="addons" href="#addons" data-l10n-id="addons"></a>
+        </li>
+        <li hidden="">
+          <a id="achievements-section" class="menu-item" data-icon="achievement" href="#achievements" data-l10n-id="achievements"></a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="accounts"></h2>
+      </header>
+      <ul>
+        <li>
+          <a id="menuItem-fxa" class="menu-item" data-icon="firefox" href="#fxa" data-l10n-id="fxa-accountsSection" aria-describedby="fxa-desc">
+            <span data-l10n-id="fxa-accounts"></span>
+            <small id="fxa-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a id="menuItem-findmydevice" class="menu-item" data-icon="find" href="#findmydevice" data-l10n-id="findmydeviceSection" aria-describedby="findmydevice-desc">
+            <span data-l10n-id="findmydevice"></span>
+            <small id="findmydevice-desc" class="findmydevice-desc menu-item-desc"></small>
+          </a>
+        </li>
+        
+        <li>
+          <a id="menuItem-fxsync" class="menu-item" data-icon="download" href="#fxsync" data-l10n-id="fxsyncSection" aria-describedby="fxsync-desc">
+            <span data-l10n-id="fxsync"></span>
+            <small id="fxsync-desc" class="fxsync-desc menu-item-desc"></small>
+          </a>
+        </li>
+        
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="privacyAndSecurity"></h2>
+      </header>
+      <ul>
+        <li>
+          <a id="menuItem-screenLock" class="menu-item" data-icon="lock" href="#screenLock" data-l10n-id="screenLockSection" aria-describedby="screenLock-desc">
+            <span data-l10n-id="screenLock"></span>
+            <small id="screenLock-desc" class="screenLock-desc menu-item-desc"></small>
+          </a>
+        </li>
+        <li id="simSecurity-settings">
+          <a id="menuItem-simSecurity" class="menu-item" data-icon="sim" href="#simpin" data-l10n-id="simSecuritySection" aria-describedby="simCardLock-desc">
+            <span data-l10n-id="simSecurity"></span>
+            <small id="simCardLock-desc" class="menu-item-desc simCardLock-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a id="menuItem-appPermissions" class="menu-item" data-icon="tick-circle" href="#appPermissions" data-l10n-id="appPermissions"></a>
+        </li>
+        <li>
+          <a id="menuItem-doNotTrack" class="menu-item" data-icon="do-not-track" href="#doNotTrack" data-l10n-id="doNotTrackSection" aria-describedby="doNotTrack-desc">
+            <span data-l10n-id="doNotTrack"></span>
+            <small id="doNotTrack-desc" class="menu-item-desc"></small>
+          </a>
+        </li>
+        <li>
+          <small id="browsingPrivacy-desc" class="menu-item-desc" aria-hidden="true"></small>
+          <a id="menuItem-browsingPrivacy" class="menu-item" data-icon="browsing" href="#browsingPrivacy" data-l10n-id="browsingPrivacy" aria-describiedby="browsingPrivacy-desc"></a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="storage"></h2>
+      </header>
+      <ul>
+        <li>
+          <a class="menuItem-enableStorage menu-item" data-icon="usb" href="#usbStorage" data-l10n-id="enableStorageSection" aria-describedby="usb-desc">
+            <span data-l10n-id="enableUSBStorage1"></span>
+            <small id="usb-desc" class="usb-desc menu-item-desc"></small>
+          </a>
+        </li>
+        <li class="media-storage-section">
+          <a class="menuItem-mediaStorage menu-item" data-icon="media-storage" href="#mediaStorage" data-l10n-id="mediaStorageSection" aria-describedby="media-storage-desc">
+            <span data-l10n-id="mediaStorage"></span>
+            <small id="media-storage-desc" class="media-storage-desc menu-item-desc"></small>
+          </a>
+        </li>
+        <li>
+          <a class="menuItem-applicationStorage menu-item" data-icon="storage" href="#applicationStorage" data-l10n-id="appStorageSection" aria-describedby="application-storage-desc">
+            <span data-l10n-id="appStorage"></span>
+            <small id="application-storage-desc" class="application-storage-desc menu-item-desc"></small>
+          </a>
+        </li>
+      </ul>
+
+      <header>
+        <h2 data-l10n-id="device"></h2>
+      </header>
+      <ul>
+        <li>
+          <a id="menuItem-deviceInfo" class="menu-item" data-icon="info" href="#about" data-l10n-id="deviceInfo"></a>
+        </li>
+        <li>
+          <a id="menuItem-downloads" class="menu-item" data-icon="download" href="#downloads" data-l10n-id="downloads"></a>
+        </li>
+        <li>
+          <a class="menuItem-battery menu-item" data-icon="battery-10" href="#battery" data-l10n-id="batterySection" aria-describedby="battery-desc">
+            <span data-l10n-id="battery"></span>
+            <small id="battery-desc" class="battery-desc menu-item-desc" hidden=""></small>
+          </a>
+        </li>
+        <li>
+          <a id="menuItem-accessibility" class="menu-item" data-icon="accessibility" href="#accessibility" data-l10n-id="accessibility"></a>
+        </li>
+        <li data-show-name="developer.menu.enabled" hidden="">
+          <a id="menuItem-developer" class="menu-item" data-icon="developer" href="#developer" data-l10n-id="developer"></a>
+        </li>
+        <li>
+          <a id="menuItem-improveBrowserOS" class="menu-item" data-icon="feedback" href="#improveBrowserOS" data-l10n-id="improveBrowserOS"></a>
+        </li>
+        <li>
+          <a id="menuItem-help" class="menu-item" data-icon="help" href="#help" data-l10n-id="help"></a>
+        </li>
+      </ul>
+
+      <header id="icc-mainheader">
+        <h2 data-l10n-id="operatorServices"></h2>
+      </header>
+      <ul id="icc-entries">
+      </ul>
+    </div>
+
+    <panel data-path="panels/root/panel"><panel>
+
+  </panel></panel>--></section>
+
+    <div class="settings-dialog-overlay" hidden=""></div>
+
+    <script src="js/startup.js"></script>
+  </body>
+
+</html>

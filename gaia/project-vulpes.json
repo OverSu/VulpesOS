@@ -1,0 +1,12 @@
+{
+  "project": "Project Vulpes",
+  "edition": "Firefox OS 2.7 Community Edition",
+  "gaia": "2.7.0-dev",
+  "gecko": "B2G-compatible baseline",
+  "target": "flame",
+  "branding": {
+    "shortName": "Vulpes",
+    "fullName": "Firefox OS Community Project",
+    "bootTitle": "VULPES"
+  }
+}

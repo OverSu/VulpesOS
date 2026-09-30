@@ -1,0 +1,198 @@
+@import url('/shared/elements/vulpes-fonts/fonts.css');
+
+/* Desktop-only additions; preserve each Gaia application's own theme. */
+.vulpes-import {
+  position: fixed;
+  right: 1rem;
+  bottom: 5.5rem;
+  z-index: 100;
+  background: #007b88;
+  color: white;
+  font: 1.6rem sans-serif;
+  padding: 0.7rem 1.2rem;
+  border-radius: 1.6rem;
+  cursor: pointer;
+}
+#homescreen > .chrome {
+  background: transparent;
+}
+#homescreen .urlbar {
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+}
+#homescreen .chrome-title-container {
+  color: white;
+}
+html[data-vulpes-app='homescreen'] #page-indicator-header {
+  background: transparent;
+}
+html[data-vulpes-app='homescreen'] #page-indicator {
+  align-items: center;
+}
+html[data-vulpes-app='homescreen'] #page-indicator span {
+  margin-bottom: 0;
+}
+/* Whole CSS pixels; the short viewport edge keeps landscape icons usable. */
+html[data-vulpes-app='homescreen'] gaia-app-icon {
+  width: round(nearest, 32vmin, 1px);
+}
+#screen:has(#homescreen.active):not(.rocketbar-focused):not(.utility-tray):not(.locked)
+  #statusbar.light {
+  filter: none;
+}
+html[data-vulpes-app='email'] input:not([type='checkbox']):not([type='radio']):not([type='range']),
+html[data-vulpes-app='email'] textarea {
+  appearance: none;
+  border-radius: 2px;
+  box-shadow: none;
+}
+html[data-vulpes-app='email'] input:focus,
+html[data-vulpes-app='email'] textarea:focus {
+  border-color: #008d99;
+  outline: 2px solid #008d99;
+  outline-offset: 1px;
+}
+.vulpes-capability {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #f4f4f4;
+  color: #222;
+  padding: 3rem;
+  font: 1.8rem/1.5 sans-serif;
+  overflow: auto;
+}
+.vulpes-capability h1 {
+  font-size: 2.6rem;
+}
+html[data-vulpes-app='gallery'] body:not(.thumbnailListView) > .vulpes-import {
+  display: none;
+}
+
+/* Shared native integration controls on desktop and Android. */
+.vulpes-error-dialog {
+  box-sizing: border-box;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: #222;
+  font: 16px/1.4 FiraSans, sans-serif;
+}
+.vulpes-error-dialog::backdrop { background: rgb(0 0 0 / 55%); }
+.vulpes-error-dialog h2 { margin: 0 0 12px; font-size: 22px; font-weight: 300; }
+.vulpes-error-dialog p { margin: 0 0 20px; }
+.vulpes-error-dialog button { width: 100%; }
+.vulpes-platform-button {
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #0755be;
+  color: white;
+  font: 16px sans-serif;
+  margin: 8px;
+}
+.vulpes-platform-button:disabled {
+  opacity: 0.55;
+}
+#vulpes-release-info {
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Unsupported Gaia camera controls keep their position without accepting gestures. */
+html[data-vulpes-app='camera'] .hud .vulpes-camera-unavailable,
+html[data-vulpes-app='camera'] .mode-switch.vulpes-camera-unavailable {
+  opacity: 0.35 !important;
+  visibility: visible !important;
+  pointer-events: auto;
+  filter: grayscale(1);
+}
+
+/* Versions can wrap on narrow screens without overlapping their labels. */
+#vulpes-system-info > li {
+  box-sizing: border-box;
+  min-height: 5.8rem;
+  height: auto;
+  padding: 1rem 0;
+}
+#vulpes-system-info > li > span,
+#vulpes-system-info > li > small {
+  display: block;
+  position: static;
+  float: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+#vulpes-system-info > li > small {
+  margin-top: 0.2rem;
+}
+
+/* Text uses Gaia's bundled face on every host. Icon pseudo-elements retain
+   their own font; text styling must not depend on the Linux default font. */
+html, body, button, input, textarea, select, label,
+h1, h2, h3, h4, h5, h6, #statusbar-time,
+#notification-some, #notification-none {
+  font-family: FiraSans, sans-serif !important;
+}
+
+/* An unset owner message must not paint an empty card on the lockscreen. */
+#lockscreen-message:empty { display:none; }
+/* Gaia owns edge gestures; avoid a second host overscroll effect. */
+html[data-vulpes-app] { overscroll-behavior:none; }
+
+
+/* Native selects now paint their own arrow; the old Gecko arrow-hiding offset
+   clips Fira descenders on current Gecko. */
+html[data-vulpes-app] .button select,
+html[data-vulpes-app] .bb-button select {
+  appearance: none;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1.4;
+  padding-block: 0.35rem;
+}
+/* The tab buttons may receive focus without scrolling the whole phone page. */
+html[data-vulpes-app='communications'],
+html[data-vulpes-app='communications'] body {
+  overflow: clip;
+}
+html[data-vulpes-app='video'] #overlay-content,
+html[data-vulpes-app='video'] #in-use-overlay-content {
+  box-sizing: border-box;
+  min-width: 0;
+  overflow-y: auto;
+}
+html[data-vulpes-app='video'] #overlay-text,
+html[data-vulpes-app='video'] #in-use-overlay-text {
+  width: auto;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* Home overlays wallpaper only. Keep the last icon row clear of its button. */
+html[data-vulpes-app='homescreen'] #apps-panel > .scrollable {
+  padding-bottom: 44px;
+  box-sizing: border-box;
+}
+@media (orientation: landscape) {
+  html[data-vulpes-app='homescreen'] #apps-panel > .scrollable {
+    padding-bottom: 0;
+    padding-right: 44px;
+  }
+}
+html[data-vulpes-app='communications'] body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Camera gestures must not magnify the application chrome. */
+html[data-vulpes-app='camera'], html[data-vulpes-app='camera'] body { touch-action:none; }

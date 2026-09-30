@@ -1,0 +1,18 @@
+/* exported DEBUGGING, debug */
+'use strict';
+
+var DEBUGGING = true;
+
+function debug() {
+  var message = [];
+  for (var i = 0, len = arguments.length, obj; i < len; i++) {
+    obj = arguments[i];
+    message.push(typeof obj === 'object' ? JSON.stringify(obj) : obj);
+  }
+  if (window.dump) {
+    message.push('\n');
+    window.dump(message.join(' '));
+  } else if (console && console.log) {
+    console.log(message.join(' '));
+  }
+}

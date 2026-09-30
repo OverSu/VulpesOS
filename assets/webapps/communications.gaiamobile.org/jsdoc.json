@@ -1,0 +1,22 @@
+{
+  "name": "communications",
+  "tags": {
+    "dictionaries": ["jsdoc"]
+  },
+  "source": {
+    "include": [
+      "apps/communications/contacts/js/**/*.js",
+      "apps/communications/dialer/js/**/*.js",
+      "apps/communications/facebook/js/**/*.js"
+    ]
+  },
+  "plugins": [
+    "plugins/markdown",
+    "plugins/summarize"
+  ],
+  "opts": {
+    "private": true,
+    "recurse": true,
+    "destination": "docs/communications"
+  }
+}

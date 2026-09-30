@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#fff">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0">
+    <link rel="stylesheet" href="style/newtab.css">
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/newtab.{locale}.json">
+    
+
+    <!-- <script defer="" src="shared/js/l10n.js"></script> -->
+    <!-- <script defer="" src="shared/js/lazy_loader.js"></script> -->
+    <!-- <script defer="" src="shared/js/async_storage.js"></script> -->
+    <!-- <script defer="" src="js/places_idb.js"></script> -->
+    <!-- <script defer="" src="shared/js/sync_datastore.js"></script> -->
+    <!-- <script defer="" src="shared/js/url_helper.js"></script> -->
+    <!-- <script defer="" src="shared/js/utilities.js"></script> -->
+    <!-- <script defer="" src="shared/js/settings_listener.js"></script> -->
+
+    <!-- <script src="shared/js/component_utils.js"></script> -->
+    <!-- <script src="shared/elements/gaia_buttons/script.js"></script> -->
+    <!-- <script src="shared/elements/gaia_checkbox/script.js"></script> --><script src="./gaia_build_newtab.js" type="text/javascript"></script>
+
+    <!-- <script defer="" src="js/newtab.js"></script> -->
+    <!-- <script defer="" src="shared/js/icons_helper.js"></script> -->
+    <!-- <script defer="" src="js/providers/provider.js"></script> -->
+    <!-- <script defer="" src="js/providers/grid_provider.js"></script> -->
+    <!-- <script defer="" src="js/providers/places.js"></script> --><script src="./gaia_build_defer_newtab.js" defer="" type="text/javascript"></script>
+  <script defer src="home-bridge.js"></script><meta content="2.5" name="appVersion"></head>
+  <body>
+    <div id="private-window-dialog" hidden="">
+      <h1 data-l10n-id="private-window-header">You’re browsing privately</h1>
+      <p data-l10n-id="private-window-info1">In private windows, ⁨Foxfood⁩ won’t keep any browser history, cookies, or temporary Internet files. However, files you download and bookmarks you make will be kept.</p>
+      <p data-l10n-id="private-window-info2">While this device won’t have a record of your browsing history, your Internet service provider can still track the pages you visit.</p>
+      <p>
+        <a id="private-learn-more" target="_blank" href="https://support.mozilla.org/kb/private-browsing-firefox-os" data-l10n-id="private-learn-more">Learn more</a>
+      </p>
+      <gaia-checkbox class="inline">
+        <label data-l10n-id="private-window-dont-tell">Don’t tell me again</label>
+      </gaia-checkbox>
+      <gaia-buttons class="inline">
+        <button type="submit" data-l10n-id="ok" id="private-window-hide-dialog" class="full">OK</button>
+      </gaia-buttons>
+    </div>
+    <iframe title="Vulpes" src="home/index.html" style="border:0;width:100%;height:100%;position:absolute;inset:0" id="vulpes-local-home"></iframe>
+    <style>body:not(.private) #top-sites-header, body:not(.private) #top-sites, body:not(.private) #history {display:none} body.private #vulpes-local-home {display:none}</style>
+    <h2 id="top-sites-header"><span data-l10n-id="top-sites">TOP SITES</span></h2>
+    <section id="top-sites" aria-labelledby="top-sites-header"></section>
+    <section id="history" class="local"></section>
+  </body>
+
+</html>

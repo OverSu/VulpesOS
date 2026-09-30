@@ -1,0 +1,1 @@
+;'use strict';(function(exports){var app=new KeyboardSettingsApp();app.start();exports.app=app;})(window);

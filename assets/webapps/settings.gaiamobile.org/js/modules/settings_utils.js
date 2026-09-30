@@ -1,0 +1,2 @@
+
+define(['require','shared/lazy_loader'],function(require){'use strict';var LazyLoader=require('shared/lazy_loader');var SettingsUtils={loadTemplate:function su_loadTemplate(panelId,callback){var templateElement=document.getElementById(panelId);if(!templateElement){callback(null);}else{LazyLoader.load([templateElement],function(){callback(templateElement.innerHTML);});}},runHeaderFontFit:function su_runHeaderFontFit(header){var titles=header.querySelectorAll('h1');[].forEach.call(titles,function(title){title.textContent=title.textContent;});}};return SettingsUtils;});

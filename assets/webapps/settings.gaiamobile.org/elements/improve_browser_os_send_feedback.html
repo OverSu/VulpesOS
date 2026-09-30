@@ -1,0 +1,34 @@
+<element name="improveBrowserOS-sendFeedback" extends="section">
+  <template>
+
+  	<gaia-header action="back" id="feedback-header">
+      <h1 id="feedback-title"></h1>
+    </gaia-header>
+
+    <div>
+      <ul>
+        <li class="description">
+          <p data-l10n-id="feedback-mood-explain"></p>
+          <textarea id="feedback-description" name="description" x-inputmode="latin-prose" dir="auto"></textarea>
+          <p data-l10n-id="feedback-public-description"></p>
+        </li>
+        <li class="description">
+          <gaia-checkbox id="email-enable">
+            <label data-l10n-id="feedback-contactyou" id="feedback-contactyou"></label>
+          </label>
+        </li>
+        <li id="feedback-emailbar" class="description" hidden="false">
+          <p data-l10n-id="email-address1"></p>
+          <input id="feedback-email" type="email"/>
+          <p data-l10n-id="email-keepprivate"></p>
+        </li>
+        <li>
+          <button id="feedback-send-btn" data-l10n-id="feedback-sendbtn"></button>
+        </li>
+      </ul>
+    </div>
+
+    <panel data-path="panels/feedback_send/panel"></panel>
+
+  </template>
+</element>

@@ -1,0 +1,46 @@
+Manifest-Version: 1.0
+
+Name: bundle.js
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: 4IcB7JC/2ZBD3d/tPKpczQ==
+SHA1-Digest: 3eKdWgjmNB2V+kyqVS0GOK2Zj1c=
+
+Name: index.html
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: BS03RtR8fpyvxKCD43vtBA==
+SHA1-Digest: 8l3pj5Xff887vlgcGY9uzZFWogI=
+
+Name: manifest.webapp
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: WLcdclCxzkv39k3UrCRklA==
+SHA1-Digest: ycOUMy7Q1sov2WWmhuKmtmh5uXo=
+
+Name: style.css
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: cqfWilupCC5J+XAIX5RBfA==
+SHA1-Digest: QL1aJe8KofUW8c7J+EDQMtcF/7Q=
+
+Name: app-icons/120.png
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: iN7zPe2CLxVxVVBI1Svi2w==
+SHA1-Digest: OAzJYyHJrvSF39QzjZtYxuV7z2M=
+
+Name: app-icons/128.png
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: shq6FAiJnX7jl5g2m2n/4g==
+SHA1-Digest: 8gaLQiLMxGhzcV0SRyMazOeC/90=
+
+Name: app-icons/60.png
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: R97in9HA7uD+7rab1BUJ6Q==
+SHA1-Digest: cPHCnxQOjuk8YJ6bBQPEv530n7k=
+
+Name: app-icons/90.png
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: TD05/mw7mRt8Liui5xHuxg==
+SHA1-Digest: 8Le1mRdZtkXfTLJfVnfQgvECkSU=
+
+Name: META-INF/ids.json
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: VUXRZpzfHMntT56fOy8yTg==
+SHA1-Digest: +YWYDKJfJvemTB98IcIjEOMVigM=

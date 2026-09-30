@@ -1,0 +1,9 @@
+{
+  "repo": "https://github.com/capyloon/gecko-b2g.git",
+  "commit": "01c461731c5d86c0e2c8ffef05f55e25092c0858",
+  "file": "config/milestone.txt",
+  "url": "https://raw.githubusercontent.com/capyloon/gecko-b2g/01c461731c5d86c0e2c8ffef05f55e25092c0858/config/milestone.txt",
+  "sha256": "12380d17928a63923ce07d37a94720fd54cf8132c6337d77395ad9ee46755585",
+  "milestone": "123.0",
+  "role": "reference only; not the current Vulpes engine"
+}

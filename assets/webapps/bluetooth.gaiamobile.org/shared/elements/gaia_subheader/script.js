@@ -1,0 +1,1 @@
+;window.GaiaSubheader=function(e){var a=Object.create(HTMLElement.prototype),t=window.GaiaSubheaderBaseurl||"/shared/elements/gaia_subheader/";return a.createdCallback=function(){ComponentUtils.style.call(this,t)},document.registerElement("gaia-subheader",{prototype:a})}(window);

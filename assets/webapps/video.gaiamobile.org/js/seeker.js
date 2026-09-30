@@ -1,0 +1,5 @@
+;(function(exports){'use strict';function Seeker(player){this.player=player;this.seekStartedAt=null;this.currentSeekTime=null;this.nextSeekTime=null;this.player.addEventListener('seeked',this);}
+Seeker.SEEK_INTERVAL=200;Seeker.SEEK_DISTANCE=10;Seeker.prototype.seekTo=function(time){if(this.currentSeekTime===time){return;}
+var now=performance.now();if(this.currentSeekTime===null||time===0||Math.abs(this.currentSeekTime-time)>Seeker.SEEK_DISTANCE||now-this.seekStartedAt>Seeker.SEEK_INTERVAL)
+{this.player.fastSeek(time);this.seekStartedAt=now;this.currentSeekTime=time;this.nextSeekTime=null;}
+else{this.nextSeekTime=time;}};Seeker.prototype.handleEvent=function(){this.currentSeekTime=null;this.seekStartedAt=null;if(this.nextSeekTime!==null){this.seekTo(this.nextSeekTime);}};exports.Seeker=Seeker;}(window));

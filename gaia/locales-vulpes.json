@@ -1,0 +1,17 @@
+{
+  "default": "fr",
+  "locales": [
+    "fr",
+    "en-US",
+    "de",
+    "es",
+    "it",
+    "pt-BR",
+    "pl",
+    "ru",
+    "nl",
+    "ja",
+    "zh-TW"
+  ],
+  "note": "Translation catalogs must be imported from the archived Gaia localization repositories before packaging."
+}

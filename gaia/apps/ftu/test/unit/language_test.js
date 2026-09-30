@@ -1,0 +1,135 @@
+/* global MockL10n, MockNavigatorSettings, MockLanguageList,
+          LanguageManager, LanguageList, KeyboardHelper,
+          MockImportNavigationHTML */
+'use strict';
+
+require('/shared/js/component_utils.js');
+require('/shared/elements/gaia_radio/script.js');
+require('/shared/test/unit/mocks/mock_navigator_moz_settings.js');
+require('/shared/test/unit/mocks/mock_language_list.js');
+require('/shared/test/unit/mocks/mock_l20n.js');
+requireApp('ftu/test/unit/mock_navigation.html.js');
+requireApp('ftu/js/language.js');
+
+suite('languages >', function() {
+  var realSettings;
+  var realLanguageList;
+  var realL10n;
+  var realHTML;
+  suiteSetup(function() {
+    realHTML = document.body.innerHTML;
+    document.body.innerHTML = MockImportNavigationHTML;
+    // mock l10n
+    realL10n = document.l10n;
+    document.l10n = MockL10n;
+    realSettings = navigator.mozSettings;
+    navigator.mozSettings = MockNavigatorSettings;
+    realLanguageList = window.LanguageList;
+    window.LanguageList = MockLanguageList;
+    LanguageManager.settings = MockNavigatorSettings;
+    LanguageManager._kbLayoutList = null;
+  });
+
+  suiteTeardown(function() {
+    document.body.innerHTML = realHTML;
+    document.l10n = realL10n;
+    navigator.mozSettings = realSettings;
+    realSettings = null;
+    window.LanguageList = realLanguageList;
+  });
+
+  test('change language', function() {
+    var settingName = 'language.current';
+    var fakeEvent = {
+      target: {
+        name: settingName,
+        value: 'a different language'
+      }
+    };
+    LanguageManager.handleEvent(fakeEvent);
+    assert.equal(MockNavigatorSettings.mSettings[fakeEvent.target.name],
+                 fakeEvent.target.value);
+  });
+
+  test('build language list', function(done) {
+    var section = document.createElement('section');
+    section.id = 'languages';
+    document.body.appendChild(section);
+    var list = document.createElement('ul');
+    section.appendChild(list);
+
+    // XXX in reality this method is async b/c it uses LanguageList.get;  here
+    // however it uses the mock which is sync.  Fix this in bug 1119865.
+    LanguageManager.buildLanguageList();
+    var selected = document.querySelectorAll('gaia-radio');
+    assert.equal(selected.length, 1);
+    assert.equal(selected[0].checked, true);
+    assert.equal(selected[0].value, 'en-US');
+
+    // mock's _languages is sync, too
+    LanguageList._languages.then(function(langs) {
+      assert.equal(document.querySelectorAll('li').length,
+                   Object.keys(langs).length);
+    });
+    done();
+  });
+
+  suite('keyboard settings >', function() {
+    var langKey = 'language.current';
+
+    suiteSetup(function() {
+      window.KeyboardHelper = {};
+      MockNavigatorSettings.mSyncRepliesOnly = true;
+    });
+
+    suiteTeardown(function() {
+      delete window.KeyboardHelper;
+    });
+
+    setup(function() {
+      KeyboardHelper.changeDefaultLayouts = this.sinon.spy();
+      LanguageManager.init();
+    });
+
+    teardown(function() {
+      LanguageManager.uninit();
+    });
+
+    test('observes settings', function() {
+      assert.equal(MockNavigatorSettings.mObservers[langKey].length, 1);
+    });
+
+    test('keyboard layouts changed after language change', function() {
+      MockNavigatorSettings.mTriggerObservers(langKey,
+                                              {settingValue: 'newLanguage'});
+      assert.isTrue(KeyboardHelper.changeDefaultLayouts.called);
+    });
+  });
+
+  suite('screen reader', function() {
+    suiteSetup(function() {
+      LanguageManager.init();
+    });
+
+    suiteTeardown(function() {
+      LanguageManager.uninit();
+    });
+
+    test('enable screen reader', function(done) {
+      function afterEnabledHandler() {
+        window.removeEventListener('languagelistready', afterEnabledHandler);
+        window.addEventListener('languagelistready', afterDisabledHandler);
+        MockNavigatorSettings.mTriggerObservers('accessibility.screenreader',
+          { settingValue: false });
+      }
+      function afterDisabledHandler() {
+        window.removeEventListener('languagelistready', afterDisabledHandler);
+        done();
+      }
+      window.addEventListener('languagelistready', afterEnabledHandler);
+
+      MockNavigatorSettings.mTriggerObservers('accessibility.screenreader',
+        { settingValue: true });
+    });
+  });
+});

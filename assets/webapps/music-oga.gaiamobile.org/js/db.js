@@ -1,0 +1,24 @@
+;'use strict';var Database=(function(){var musicdb;function init(){var excludedFolders=['Ringtones','Notifications','Alarms'];var excludeFilter=new RegExp('^(/[^/]*/)?('+excludedFolders.join('|')+')/','i');musicdb=new MediaDB('music',metadataParserWrapper,{indexes:['metadata.album','metadata.artist','metadata.title','metadata.rated','metadata.played','date'],excludeFilter:excludeFilter,batchSize:1,autoscan:false,updateRecord:updateRecord,reparsedRecord:reparsedRecord,version:3});function metadataParserWrapper(file,onsuccess,onerror){var files=['/js/metadata_scripts.js','/js/metadata/album_art.js'];LazyLoader.load(files).then(()=>{return AudioMetadata.parse(file);}).then((metadata)=>{return AlbumArt.process(file,metadata);}).then(onsuccess,onerror);}
+var startedReparsing=false;function updateRecord(record,oldVersion,newVersion){if(oldVersion===2){record.needsReparse=true;if(!startedReparsing){startedReparsing=true;App.showOverlay('upgrade');}}
+return record.metadata;}
+function reparsedRecord(oldMetadata,newMetadata){newMetadata.rated=oldMetadata.rated;newMetadata.played=oldMetadata.played;return newMetadata;}
+musicdb.onupgrading=function(event){App.showOverlay('upgrade');};musicdb.onunavailable=function(event){var why;switch(event.detail){case MediaDB.NOCARD:why='nocard';break;case MediaDB.UNMOUNTED:why='unmounted';break;}
+App.dbUnavailable(why);};musicdb.oncardremoved=function(){App.dbUnavailable('cardremoved');};musicdb.onenumerable=startupOnEnumerable;var refreshOnReady=false;function startupOnEnumerable(){App.dbEnumerable(function(){if(musicdb.state===MediaDB.READY){onReady();}else{musicdb.onready=onReady;}});}
+function onReady(){App.dbReady(refreshOnReady,function(){musicdb.scan();});refreshOnReady=true;}
+var filesDeletedWhileScanning=0;var filesFoundWhileScanning=0;var filesFoundBatch=0;var scanning=false;var SCAN_UPDATE_BATCH_SIZE=25;var DELETE_BATCH_TIMEOUT=500;var deleteTimer=null;var firstScanDone=false;musicdb.onscanstart=function(){scanning=true;filesFoundWhileScanning=0;filesFoundBatch=0;filesDeletedWhileScanning=0;};musicdb.onscanend=function(){scanning=false;TitleBar.hideScanProgress();if(filesFoundBatch>0||filesDeletedWhileScanning>0){filesFoundWhileScanning=0;filesFoundBatch=0;filesDeletedWhileScanning=0;App.refreshViews();}
+if(!firstScanDone){firstScanDone=true;window.performance.mark('fullyLoaded');}};musicdb.oncreated=function(event){if(scanning){var metadata=event.detail[0].metadata;var n=event.detail.length;filesFoundWhileScanning+=n;filesFoundBatch+=n;TitleBar.showScanProgress({count:filesFoundWhileScanning,artist:metadata.artist,title:metadata.title});if(filesFoundBatch>SCAN_UPDATE_BATCH_SIZE){filesFoundBatch=0;App.refreshViews();}}
+else{App.refreshViews();}};musicdb.ondeleted=function(event){if(scanning){filesDeletedWhileScanning+=event.detail.length;}
+else{if(deleteTimer){clearTimeout(deleteTimer);}
+deleteTimer=setTimeout(function(){deleteTimer=null;App.refreshViews();},DELETE_BATCH_TIMEOUT);}};}
+function incrementPlayCount(fileinfo){fileinfo.metadata.played++;musicdb.updateMetadata(fileinfo.name,{played:fileinfo.metadata.played});}
+function setSongRating(fileinfo,rated){fileinfo.metadata.rated=rated;musicdb.updateMetadata(fileinfo.name,{rated:fileinfo.metadata.rated});}
+function getFile(fileinfo,decrypt=false){return new Promise((resolve,reject)=>{musicdb.getFile(fileinfo.name,(file)=>{if(file){resolve(file);}else{reject('unable to get file: '+fileinfo.name);}});}).then((blob)=>{if(!decrypt||!fileinfo.metadata.locked){return blob;}
+return new Promise(function(resolve,reject){ForwardLock.getKey(function(secret){ForwardLock.unlockBlob(secret,blob,resolve,null,reject);});});});}
+function enumerate(...args){return musicdb.enumerate(...args);}
+function enumerateAll(...args){return musicdb.enumerateAll(...args);}
+function advancedEnumerate(...args){return musicdb.advancedEnumerate(...args);}
+function count(...args){return musicdb.count(...args);}
+function search(key,query,callback){query=Normalizer.toAscii(query.toLocaleLowerCase());var direction=(key==='title')?'next':'nextunique';return musicdb.enumerate('metadata.'+key,null,direction,(result)=>{if(result===null){callback(result);return;}
+var resultLowerCased=result.metadata[key].toLocaleLowerCase();if(Normalizer.toAscii(resultLowerCased).indexOf(query)!==-1){callback(result);}});}
+function cancelEnumeration(handle){musicdb.cancelEnumeration(handle);}
+return{init:init,incrementPlayCount:incrementPlayCount,setSongRating:setSongRating,getFile:getFile,enumerate:enumerate,enumerateAll:enumerateAll,advancedEnumerate:advancedEnumerate,count:count,search:search,cancelEnumeration:cancelEnumeration,get initialScanComplete(){return musicdb.initialScanComplete;}};})();

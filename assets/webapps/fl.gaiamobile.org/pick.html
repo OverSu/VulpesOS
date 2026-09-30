@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Locked Content</title>
+
+    <!-- Web Components -->
+    <!-- <script defer="" src="shared/elements/config.js"></script> -->
+    <!-- <script defer="" src="/shared/js/component_utils.js"></script> -->
+    <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css">
+    <link rel="stylesheet" type="text/css" href="shared/elements/gaia-icons/gaia-icons.css">
+    <!-- <script defer="" src="shared/elements/gaia-header/dist/gaia-header.js"></script> -->
+    <!-- <script defer="" src="/shared/elements/gaia_radio/script.js"></script> -->
+
+    <link rel="stylesheet" href="style/pick.css" type="text/css">
+
+    <meta name="defaultLanguage" content="en-US">
+    <meta name="availableLanguages" content="ar:201601260729, bg:201601260729, bn-BD:201601260729, ca:201601260729, cs:201601260729, da:201601260729, de:201601260729, el:201601260729, en-US:201601260729, es:201601260729, eu:201601260729, fr:201601260729, gl:201601260729, hr:201601260729, hu:201601260729, it:201601260729, ja:201601260729, km:201601260729, ko:201601260729, lt:201601260729, mk:201601260729, ms:201601260729, ne-NP:201601260729, nl:201601260729, pa:201601260729, pl:201601260729, pt-BR:201601260729, ro:201601260729, ru:201601260729, sk:201601260729, sq:201601260729, sr-Cyrl:201601260729, sr-Latn:201601260729, sv-SE:201601260729, tr:201601260729, zh-CN:201601260729, zh-TW:201601260729">
+    <link rel="localization" href="/locales-obj/pick.{locale}.json">
+
+    <!-- <script type="text/javascript" src="shared/js/l10n.js"></script> --><script src="./gaia_build_pick.js" type="text/javascript"></script>
+    <!-- <script defer="" src="shared/js/omadrm/fl.js"></script> -->
+
+    <!-- <script defer="" src="js/constants.js"></script> -->
+    <!-- <script defer="" src="js/utils.js"></script> -->
+    <!-- <script defer="" src="js/db.js"></script> -->
+    <!-- <script defer="" src="js/pick.js"></script> --><script src="./gaia_build_defer_pick.js" defer="" type="text/javascript"></script>
+  <meta content="2.5" name="appVersion"></head>
+  <body class="theme-media">
+    <section role="region">
+      <gaia-header ignore-dir="" id="header" action="close">
+        <h1 id="title"></h1>
+        <button id="done" data-l10n-id="done" hidden="">Done</button>
+      </gaia-header>
+    </section>
+    <ul id="ringtones" hidden="">
+    </ul>
+    <div id="wallpapers" hidden="">
+      <template id="wallpaper-template">
+        <!-- Set style.backgroundImage when instantiating -->
+        <div class="wallpaper"></div>
+      </template>
+    </div>
+  </body>
+
+</html>

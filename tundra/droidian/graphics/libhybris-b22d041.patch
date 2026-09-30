@@ -1,0 +1,11 @@
+--- a/hybris/egl/egl.c
++++ b/hybris/egl/egl.c
+@@ -638,7 +638,7 @@
+ 	EGLBoolean ret;
+ 	HYBRIS_TRACE_BEGIN("hybris-egl", "eglGetConfigAttrib", "");
+ 	HYBRIS_DLSYSM(egl, &_eglGetConfigAttrib, "eglGetConfigAttrib");
+-	ret = (*_eglGetConfigAttrib)(dpy, config, attribute, value);
++	ret = (*_eglGetConfigAttrib)(hybris_egl_get_real_display(dpy), config, attribute, value);
+ 	ws_getConfigAttrib(&dpy, &config, &attribute, value);
+ 	HYBRIS_TRACE_END("hybris-egl", "eglGetConfigAttrib", "");
+ 	return ret;

@@ -1,0 +1,16 @@
+{
+  "search": {
+    "name": "Vulpes Browser",
+    "locales": {
+      "fr": {
+        "name": "Navigateur Vulpes"
+      },
+      "en-US": {
+        "name": "Vulpes Browser"
+      }
+    },
+    "icons": {
+      "284": "/shared/resources/branding/vulpes-browser.png"
+    }
+  }
+}

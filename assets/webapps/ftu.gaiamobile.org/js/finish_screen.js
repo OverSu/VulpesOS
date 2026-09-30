@@ -1,0 +1,5 @@
+;(function(exports){'use strict';var currentLayout='tiny';var elementIDs=['tutorialFinished','enjoyYourPhone','enjoyYourPhoneUpdated'];var dom={};var initialized=false;var FinishScreen={init:function(isUpgrade){if(initialized){return;}
+if(ScreenLayout.getCurrentLayout()!=='tiny'){currentLayout='large';}
+var panelSelector='tutorial-finish-'+currentLayout;var finishPanel=document.getElementById(panelSelector);finishPanel.classList.add('show');elementIDs.forEach(function(name){dom[Utils.camelCase(name)]=document.getElementById(name);},this);if(isUpgrade){dom.enjoyYourPhone.hidden=true;dom.enjoyYourPhoneUpdated.hidden=false;}
+if(currentLayout==='tiny'){dom.tutorialFinished.addEventListener('click',function ftuEnd(){window.close();});}else{navigator.mozApps.getSelf().onsuccess=function(evt){var app=evt.target.result;app.connect('ftucomms').then(function onConnAccepted(ports){ports.forEach(function(port){port.postMessage('done');});},function onConnRejected(reason){console.warn('FTU is rejected due to '+reason);});};}
+initialized=true;}};exports.FinishScreen=FinishScreen;}(this));

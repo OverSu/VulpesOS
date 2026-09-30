@@ -1,0 +1,29 @@
+{
+  "jdk": "Temurin 21.0.12.1+1",
+  "gradle": "9.5.0",
+  "androidGradlePlugin": "9.3.3",
+  "geckoview": "156.0.20260921121718",
+  "sdk": [
+    "platforms;android-37.1",
+    "build-tools;37.0.0"
+  ],
+  "archives": {
+    "jdk.tar.gz": {
+      "sha256": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz"
+    },
+    "gradle-9.5.zip": {
+      "sha256": "553c78f50dafcd54d65b9a444649057857469edf836431389695608536d6b746",
+      "url": "https://services.gradle.org/distributions/gradle-9.5.0-bin.zip"
+    },
+    "geckoview.aar": {
+      "sha256": "42f80fcccbbe72c17f67bc7be3044cae097e4cb61a9084b406ec935f66e8edca",
+      "url": "https://maven.mozilla.org/maven2/org/mozilla/geckoview/geckoview/156.0.20260921121718/geckoview-156.0.20260921121718.aar"
+    },
+    "commandlinetools.zip": {
+      "url": "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip",
+      "sha1": "5fdcc763663eefb86a5b8879697aa6088b041e70",
+      "checksumSource": "https://dl.google.com/android/repository/repository2-1.xml"
+    }
+  }
+}
