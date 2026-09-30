@@ -52,7 +52,7 @@ cd VulpesOS
 
 ### Pixel 3a — développement natif Tundra
 
-**Le build natif démarre directement dans Vulpes**, avec des services matériels Android sélectionnés, un espace utilisateur Linux, Gecko et Gaia. Phosh et l'environnement applicatif Android ne sont pas démarrés.
+**Tundra démarre directement Gecko et Gaia**, avec un espace utilisateur Linux et les services matériels Android sélectionnés pour l’appareil.
 
 Notre image de développement Sargo installée a passé les contrôles de démarrage et de persistance. Des appels réels et des SMS dans les deux sens ont été observés ; les derniers essais couvrent les conversations, les bascules de capteur photo, la capture JPEG pleine résolution, le focus tactile, le zoom numérique et l'arrêt du vibreur.
 
@@ -85,7 +85,7 @@ Le script installe les outils verrouillés, prépare les ressources Gaia commune
 
 ## 📜 Remerciements et licences
 
-Vulpes OS est un projet communautaire d'**oversu / NNS Production**, inspiré de Firefox OS. Merci à **Mozilla, aux contributeurs Gaia, à Capyloon, Droidian, UBports, libhybris, Debian, AOSP** et aux communautés qui font vivre les systèmes mobiles ouverts.
+Vulpes OS est un projet communautaire d'**OverSu / NNS Production**, inspiré de Firefox OS. Merci à **Mozilla, aux contributeurs Gaia, à Capyloon, Droidian, UBports, libhybris, Debian, AOSP** et aux communautés qui font vivre les systèmes mobiles ouverts.
 
 Les nouveaux fichiers Vulpes utilisent **MPL 2.0**. Gaia conserve **Apache 2.0** ; les composants hérités conservent leurs licences et mentions. Voir [LICENSE](LICENSE), [NOTICE](NOTICE) et [la licence Gaia](gaia/LICENSE). Les forks doivent conserver les mentions d'attribution et de licence applicables.
 

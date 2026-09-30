@@ -52,7 +52,7 @@ cd VulpesOS
 
 ### Pixel 3a — native Tundra development
 
-**The native build boots directly into Vulpes**, with selected Android hardware services, Linux userspace, Gecko and Gaia; Phosh and the Android application framework are not started.
+**Tundra boots Gecko and Gaia directly**, using Linux userspace and the Android hardware services selected for the device.
 
 Our installed Sargo development image has passed startup and persistence checks. Real calls and two-way SMS have been observed; the latest checks cover conversation rendering, camera sensor switching, full-resolution JPEG capture, touch focus, digital zoom and bounded vibration.
 
@@ -85,7 +85,7 @@ The script installs the pinned toolchain, packages the shared Gaia resources and
 
 ## 📜 Credits and licenses
 
-Vulpes OS is a community project by **oversu / NNS Production**, inspired by Firefox OS. Thanks to **Mozilla, Gaia contributors, Capyloon, Droidian, UBports, libhybris, Debian, AOSP** and the communities keeping open mobile systems alive.
+Vulpes OS is a community project by **OverSu / NNS Production**, inspired by Firefox OS. Thanks to **Mozilla, Gaia contributors, Capyloon, Droidian, UBports, libhybris, Debian, AOSP** and the communities keeping open mobile systems alive.
 
 New Vulpes code uses **MPL 2.0**. Gaia retains **Apache 2.0** and inherited components retain their own licenses and notices. See [LICENSE](LICENSE), [NOTICE](NOTICE) and [Gaia's license](gaia/LICENSE). Preserve the applicable attribution and license notices in forks.
 
