@@ -84,11 +84,12 @@ with tempfile.TemporaryFile() as display_file, (ROOT / "logs/xvfb.log").open("w"
                 try:
                     # Wait for Marionette initialization before opening the suite.
                     with Client(2857) as client:
+                        connected = True
                         spec = importlib.util.spec_from_file_location("probe", ROOT / "tools/probe-desktop.py")
                         probe = importlib.util.module_from_spec(spec)
                         spec.loader.exec_module(probe)
                         probe.register(client)
-                        for _ in range(200):
+                        for _ in range(600):
                             ready = probe.evaluate(client, "system", "return document.body?.getAttribute('ready-state')==='fullyLoaded';")
                             if ready.get("value"):
                                 break

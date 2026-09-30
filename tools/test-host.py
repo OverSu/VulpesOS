@@ -102,7 +102,16 @@ bc.currentWindowGlobal.getActor('VulpesProbe').sendQuery('Evaluate', CODE)
             last = None
             deadline = time.monotonic() + timeout
             while time.monotonic() < deadline:
-                last = evaluate(app, code)
+                try:
+                    last = evaluate(app, code)
+                except AssertionError as error:
+                    # Navigation can replace the document while its read-only probe is pending.
+                    detail = error.args[0] if error.args else None
+                    if not isinstance(detail, dict) or not detail.get("error", "").startswith(
+                        "AbortError: Actor 'VulpesProbe' destroyed before query"
+                    ):
+                        raise
+                    last = None
                 if last:
                     return last
                 time.sleep(0.15)
