@@ -24,7 +24,7 @@ def main():
     if not (folder/'boot-report.json').is_file():
         raise ValueError('This image has not been sent with the checked boot tool')
     ssh=['ssh','-F','/dev/null','-o','BatchMode=yes','-o','IdentitiesOnly=yes',
-         '-o','ConnectTimeout=5','-o','ServerAliveInterval=5','-o','ServerAliveCountMax=6',
+         '-o','ConnectTimeout=5','-o','ServerAliveInterval=5','-o','ServerAliveCountMax='+('60' if args.stream else '6'),
          '-o','StrictHostKeyChecking=yes','-o','HostKeyAlgorithms=+ssh-rsa',
          '-o','UserKnownHostsFile='+str(folder/'known_hosts'),'-i',str(folder/'client-key'),
          '-p','2222','root@10.15.19.82']

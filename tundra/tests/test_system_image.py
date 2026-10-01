@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MPL-2.0
 """Exercise ownership/format safeguards without writing to a real device."""
 import importlib.util
+import json
 import os
 from pathlib import Path
 import tempfile
@@ -14,6 +15,32 @@ spec.loader.exec_module(image)
 
 
 class SystemImageTests(unittest.TestCase):
+    def test_distribution_omits_working_documents_but_keeps_component_licenses(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary); product=root/'product'; reference=root/'reference'
+            (product/'component').mkdir(parents=True);reference.mkdir()
+            (product/'README.md').write_text('Internal working document')
+            (product/'component/LICENSE.md').write_text('Original upstream notice')
+            (reference/'manifest.json').write_text(json.dumps({'packages':{
+                'example':{'binary:Package':'example','Version':'1',
+                           'source:Package':'example','source:Version':'1',
+                           'localPath':'private/path'}}}))
+            image.prepare_distribution_metadata(product,reference)
+            self.assertFalse((product/'README.md').exists())
+            self.assertEqual((product/'component/LICENSE').read_text(),'Original upstream notice')
+            inventory=json.loads((product/'runtime-packages.json').read_text())
+            self.assertEqual(inventory['packages'][0]['binary:Package'],'example')
+            self.assertNotIn('localPath',inventory['packages'][0])
+            self.assertTrue((product/'NOTICE').is_file())
+
+    def test_conflicting_project_license_is_not_overwritten(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            product=Path(temporary)
+            (product/'LICENSE').write_text('Keep this upstream notice')
+            with self.assertRaisesRegex(ValueError,'existing notice'):
+                image.prepare_distribution_metadata(product,Path('/unused'))
+            self.assertEqual((product/'LICENSE').read_text(),'Keep this upstream notice')
+
     def test_pack_refuses_real_ownership_changes_outside_fakeroot(self):
         with patch.dict(os.environ, {}, clear=True), patch.object(image.os, 'lchown') as chown:
             with self.assertRaisesRegex(RuntimeError, 'fakeroot'):

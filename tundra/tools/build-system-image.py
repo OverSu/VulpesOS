@@ -21,6 +21,39 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
+def prepare_distribution_metadata(product, reference):
+    """Keep license notices, but leave working documents out of the image."""
+    removed = []
+    for path in sorted(product.rglob('*')):
+        if not path.is_file() or path.is_symlink():
+            continue
+        if path.suffix.lower() != '.md':
+            continue
+        if path.stem.lower() in ('license', 'copying', 'notice'):
+            target = path.with_suffix('')
+            if target.exists() and target.read_bytes() != path.read_bytes():
+                raise ValueError('Conflicting license notices: '+str(path))
+            if not target.exists():
+                path.rename(target)
+            else:
+                path.unlink()
+        else:
+            removed.append(str(path.relative_to(product)))
+            path.unlink()
+    for name in ('LICENSE', 'NOTICE'):
+        if (product/name).exists() and (product/name).read_bytes() != (PROJECT/name).read_bytes():
+            raise ValueError('Refusing to replace an existing notice: '+name)
+        shutil.copy2(PROJECT/name, product/name)
+    manifest = json.loads((reference/'manifest.json').read_text())
+    packages = [{key: info[key] for key in
+                 ('binary:Package', 'Version', 'Architecture', 'source:Package', 'source:Version')
+                 if key in info} for info in manifest['packages'].values()]
+    (product/'runtime-packages.json').write_text(
+        json.dumps({'schema': 1, 'packages': packages}, indent=2)+'\n')
+    return {'internalMarkdownRemoved': removed, 'packageCount': len(packages),
+            'licenseNoticesRetained': True}
+
+
 def module(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     result = importlib.util.module_from_spec(spec)
@@ -84,6 +117,7 @@ def main():
     shutil.copytree(ROOT/'droidian', product/'trial', ignore=shutil.ignore_patterns('__pycache__'))
     for name in ('libEGL_vulpes_hybris.so', 'manifest.json'):
         shutil.copy2(args.product/'trial/graphics'/name, product/'trial/graphics'/name)
+    distribution = prepare_distribution_metadata(product, args.reference)
     for name in ('home/droidian', 'etc/dbus-1', 'reference'):
         (root/name).mkdir(parents=True, exist_ok=True)
     shutil.copy2(android, root/'reference/android-rootfs.img')
@@ -116,6 +150,7 @@ RemainAfterExit=yes
                 'androidSha256': ANDROID_SHA, 'engine': lock,
                 'release': json.loads((product/'release.json').read_text()),
                 'staging': staging, 'filesystemCheckPassed': True,
+                'distributionContents': distribution,
                 'flashReady': False, 'hardwareBootTested': False,
                 'scope': 'Self-contained userspace; vendor/firmware partitions still required; RAM boot candidate',
                 'sourceHashes': {str(p.relative_to(PROJECT)): digest(p) for p in

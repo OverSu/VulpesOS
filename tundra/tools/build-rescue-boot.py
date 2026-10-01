@@ -16,6 +16,7 @@ import time
 from cryptography.hazmat.primitives.asymmetric import rsa, ec
 from cryptography.hazmat.primitives import serialization
 from ramdisk_reference import read_newc, select_helpers
+from storage_layout import mount_table
 from tundra import ROOT, cpio, checked_source, digest, save, linker
 
 
@@ -67,8 +68,7 @@ def main():
     out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
     plan,_=load_boot().checked_plan()
     layout=json.loads(args.layout.read_text())
-    if layout['device']!='/dev/mmcblk0p72' or layout['table']!='0 104448000 linear 259:40 329728' or int(layout['size'])!=53648801280:
-        raise ValueError('Recipe only supports the inventoried read-only Sargo layout')
+    storage_table = mount_table(layout)
     source=Path(plan['backupDirectory'])/'boot_a.img'
     packager=checked_source('aosp-mkbootimg')
     unpack=out/'original'
@@ -102,7 +102,10 @@ def main():
     (out/'known_hosts').write_text('[10.15.19.82]:2222 '+hostpublic+'\n[127.0.0.1]:2222 '+hostpublic+'\n')
     init=(ROOT/'boot/rescue-init.sh').read_bytes().replace(b'# No LVM activation',
         ('EXPECTED_STORAGE_HASH='+shlex.quote(layout['firstMiBSha256'])+'\n# No LVM activation').encode())
-    sources=[Path(__file__),ROOT/'boot/rescue-init.sh',ROOT/'tools/ramdisk_reference.py']
+    init=init.replace(b"'0 104448000 linear /dev/mmcblk0p72 329728'",
+                      shlex.quote(storage_table).encode())
+    sources=[Path(__file__),ROOT/'boot/rescue-init.sh',ROOT/'tools/ramdisk_reference.py',
+             ROOT/'tools/storage_layout.py']
     if state:
         # Keep the existing layout intact; only /tundra/data/<UUID>.ext4 is used
         # for Tundra state. Opening its containing filesystem RW is necessary.
