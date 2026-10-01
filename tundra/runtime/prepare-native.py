@@ -32,8 +32,9 @@ def prepare(root, network=None, hardware=None, diagnostics=False):
   <alias binding="strong"><family>FiraSans</family><prefer><family>Fira Sans</family></prefer></alias>
 </fontconfig>
 ''')
+    # fc-cache inherits HOME; running it as root leaves a root-owned user cache.
     write('etc/systemd/system/tundra-display.service.d/fonts.conf', '''[Service]
-ExecStartPre=+/usr/bin/fc-cache -f /usr/share/fonts/opentype/vulpes
+ExecStartPre=/usr/bin/fc-cache -f /usr/share/fonts/opentype/vulpes
 ''')
     write('etc/os-release','NAME="Tundra"\nID=tundra\nPRETTY_NAME="Tundra Sargo development trial"\n')
     write('etc/hostname','vulpes-sargo\n')
