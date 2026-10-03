@@ -17,7 +17,8 @@ from tundra import ROOT, digest, now, save
 from usb_protocol import exchange, device_layout
 
 
-def checked_plan():
+def checked_backup_plan():
+    """Recovery only needs the qualified backup, not a working diagnostic."""
     path = ROOT/'logs/device/boot-backup-qualification.json'
     validation = json.loads((ROOT/'VALIDATION.json').read_text())
     if validation.get('bootBackup', {}).get('reportSha256') != digest(path):
@@ -27,6 +28,14 @@ def checked_plan():
     verify(backup)
     if digest(backup/'manifest.json') != plan['backupManifestSha256']:
         raise ValueError('Backup manifest changed; requalify')
+    if (plan.get('device') != 'sargo' or plan.get('activeSlot') != 'a'
+            or not re.fullmatch(r'[0-9a-f]{64}', plan.get('serialSha256', ''))):
+        raise ValueError('Backup qualification must identify a Sargo on slot A')
+    return plan
+
+
+def checked_plan():
+    plan = checked_backup_plan()
     image = ROOT/plan['diagnosticImage']
     if digest(image) != plan['diagnosticImageSha256'] or digest(image.parent/'build.json') != plan['diagnosticBuildSha256']:
         raise ValueError('Diagnostic image/build changed; requalify')

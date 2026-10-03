@@ -19,6 +19,28 @@ spec.loader.exec_module(boot)
 
 
 class TemporaryBootTests(unittest.TestCase):
+    def test_recovery_checks_backup_without_requiring_diagnostic(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); logs = root/'logs/device'; logs.mkdir(parents=True)
+            backup = root/'backup'; backup.mkdir()
+            (backup/'manifest.json').write_text('{}')
+            plan = {'device': 'sargo', 'activeSlot': 'a', 'serialSha256': 'a'*64,
+                    'backupDirectory': str(backup),
+                    'backupManifestSha256': boot.digest(backup/'manifest.json'),
+                    'diagnosticImage': 'missing.img'}
+            report = logs/'boot-backup-qualification.json'
+            report.write_text(json.dumps(plan))
+            (root/'VALIDATION.json').write_text(json.dumps({
+                'bootBackup': {'reportSha256': boot.digest(report)}}))
+            with patch.object(boot, 'ROOT', root), patch.object(boot, 'verify') as verify:
+                self.assertEqual(boot.checked_backup_plan(), plan)
+                verify.assert_called_once_with(backup)
+                with self.assertRaises(FileNotFoundError):
+                    boot.checked_plan()
+                (backup/'manifest.json').write_text('{"changed": true}')
+                with self.assertRaisesRegex(ValueError, 'Backup manifest changed'):
+                    boot.checked_backup_plan()
+
     def test_different_phone_rejected_without_fastboot_queries(self):
         with patch.object(boot,'getvar') as getvar:
             with self.assertRaisesRegex(ValueError,'differs from the inventoried'):

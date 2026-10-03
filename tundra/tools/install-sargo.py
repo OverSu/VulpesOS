@@ -58,12 +58,13 @@ def main():
     action.add_argument('--restore',action='store_true',help='Restore the verified original boot_a backup; retain Tundra data')
     args=parser.parse_args();os.umask(0o077)
     boot=load('sargo_boot',ROOT/'tools/test-sargo-boot.py')
-    plan,_=boot.checked_plan()
     if args.restore:
         # Recovery must still work if the candidate or its proof was damaged.
+        plan=boot.checked_backup_plan()
         image=Path(plan['backupDirectory'])/'boot_a.img'
         build={'serialSha256':plan['serialSha256']}
     else:
+        plan,_=boot.checked_plan()
         build,qualification,image=checked_build(args.build)
         if plan['serialSha256']!=build['serialSha256']:raise ValueError('Build targets another phone')
     print('Private Sargo installation plan')

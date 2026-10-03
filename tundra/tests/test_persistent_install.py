@@ -69,7 +69,7 @@ class InstallTests(unittest.TestCase):
 
     def test_restore_does_not_require_working_candidate(self):
         backup=self.folder/'boot_a.img';backup.write_bytes(b'original')
-        boot=SimpleNamespace(checked_plan=lambda:({'serialSha256':'serial','backupDirectory':str(self.folder)},None),
+        boot=SimpleNamespace(checked_backup_plan=lambda:{'serialSha256':'serial','backupDirectory':str(self.folder)},
              find_fastboot=lambda *args:'device',check_device=lambda *args:{'product':'sargo'})
         with patch.object(sys,'argv',['install','--build',str(self.folder),'--restore']), \
              patch.object(install,'load',return_value=boot), \

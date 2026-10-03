@@ -15,6 +15,27 @@ spec.loader.exec_module(image)
 
 
 class SystemImageTests(unittest.TestCase):
+    def test_hardware_reference_requires_services_not_just_display(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            value = {'architecture': 'arm64', 'packages': {'phoc': {}}, 'files': {}}
+            path = root/'manifest.json'
+            path.write_text(json.dumps(value))
+            with self.assertRaisesRegex(ValueError, 'missing packages'):
+                image.validate_reference(root)
+            value['packages'] = {name+':arm64': {} for name in image.HARDWARE_PACKAGES}
+            path.write_text(json.dumps(value))
+            with self.assertRaisesRegex(ValueError, 'executable'):
+                image.validate_reference(root)
+            value['files'] = {name: {} for name in
+                             ('/usr/sbin/ofonod', '/usr/sbin/NetworkManager', '/usr/bin/phoc')}
+            path.write_text(json.dumps(value))
+            image.validate_reference(root)
+            value['architecture'] = 'amd64'
+            path.write_text(json.dumps(value))
+            with self.assertRaisesRegex(ValueError, 'ARM64'):
+                image.validate_reference(root)
+
     def test_distribution_omits_working_documents_but_keeps_component_licenses(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary); product=root/'product'; reference=root/'reference'

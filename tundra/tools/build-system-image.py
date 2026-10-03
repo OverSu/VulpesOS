@@ -14,6 +14,23 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT.parent
 ANDROID_SHA = '132d0e18c6a6a111293447e940267f35aa2b14fa00a872ef160b20dc2014d886'
+HARDWARE_PACKAGES = {'systemd', 'phoc', 'libhybris', 'ofono',
+                     'ofono-binder-plugin', 'network-manager', 'pulseaudio'}
+
+
+def validate_reference(reference):
+    manifest = json.loads((reference/'manifest.json').read_text())
+    if manifest.get('architecture') != 'arm64':
+        raise ValueError('Sargo requires an ARM64 runtime reference')
+    packages = {name.split(':', 1)[0] for name in manifest.get('packages', {})}
+    missing = HARDWARE_PACKAGES - packages
+    if missing:
+        raise ValueError('Incomplete hardware runtime; missing packages: '+', '.join(sorted(missing)))
+    files = manifest.get('files', {})
+    for name in ('/usr/sbin/ofonod', '/usr/sbin/NetworkManager', '/usr/bin/phoc'):
+        if name not in files:
+            raise ValueError('Missing hardware executable in runtime inventory: '+name)
+    return manifest
 
 
 def digest(path):
@@ -80,15 +97,18 @@ def pack(root, image):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--reference', type=Path, default=ROOT/'downloads/sargo-installed/runtime-reference-20260925')
+    parser.add_argument('--reference', type=Path, help='Explicit ARM64 hardware runtime reference')
     parser.add_argument('--product', type=Path, default=ROOT/'out/droidian/product')
     parser.add_argument('--pack', nargs=2, type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.pack:
         pack(*args.pack)
         return
+    if args.reference is None:
+        parser.error('--reference is required; display-only runtime references are not sufficient')
     if os.geteuid() == 0:
         parser.error('Build as a regular user')
+    validate_reference(args.reference)
     android = ROOT/'downloads/sargo-installed/android-rootfs.img'
     if digest(android) != ANDROID_SHA:
         raise ValueError('Android HAL reference changed')

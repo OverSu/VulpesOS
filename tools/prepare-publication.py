@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIRS = {'adapters','android','assets','contracts','gaia','host','overrides','services','tests','tools','tundra'}
 ROOT_FILES = {'.gitignore','.nvmrc','.prettierignore','.prettierrc.json','LICENSE','NOTICE',
               'README.md','README.fr.md','engine-lock.json','package.json','package-lock.json',
-              'pyproject.toml','requirements-dev.txt','release.json','run.sh','setup.sh'}
-INTERNAL = {'changelog.json','VALIDATION.json','candidate-engine.json',
+              'pyproject.toml','requirements-dev.txt','release.json','changelog.json','run.sh','setup.sh'}
+INTERNAL = {'VALIDATION.json','candidate-engine.json',
             'tools/export-changelog.py','tools/sync-forgejo-changelog.py','tests/test_changelog.py',
             'tools/check-checkout.py'}
 MEDIA = {'docs/media/vulpes-logo.png','docs/media/vulpes-desktop.png','docs/media/vulpes-gecko.png'}
