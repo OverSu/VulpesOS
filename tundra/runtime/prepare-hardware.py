@@ -2,10 +2,16 @@
 # SPDX-License-Identifier: MPL-2.0
 """Configure isolated oFono/PulseAudio diagnostics; no call or SMS on startup."""
 from pathlib import Path
+import shutil
 
 
 def prepare(root, write):
     write('etc/tundra/hardware-enabled', 'sargo\n')
+    shutil.copy2(Path(__file__).with_name('modem-recovery.py'),
+                 root/'etc/tundra/modem-recovery.py')
+    write('etc/systemd/system/tundra-hal.service.d/modem-recovery.conf', '''[Service]
+ExecStartPre=/usr/bin/python3 /etc/tundra/modem-recovery.py
+''')
     with (root/'etc/group').open('a') as groups:
         groups.write('audio:x:1005:droidian\ncamera:x:1006:droidian\nradio:x:1001:\nmedia:x:1013:droidian\n')
     write('etc/ofono/binder.conf', '[Settings]\nExpectSlots = slot1\n\n[slot1]\npath = /ril_0\nslot = 0\n')
@@ -26,6 +32,8 @@ After=tundra-hal.service dbus.service
 [Service]
 Type=dbus
 BusName=org.ofono
+StateDirectory=ofono
+StateDirectoryMode=0700
 ExecStartPre=/usr/bin/binder-wait android.hardware.radio@1.0::IRadio/slot1
 ExecStart=/usr/sbin/ofonod --nodetach
 Restart=on-failure
