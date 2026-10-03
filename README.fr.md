@@ -58,6 +58,8 @@ Notre image de développement Sargo installée a passé les contrôles de démar
 
 **Cette release ne contient pas d'image générique à flasher.** Le boot privé dépend encore de la disposition du stockage du téléphone inventorié, d'images système/données déjà déployées et d'accès de maintenance. Publier ce fichier ne fournirait pas une installation fonctionnelle à un autre Pixel. Les recettes Tundra sont incluses pour les contributeurs ; elles nécessitent un inventaire, des sauvegardes vérifiées et des composants matériels fournis localement. Ne réutilisez pas la sauvegarde d'un autre appareil et ne considérez pas un boot isolé comme une ROM complète.
 
+Les outils de préparation prennent désormais un dossier privé par appareil : inventaire, sauvegardes, construction RAM, transfert SSH et secours. La procédure reste réservée au noyau qualifié et à un stockage ext4/LVM compatible ; elle ne permet pas encore de partir directement d’Android d’origine.
+
 ## ✨ Ce que nous partageons
 
 - **Une base Gaia :** interface et services communs pour PC, Android et Tundra.

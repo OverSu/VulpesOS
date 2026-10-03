@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "device": "sargo",
+  "role": "Android HAL userspace reference; vendor/firmware remain device-supplied",
+  "image": {
+    "sha256": "132d0e18c6a6a111293447e940267f35aa2b14fa00a872ef160b20dc2014d886",
+    "bytes": 281219072
+  },
+  "installedPackage": {
+    "name": "android-system-google-sargo",
+    "version": "9.0.0+r1+ubports20230620+git20230322023537.774b882.bookworm.production",
+    "source": "android-system-google-sargo-bin"
+  },
+  "packaging": {
+    "repository": "https://github.com/droidian-devices/android-system-google-sargo-bin",
+    "commit": "774b88272f151a0d58d5cea493de10274168cf5e",
+    "downloadPinned": false,
+    "downloadBehavior": "The packaging script selects the latest UBports CI artifact at build time."
+  },
+  "candidateOrigin": {
+    "url": "https://ci.ubports.com/job/UBportsCommunityPortsJenkinsCI/job/ubports%252Fporting%252Fcommunity-ports%252Fjenkins-ci%252Fsargo/job/main/359/",
+    "inferredFrom": [
+      "ro.build.version.incremental=359",
+      "ro.build.date.utc=1687228550",
+      "package ubports20230620"
+    ],
+    "artifactChecksumMatchVerified": false,
+    "artifactsCurrentlyListed": 0,
+    "recipes": [
+      {
+        "url": "https://gitlab.com/ubports/porting/community-ports/jenkins-ci/halium-build-tools.git",
+        "commit": "681a03bfc1f8b243be1a12624380fdedcbf7f1a9",
+        "fetched": true
+      },
+      {
+        "url": "https://gitlab.com/ubports/porting/community-ports/jenkins-ci/sargo.git",
+        "commit": "14e070112338860d14ace77320424939bb5f519b",
+        "fetched": true
+      }
+    ],
+    "sourceManifestArtifacts": [
+      {
+        "artifact": "used-repos.txt",
+        "url": "https://ci.ubports.com/job/UBportsCommunityPortsJenkinsCI/job/ubports%252Fporting%252Fcommunity-ports%252Fjenkins-ci%252Fsargo/job/main/359/artifact/used-repos.txt",
+        "error": "HTTP Error 404: Not Found"
+      },
+      {
+        "artifact": "last-used-repos.txt",
+        "url": "https://ci.ubports.com/job/UBportsCommunityPortsJenkinsCI/job/ubports%252Fporting%252Fcommunity-ports%252Fjenkins-ci%252Fsargo/job/main/359/artifact/last-used-repos.txt",
+        "error": "HTTP Error 404: Not Found"
+      }
+    ],
+    "artifactRetentionCount": 30,
+    "retentionRecipeSha256": "8715a60456a0706e79d9a06436df5b608aee95e03d65fa4fd5b8c1d0f05a751e"
+  },
+  "embeddedNotices": {
+    "path": "/system/etc/NOTICE.xml.gz",
+    "sha256": "95bfb3fb3cd81bcd0847990df121ec3aeedd4065177aabc22ac98e8a13dd8dee",
+    "fileNameTags": 482,
+    "licenseTextTags": 70,
+    "strictXmlParsingPassed": false,
+    "originalPreserved": true
+  },
+  "sourceReviewComplete": false,
+  "remaining": [
+    "Recover or reconstruct the resolved Android source manifest and exact external dependencies",
+    "Establish a verifiable correspondence between the archived build and this binary image",
+    "Complete component-level redistribution review; the packaging license alone is insufficient"
+  ]
+}

@@ -67,6 +67,16 @@ class InstallTests(unittest.TestCase):
              patch.object(install,'load',return_value=boot),patch.object(install,'flash_boot_a') as flash:
             install.main();flash.assert_not_called()
 
+    def test_workspace_build_never_falls_back_to_shared_inventory(self):
+        self.build['deviceWorkspaceSha256'] = 'a'*64
+        boot=SimpleNamespace(checked_plan=lambda: self.fail('Shared inventory used'))
+        with patch.object(sys,'argv',['install','--build',str(self.folder)]), \
+             patch.object(install,'checked_build',return_value=(self.build,self.qualification,self.image)), \
+             patch.object(install,'load',return_value=boot), patch.object(install,'flash_boot_a') as flash:
+            with self.assertRaisesRegex(ValueError, 'requires --device-workspace'):
+                install.main()
+            flash.assert_not_called()
+
     def test_restore_does_not_require_working_candidate(self):
         backup=self.folder/'boot_a.img';backup.write_bytes(b'original')
         boot=SimpleNamespace(checked_backup_plan=lambda:{'serialSha256':'serial','backupDirectory':str(self.folder)},

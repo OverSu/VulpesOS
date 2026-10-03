@@ -54,9 +54,14 @@ def export(plan, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--device-workspace', type=Path)
     args = parser.parse_args()
     os.umask(0o077)
-    plan = load('backup_plan', ROOT/'tools/test-sargo-boot.py').checked_backup_plan()
+    if args.device_workspace:
+        from sargo_workspace import checked_workspace
+        plan, _ = checked_workspace(args.device_workspace)
+    else:
+        plan = load('backup_plan', ROOT/'tools/test-sargo-boot.py').checked_backup_plan()
     print(export(plan, args.output))
     print('Keep this private kit on another disk. Its boot image belongs only to this phone.')
 

@@ -20,9 +20,20 @@ def verify_sources(folder, build):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build',type=Path,required=True);p.add_argument('--boot',action='store_true');args=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build',type=Path,required=True);p.add_argument('--boot',action='store_true')
+    p.add_argument('--device-workspace',type=Path)
+    args=p.parse_args()
     spec=importlib.util.spec_from_file_location('boot',ROOT/'tools/test-sargo-boot.py');boot=importlib.util.module_from_spec(spec);spec.loader.exec_module(boot)
-    plan,_=boot.checked_plan();folder=args.build.resolve();build=json.loads((folder/'build.json').read_text());image=folder/build['image']
+    folder=args.build.resolve();build=json.loads((folder/'build.json').read_text());image=folder/build['image']
+    if args.device_workspace:
+        from sargo_workspace import checked_workspace
+        plan,layout=checked_workspace(args.device_workspace)
+        if build.get('deviceWorkspaceSha256') != plan['workspaceSha256'] or build['layout'] != layout:
+            raise ValueError('Build was not prepared with this device workspace')
+    else:
+        if build.get('deviceWorkspaceSha256'):
+            raise ValueError('This build requires --device-workspace; no fallback to shared inventory')
+        plan,_=boot.checked_plan()
     if build['imageSha256']!=digest(image) or build['serialSha256']!=plan['serialSha256'] or not build['roundtripPassed']:
         raise ValueError('Image or target provenance mismatch')
     verify_sources(folder,build)

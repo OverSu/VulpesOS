@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: MPL-2.0
 import importlib.util
+import json
 from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -31,6 +33,14 @@ class SourceSnapshotTests(unittest.TestCase):
     def test_path_cannot_escape_snapshot(self):
         self.build['sources']={'../../outside':'hash'}
         with self.assertRaises(ValueError):rescue.verify_sources(self.folder,self.build)
+
+    def test_workspace_required_before_any_device_command(self):
+        (self.folder/'build.json').write_text(json.dumps({'image':'boot.img','deviceWorkspaceSha256':'a'*64}))
+        with patch.object(sys,'argv',['test-rescue-boot','--build',str(self.folder),'--boot']), \
+             patch.object(rescue.subprocess,'run') as run:
+            with self.assertRaisesRegex(ValueError,'requires --device-workspace'):
+                rescue.main()
+            run.assert_not_called()
 
 
 if __name__=='__main__':unittest.main()

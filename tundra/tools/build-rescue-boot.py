@@ -30,6 +30,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--layout',type=Path,required=True)
+    parser.add_argument('--device-workspace', type=Path,
+                        help='Private per-phone workspace; never use the development inventory')
     parser.add_argument('--native',action='store_true',help='Switch to the staged native root with a ten-minute watchdog')
     parser.add_argument('--system-image',type=Path,help='system.json for a self-contained image staged at /tundra/images/<sha256>.ext4')
     parser.add_argument('--hold-hal',action='store_true',help='Boot basic.target first so HAL startup can be traced over USB')
@@ -65,10 +67,16 @@ def main():
         raise ValueError('Data image belongs to another system image')
     os.umask(0o077)
     built_at=int(time.time())
-    out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
-    plan,_=load_boot().checked_plan()
     layout=json.loads(args.layout.read_text())
+    if args.device_workspace:
+        from sargo_workspace import checked_workspace
+        plan, inventoried_layout = checked_workspace(args.device_workspace)
+        if layout != inventoried_layout:
+            raise ValueError('Layout does not belong to this device workspace')
+    else:
+        plan,_=load_boot().checked_plan()
     storage_table = mount_table(layout)
+    out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
     source=Path(plan['backupDirectory'])/'boot_a.img'
     packager=checked_source('aosp-mkbootimg')
     unpack=out/'original'
@@ -106,6 +114,8 @@ def main():
                       shlex.quote(storage_table).encode())
     sources=[Path(__file__),ROOT/'boot/rescue-init.sh',ROOT/'tools/ramdisk_reference.py',
              ROOT/'tools/storage_layout.py']
+    if args.device_workspace:
+        sources += [ROOT/'tools/sargo_workspace.py', ROOT/'tools/boot_backup.py']
     if state:
         # Keep the existing layout intact; only /tundra/data/<UUID>.ext4 is used
         # for Tundra state. Opening its containing filesystem RW is necessary.
@@ -232,6 +242,7 @@ def main():
     save(out/'build.json',{'scope':'Private persistent Sargo development boot; unqualified' if state else ('Private temporary native-root trial; unqualified' if args.native else 'Private temporary SSH boot; installed root read-only; no graphical session'),
         'builtAtUnix':built_at,'runtimeConfigOverlay':args.runtime_config,'networkTrial':args.network,'hardwareTrial':args.hardware,'interactiveDiagnostics':args.diagnostics,'image':image.name,'imageSha256':digest(image),'sourceBootSha256':digest(source),
         'serialSha256':plan['serialSha256'],'kernelSha256':kernel_hash,
+        'deviceWorkspaceSha256':plan.get('workspaceSha256'),
         'ramdiskSha256':digest(ramdisk),'roundtripPassed':True,'flashReady':False,'localDebugger':args.local_debugger,'watchdogSeconds':None if args.no_deadline else (600 if args.native else 480),'persistentState':state,'storageWrites':bool(state),'nativeRootRequested':args.native,'halHeldForDiagnostics':args.hold_hal,
         'layout':layout,'layoutSha256':digest(args.layout),'systemImage':system,'sharedUiHashes':shared_ui,'sourceSnapshot':True,'sources':{str(p.relative_to(ROOT)):digest(p) for p in sources},
         'helpers':{n:__import__('hashlib').sha256(b).hexdigest() for n,b in helpers.items()},

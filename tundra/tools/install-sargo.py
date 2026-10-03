@@ -53,19 +53,32 @@ def flash_boot_a(serial, image):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build',type=Path,required=True)
+    parser.add_argument('--device-workspace',type=Path)
     action=parser.add_mutually_exclusive_group()
     action.add_argument('--flash',action='store_true',help='Install this boot image in boot_a; does not reboot automatically')
     action.add_argument('--restore',action='store_true',help='Restore the verified original boot_a backup; retain Tundra data')
     args=parser.parse_args();os.umask(0o077)
     boot=load('sargo_boot',ROOT/'tools/test-sargo-boot.py')
+    workspace_plan = None
+    if args.device_workspace:
+        from sargo_workspace import checked_workspace
+        workspace_plan, workspace_layout = checked_workspace(args.device_workspace)
     if args.restore:
         # Recovery must still work if the candidate or its proof was damaged.
-        plan=boot.checked_backup_plan()
+        plan=workspace_plan or boot.checked_backup_plan()
         image=Path(plan['backupDirectory'])/'boot_a.img'
         build={'serialSha256':plan['serialSha256']}
     else:
-        plan,_=boot.checked_plan()
         build,qualification,image=checked_build(args.build)
+        if workspace_plan:
+            plan = workspace_plan
+            if (build.get('deviceWorkspaceSha256') != plan['workspaceSha256']
+                    or build['layout'] != workspace_layout):
+                raise ValueError('Build was not prepared with this device workspace')
+        else:
+            if build.get('deviceWorkspaceSha256'):
+                raise ValueError('This build requires --device-workspace; no fallback to shared inventory')
+            plan,_=boot.checked_plan()
         if plan['serialSha256']!=build['serialSha256']:raise ValueError('Build targets another phone')
     print('Private Sargo installation plan')
     print('Boot image:',image)

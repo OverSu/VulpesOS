@@ -58,6 +58,8 @@ Our installed Sargo development image has passed startup and persistence checks.
 
 **A generic flashable image is not included in this release.** The current private boot depends on the inventoried phone's storage layout, staged system/data images and maintenance credentials. Publishing that file would not give another Pixel a working installation. Tundra's source recipes are included for contributors; they require device inventory, verified backups and locally supplied hardware components. Do not use another device's backup or treat a boot image as a complete ROM.
 
+Preparation tools now accept a private workspace per device: inventory, backups, RAM builds, SSH transfers and recovery. The procedure remains limited to the qualified kernel and compatible ext4/LVM storage; it does not yet install directly from stock Android.
+
 ## ✨ What is shared
 
 - **One Gaia base:** interface and common services serve desktop, Android and Tundra.
