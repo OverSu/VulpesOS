@@ -1,4 +1,4 @@
-<p align="center"><strong>English</strong> · <a href="README.fr.md">Français</a></p>
+<p align="center"><strong>English</strong> · <a href="https://nnsprod.com/git/oversu/VulpesOS/src/branch/main/README.fr.md">Français</a></p>
 <p align="center"><img src="docs/media/vulpes-logo.png" width="120" alt="Vulpes OS"></p>
 <h1 align="center">Vulpes OS</h1>
 <p align="center">Firefox OS fork · Open source</p>

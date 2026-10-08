@@ -10,6 +10,9 @@ Les rapports détaillés restent dans la documentation de chaque plateforme.
 un paquet de test, et « Publié » une release accessible dans le dépôt. Un correctif
 commun n’apparaît dans un APK installé ou une image téléphone qu’après leur mise à jour.
 
+<p align="center"><a href="docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="260" alt="Les paramètres de Gaia, écran Informations système"></a></p>
+<p align="center"><em>Paramètres de Gaia · capture de la version pour ordinateur.</em></p>
+
 <a id="2026-10-08-source-publication"></a>
 
 ## 8 octobre 2026 — Mise à jour des sources publiques
