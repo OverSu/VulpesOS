@@ -9,8 +9,11 @@ This journal covers visible changes and major technical milestones.
 and “Published” to a public repository release. Shared source changes reach installed
 APKs and phone images only after those packages are updated.
 
-<p align="center"><a href="docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="260" alt="Gaia Settings, system information screen"></a></p>
-<p align="center"><em>Gaia Settings · screenshot from the desktop version.</em></p>
+<p align="center">
+<a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="260" alt="The Gaia home screen"></a>
+<a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="260" alt="Gaia Settings, system information screen"></a>
+</p>
+<p align="center"><em>Gaia home screen and Settings · screenshots from the desktop version.</em></p>
 
 <a id="2026-10-08-source-publication"></a>
 
