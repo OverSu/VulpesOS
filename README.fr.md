@@ -22,8 +22,11 @@ Vulpes OS reprend Firefox OS pour faire fonctionner **Gaia**, son interface et s
 
 Je développe Vulpes principalement seul, sous le nom d’OverSu, avec l’aide des personnes qui testent et contribuent au projet. **Vulpes est libre et gratuit, et le restera.** Aucun abonnement ni fonctionnalité payante n’est prévu.
 
-<p align="center"><img src="docs/media/vulpes-desktop.png" width="280" alt="L’accueil Gaia de Vulpes OS sur ordinateur"></p>
-<p align="center"><em>L’accueil de Gaia dans la version pour ordinateur.</em></p>
+<p align="center">
+<a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="260" alt="L’accueil de Gaia"></a>
+<a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="260" alt="Les paramètres de Gaia, écran Informations système"></a>
+</p>
+<p align="center"><em>Accueil et paramètres de Gaia · captures de la version pour ordinateur.</em></p>
 
 ## Essayer Vulpes
 

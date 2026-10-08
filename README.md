@@ -22,8 +22,11 @@ Vulpes OS picks up where Firefox OS left off, adapting **Gaia**, its interface a
 
 I’m OverSu, and I develop Vulpes mostly on my own, with help from people who test and contribute to the project. **Vulpes is free and open source, and will stay that way.** There are no plans for subscriptions or paid features.
 
-<p align="center"><img src="docs/media/vulpes-desktop.png" width="280" alt="The Vulpes OS Gaia home screen running on desktop"></p>
-<p align="center"><em>The Gaia home screen in the desktop version.</em></p>
+<p align="center">
+<a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-desktop.png"><img src="docs/media/vulpes-desktop.png" width="260" alt="The Gaia home screen"></a>
+<a href="https://nnsprod.com/git/oversu/VulpesOS/media/branch/main/docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="260" alt="Gaia Settings, system information screen"></a>
+</p>
+<p align="center"><em>Gaia home screen and Settings · screenshots from the desktop version.</em></p>
 
 ## Try Vulpes
 
