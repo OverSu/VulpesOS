@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIRS = {'adapters','android','assets','contracts','gaia','host','overrides','services','tests','tools','tundra'}
@@ -56,6 +57,8 @@ def main():
     args=parser.parse_args()
     index=args.index.resolve();normal=Path(subprocess.check_output(['git','rev-parse','--git-path','index'],cwd=ROOT,text=True).strip()).resolve()
     if index==normal:raise ValueError('Refusing to replace working index')
+    # Render both languages before selecting blobs for the publication tree.
+    subprocess.run([sys.executable, str(ROOT/'tools/render-changelog.py')], cwd=ROOT, check=True)
     selected=select();env=dict(os.environ,GIT_INDEX_FILE=str(index))
     index.parent.mkdir(parents=True,exist_ok=True)
     subprocess.run(['git','read-tree','--empty'],cwd=ROOT,env=env,check=True)
