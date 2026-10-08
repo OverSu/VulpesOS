@@ -11,7 +11,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIRS = {'adapters','android','assets','contracts','gaia','host','overrides','services','tests','tools','tundra'}
 ROOT_FILES = {'.gitignore','.nvmrc','.prettierignore','.prettierrc.json','LICENSE','NOTICE',
-              'README.md','README.fr.md','engine-lock.json','package.json','package-lock.json',
+              'README.md','README.fr.md','CHANGELOG.md','CHANGELOG.en.md','engine-lock.json','package.json','package-lock.json',
               'pyproject.toml','requirements-dev.txt','release.json','changelog.json','run.sh','setup.sh'}
 INTERNAL = {'VALIDATION.json','candidate-engine.json',
             'tools/export-changelog.py','tools/sync-forgejo-changelog.py','tests/test_changelog.py',
@@ -25,7 +25,7 @@ def target_name(name):
     if name in MEDIA:return name
     if p.parts[0] not in SOURCE_DIRS and name not in ROOT_FILES:return None
     if 'docs' in p.parts or p.name=='VALIDATION.json':return None
-    if p.suffix.lower()=='.md' and name not in {'README.md','README.fr.md'}:
+    if p.suffix.lower()=='.md' and name not in {'README.md','README.fr.md','CHANGELOG.md','CHANGELOG.en.md'}:
         # License notices are retained verbatim, without publishing internal Markdown.
         if p.name.lower() in {'license.md','copying.md','notice.md'}:return str(p.with_suffix(''))
         return None

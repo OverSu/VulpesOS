@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/badge/Desktop_Gecko-156.0.1-0099cc?style=flat-square" alt="Desktop Gecko 156.0.1">
 <img src="https://img.shields.io/badge/Status-Experimental-f3a712?style=flat-square" alt="Experimental">
 </p>
-<p align="center"><a href="https://vulpes-os.org">🌐 Website</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/releases">📦 Downloads</a> · <a href="https://vulpes-os.org/changelog.php">📝 Changelog</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/issues">🐞 Report a bug</a></p>
+<p align="center"><a href="https://vulpes-os.org">🌐 Website</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/releases">📦 Downloads</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/src/branch/main/CHANGELOG.en.md">📝 Changelog</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/issues">🐞 Report a bug</a></p>
 
 ## 🦊 The Web as your interface
 
