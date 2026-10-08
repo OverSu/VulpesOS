@@ -1,45 +1,43 @@
-<p align="center"><strong>🇬🇧 English</strong> · <a href="https://nnsprod.com/git/oversu/VulpesOS/src/branch/main/README.fr.md">🇫🇷 Français</a></p>
-<p align="center"><img src="docs/media/vulpes-logo.png" width="160" alt="Vulpes OS fox logo"></p>
+<p align="center"><strong>English</strong> · <a href="README.fr.md">Français</a></p>
+<p align="center"><img src="docs/media/vulpes-logo.png" width="120" alt="Vulpes OS"></p>
 <h1 align="center">Vulpes OS</h1>
-<p align="center"><strong>The spirit of Firefox OS. A modern Gecko. One shared Gaia.</strong><br>A community project bringing a web-based phone experience to desktop, Android and native hardware.</p>
+<p align="center">Firefox OS fork · Open source</p>
+
 <p align="center">
-<img src="https://img.shields.io/badge/Vulpes-2.7_preview.17-0755be?style=flat-square" alt="Vulpes Preview 17">
-<img src="https://img.shields.io/badge/Desktop_Gecko-156.0.1-0099cc?style=flat-square" alt="Desktop Gecko 156.0.1">
-<img src="https://img.shields.io/badge/Status-Experimental-f3a712?style=flat-square" alt="Experimental">
+<a href="https://nnsprod.com/git/oversu/VulpesOS/releases"><img src="https://img.shields.io/badge/Vulpes-2.7%20Preview%2017-0755be?style=flat-square" alt="Vulpes: 2.7 Preview 17"></a>
+<img src="https://img.shields.io/badge/Gaia-2.7-0755be?style=flat-square" alt="Gaia: 2.7">
+<img src="https://img.shields.io/badge/Gecko-156.0.1-0099cc?style=flat-square" alt="Gecko: 156.0.1">
+<img src="https://img.shields.io/badge/Tundra-0.1.0-0099cc?style=flat-square" alt="Tundra: 0.1.0">
 </p>
-<p align="center"><a href="https://vulpes-os.org">🌐 Website</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/releases">📦 Downloads</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/src/branch/main/CHANGELOG.en.md">📝 Changelog</a> · <a href="https://nnsprod.com/git/oversu/VulpesOS/issues">🐞 Report a bug</a></p>
+<p align="center">
+<a href="https://nnsprod.com/git/oversu/VulpesOS/releases"><img src="https://img.shields.io/badge/Android%20APK-Available-26764a?style=flat-square" alt="Android APK: Available"></a>
+<a href="#linux"><img src="https://img.shields.io/badge/Desktop-Available-26764a?style=flat-square" alt="Desktop: Available"></a>
+<a href="https://vulpes-os.org/devices/pixel-3a.php?lang=en"><img src="https://img.shields.io/badge/Native%20image-In%20development-996516?style=flat-square" alt="Native image: In development"></a>
+<a href="https://vulpes-os.org/devices/pixel-3a.php?lang=en"><img src="https://img.shields.io/badge/Pixel%203a-Bootable%20and%20usable-26764a?style=flat-square" alt="Pixel 3a: Bootable and usable"></a>
+</p>
 
-## 🦊 The Web as your interface
+[Website](https://vulpes-os.org/?lang=en) · [Downloads](https://nnsprod.com/git/oversu/VulpesOS/releases) · [Changelog](CHANGELOG.en.md) · [Report a bug](https://nnsprod.com/git/oversu/VulpesOS/issues)
 
-Home screen, settings, camera, gallery, messages: **Gaia remains the interface**, built from HTML, CSS and JavaScript. Vulpes adapts the APIs that these Firefox OS applications expect to a modern Gecko engine and platform-specific services.
+Vulpes OS picks up where Firefox OS left off, adapting **Gaia**, its interface and HTML/CSS/JavaScript applications, to run on a recent **Gecko** engine.
 
-This repository now contains the shared interface, desktop host, Android application, Tundra runtime and development tools. This is an **early developer preview**, not a finished phone operating system.
+I’m OverSu, and I develop Vulpes mostly on my own, with help from people who test and contribute to the project. **Vulpes is free and open source, and will stay that way.** There are no plans for subscriptions or paid features.
 
-<p align="center"><img src="docs/media/vulpes-desktop.png" width="290" alt="Actual desktop screenshot of the Gaia home screen in English"> &nbsp; <img src="docs/media/vulpes-gecko.png" width="290" alt="Actual desktop screenshot of device information showing the Gecko engine"></p>
-<p align="center"><em>Desktop development screenshots. Capabilities depend on the platform and available hardware.</em></p>
+<p align="center"><img src="docs/media/vulpes-desktop.png" width="280" alt="The Vulpes OS Gaia home screen running on desktop"></p>
+<p align="center"><em>The Gaia home screen in the desktop version.</em></p>
 
-## 📥 Choose your platform
+## Try Vulpes
 
-| Platform | Available today | Engine |
-| --- | --- | --- |
-| **Linux desktop** | Source checkout, phone-sized Gaia window, development and app tests | Gecko **156.0.1** |
-| **Android APK** | Installable Preview; keeps Android and its permissions underneath | GeckoView **156.0** |
-| **Pixel 3a · Sargo** | Tundra sources; native development build tested on our device | Gecko **156.0.1** ARM64 |
+| Platform | How to use it |
+| --- | --- |
+| **Linux** | Run Gaia from source to explore the interface or develop applications. |
+| **Android** | Install the [APK from the releases page](https://nnsprod.com/git/oversu/VulpesOS/releases). It runs as an Android application and does not replace your phone’s operating system. |
+| **Google Pixel 3a · Sargo** | Run Vulpes as a native operating system with Tundra. A downloadable image is still being prepared; see the [device page](https://vulpes-os.org/devices/pixel-3a.php?lang=en) for tested features and known limitations. |
 
-### Android — Preview 17
+On the Pixel 3a, **Tundra boots Gecko and Gaia directly** and provides access to the hardware. Droidian was used as a testing environment early in development. It is not included in Vulpes OS, and Tundra is not based on it.
 
-Download the APK and `SHA256SUMS.txt` from [the Preview 17 release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.17). Installing over an earlier signed Vulpes Preview preserves its data.
+### Linux
 
-- Minimum declared: **Android 8 / API 26**. Target: **API 37**.
-- Universal APK: **ARM64, ARMv7 and x86_64**; approximately **600 MiB** including GeckoView.
-- Camera and Gallery use Gaia, with Android permissions and file import.
-- Calls and SMS hand off to Android's applications; Vulpes is not the default SMS or phone app.
-- Android 16 emulator workflows are tested. Minimum SDK support is not a claim that every Android device is validated.
-- This is a signed **development build** with Gecko debugging available through authorized ADB, not a production-hardened app.
-
-### Linux — run from source
-
-Linux x86_64, Python 3, Git and the system libraries needed by Firefox are required. On Debian/Ubuntu, install `git python3 libgtk-3-0 libdbus-glib-1-2 libasound2` (package names may differ by distribution).
+You’ll need Linux x86_64, Git, Python 3 and the system libraries required by Firefox.
 
 ```sh
 git clone https://nnsprod.com/git/oversu/VulpesOS.git
@@ -48,58 +46,29 @@ cd VulpesOS
 ./run.sh
 ```
 
-`setup.sh` downloads the pinned Mozilla engine and verifies its checksum. Normal startup opens the Gaia interface without a debugger. Profiles and downloaded engines stay outside Git.
+`setup.sh` downloads the Gecko engine selected for this version and verifies its checksum.
 
-### Pixel 3a — native Tundra development
+### Build the APK
 
-**Tundra boots Gecko and Gaia directly**, using Linux userspace and the Android hardware services selected for the device.
-
-Our installed Sargo development image has passed startup and persistence checks. Real calls and two-way SMS have been observed; the latest checks cover conversation rendering, camera sensor switching, full-resolution JPEG capture, touch focus, digital zoom and bounded vibration.
-
-**A standalone installation has now been tested locally.** The Fastboot package provides the system, fresh writable storage and the hardware components paired with the kernel. It replaces `userdata`, `boot_a`, `dtbo_a` and `vbmeta_a`: startup no longer uses files from an old Droidian installation and requires neither an Android session nor ADB. Two boots from internal storage passed eleven Gaia and ten native checks each and retained settings.
-
-Installation requires an **unlocked Pixel 3a (Sargo)** and erases all existing `userdata`. The bootloader and device-specific calibration remain in place. This candidate currently reserves an 8 GiB volume, including 1 GiB of writable data; automatic expansion is not implemented yet. It has been tested on our Pixel, not every existing firmware combination.
-
-**The standalone package is not yet available as a download in this release.** Build recipes and the installer are prepared; hardware component provenance and redistribution review are still pending. Development-phone backups and maintenance keys are excluded from the generic package.
-
-## 🛠️ Latest source improvements · 8 October 2026
-
-- **Camera:** serialized sensor switching, reliable release and binary photo transport. Front/rear capture, focus, zoom and Gallery opening tested on our Pixel 3a.
-- **Contacts:** refreshed details after editing, restored SMS/number-picker/dialer flows, and Gallery photo selection. Desktop tests cover search, cropping, favourites and deletion; native tests cover creation, editing and cross-app navigation.
-- **Marketplace:** integrated application installation with permission restrictions and controlled return to Gaia.
-- **Tundra:** standalone build/recovery tools, pinned Bluetooth runtime packages and native trusted certificates. Bluetooth hardware discovery works; Gaia pairing and profiles remain unfinished.
-
-**These are source updates, newer than the published Preview 17 APK.** Updated Android assets are prepared, but no new APK or native image containing all these fixes is published. The latest native candidate is tested in RAM; cellular registration remains under investigation and two-way call audio is not yet qualified. See [`changelog.json`](changelog.json) for the shared desktop/Android/Tundra history.
-
-## ✨ What is shared
-
-- **One Gaia base:** interface and common services serve desktop, Android and Tundra.
-- **Original applications:** Camera, Gallery, Settings and Messages keep their Gaia UI, backed by platform adapters.
-- **Editable web code:** change served assets in `assets/webapps/`, shared compatibility code in `host/`, and replacements in `overrides/`. Restart/reload to test; no Gecko rebuild is needed for these changes. Some historical `gaia/` sources still need their bundled counterparts updated.
-- **A replaceable engine:** pinned downloads, checksum verification, isolated compatibility checks and rollback tools. An engine update is tested and explicitly selected; compatibility is not guaranteed automatically.
-- **Separate version numbers:** Vulpes release, Gaia, Gecko and hardware adaptation are reported independently. GeckoView 156.0 is not presented as desktop Gecko 156.0.1.
-
-## 🧪 Current limits
-
-This preview contains incomplete hardware adapters and legacy application behavior. On Sargo, camera preview is around 16 fps; flash/video, automatic sensor rotation and full suspend remain incomplete. Network registration can be unstable and two-way call audio still needs end-to-end qualification. A reported large dialog after SMS sending remains under investigation.
-
-On Android, platform integration follows Android permissions and lifecycle restrictions. Gaia alarms are not guaranteed after Android stops Vulpes. Unsupported controls may remain visible but disabled. Development/test applications are included.
-
-Keep a backup before testing. Include the platform, Vulpes/Gecko versions and reproduction steps when reporting a problem; remove phone numbers, contacts and other personal information from logs.
-
-## 🛠️ Build the Android APK
+From the repository root:
 
 ```sh
 cd android
 ./build-apk.sh
 ```
 
-The script installs the pinned toolchain, packages the shared Gaia resources and builds a signed development APK in `android/dist/`. Android SDK licenses may need acceptance. A fresh checkout generates its own signing key; it cannot update an APK signed by the project's private release key.
+The development APK is created in `android/dist/`. A personal build uses its own signing key, so it cannot update an APK signed with the project’s key.
 
-## 📜 Credits and licenses
+## Contribute
 
-Vulpes OS is a community project by **OverSu / NNS Production**, inspired by Firefox OS. Thanks to **Mozilla, Gaia contributors, Capyloon, Droidian, UBports, libhybris, Debian, AOSP** and the communities keeping open mobile systems alive.
+You can test Vulpes, [report an issue](https://nnsprod.com/git/oversu/VulpesOS/issues), improve translations or contribute code. When reporting a bug, include your platform, the version you’re using and the steps to reproduce it.
 
-New Vulpes code uses **MPL 2.0**. Gaia retains **Apache 2.0** and inherited components retain their own licenses and notices. See [LICENSE](LICENSE), [NOTICE](NOTICE) and [Gaia's license](gaia/LICENSE). Preserve the applicable attribution and license notices in forks.
+Development updates and test results are in the [changelog](CHANGELOG.en.md). If you’d like to help cover project costs, the [Support me](https://vulpes-os.org/support.php?lang=en) page explains what your contribution supports.
 
-Vulpes OS is independent of Mozilla and is not an official Firefox OS release.
+## Credits and licenses
+
+Thanks to Mozilla, Gaia contributors, Capyloon, Droidian, UBports, libhybris, Debian and AOSP for the code, tools and work that have helped this project.
+
+New Vulpes code is licensed under **MPL 2.0**. Gaia retains its **Apache 2.0** license; other components retain their own licenses and notices. See [LICENSE](LICENSE), [NOTICE](NOTICE) and [Gaia’s license](gaia/LICENSE).
+
+Vulpes OS is an independent project by **OverSu / NNS Production**, with no affiliation with Mozilla.
