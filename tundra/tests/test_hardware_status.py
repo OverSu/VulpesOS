@@ -50,7 +50,11 @@ class HardwareTests(unittest.TestCase):
             self.assertIn('unmanaged-devices=*,except:interface-name:wlan0', config)
             self.assertIn('auth-polkit=root-only', config)
             self.assertIn('enabled=false', config)
-            self.assertFalse((root/'etc/NetworkManager/system-connections').exists())
+            connections = root/'etc/NetworkManager/system-connections'
+            self.assertTrue(connections.is_dir())
+            self.assertEqual(list(connections.iterdir()), [])
+            wifi_service = (root/'etc/systemd/system/tundra-wifi.service').read_text()
+            self.assertIn('ReadWritePaths=/run /etc/NetworkManager/system-connections', wifi_service)
             self.assertIn('VULPES_TUNDRA=1', (root/'etc/systemd/system/tundra-display.service').read_text())
 
 

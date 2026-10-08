@@ -655,7 +655,9 @@ var Contacts = (function() {
     utils.PerformanceHelper.contentInteractive();
     utils.PerformanceHelper.chromeInteractive();
     window.setTimeout(Contacts && Contacts.onLocalized);
-    if (window.navigator.mozSetMessageHandler && window.self == window.top) {
+    // Vulpes embeds each app in its own permission-checked frame.
+    if (window.navigator.mozSetMessageHandler &&
+        (window.self == window.top || window.VulpesCompat)) {
       LazyLoader.load(['/shared/js/contacts/import/utilities/misc.js',
         '/shared/js/contacts/import/utilities/vcard_reader.js',
         '/shared/js/contacts/import/utilities/vcard_parser.js'],

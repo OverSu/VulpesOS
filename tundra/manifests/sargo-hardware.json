@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "device": "sargo",
+  "scope": "Pinned hardware image inputs for local standalone builds; redistribution not reviewed",
+  "images": {
+    "vendor.img": {
+      "source": "vendor_a.img",
+      "sha256": "d584429873c88db741b81144b55977bbd8126b3e877445901bee6a0bda7fe4d0",
+      "bytes": 805306368
+    },
+    "modem.img": {
+      "source": "modem_a.img",
+      "sha256": "fd0624b37ac1d80c064a9763c7e2d2d6f94c3fd5e4617965b735ad411a473d0a",
+      "bytes": 115343360
+    }
+  },
+  "dtbo": {
+    "sha256": "0e43a57d6423e8d24cd944fcad0939ed81160e847a6d4203e2f7c16a86d69c03",
+    "bytes": 8417280
+  },
+  "vendorFingerprint": "google/sargo/sargo:9/PD2A.190115.029/5320088:user/release-keys"
+}

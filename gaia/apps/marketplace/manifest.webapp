@@ -1,0 +1,19 @@
+{
+  "name": "Marketplace",
+  "description": "Vulpes OS application catalogue",
+  "launch_path": "/index.html",
+  "type": "certified",
+  "icons": {
+    "512": "/icon.png"
+  },
+  "permissions": {
+    "browser": {},
+    "webapps-manage": {}
+  },
+  "locales": {
+    "fr": {
+      "name": "Marketplace",
+      "description": "Catalogue des applications Vulpes OS"
+    }
+  }
+}

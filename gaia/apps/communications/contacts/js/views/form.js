@@ -1038,6 +1038,8 @@ contacts.Form = (function() {
         // (Bug 1041455).
         if (editingContact) {
           Contacts.setCurrent(contact);
+          // The change event may arrive while the edit form is still visible.
+          Contacts.updateContactDetail(contact.id);
         }
       }
     );

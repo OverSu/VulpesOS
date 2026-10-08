@@ -65,3 +65,12 @@ def release_info():
     if not release["androidVersionCode"] > 4:
         raise ValueError("Android versionCode must preserve upgrades from Preview 4")
     return release
+
+
+def application_manifest(app_id, manifest, include_development=False):
+    """Keep development providers installed but hide their launcher entries."""
+    # Runtime exports omit dev_apps sources; keep the same policy in every package.
+    development = app_id in ('contacts-ds-provider1', 'contacts-ds-provider2', 'contacts-manager', 'ds-test', 'geoloc', 'in_app_pay_test', 'l20n-app', 'marketplace-dev.allizom.org', 'marketplace.allizom.org', 'membuster', 'mobile-wallet', 'mochitest', 'music-oga', 'nfc-api-test', 'share-receiver', 'template', 'test-agent', 'test-container', 'test-iac-publisher', 'test-iac-subscriber', 'test-ime', 'test-keyboard-app', 'test-otasp', 'test-receiver-1', 'test-receiver-2', 'test-receiver-inline', 'test-sensors', 'test-wappush', 'testpermission', 'theme-test-1', 'theme-test-2', 'theme-test-3', 'uitest', 'uitest-privileged', 'upnp-test', 'test-startup-limit')
+    if development and not include_development:
+        manifest = {**manifest, "role": "system"}
+    return manifest

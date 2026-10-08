@@ -84,9 +84,15 @@
         if (!event.target.closest('#messages-send-button')) return;
         event.preventDefault(); event.stopImmediatePropagation();
         // Android owns final confirmation and delivery. Do not fabricate a sent SMS.
+        const view = window.ConversationView;
+        view?.assimilateRecipients();
+        const numbers = window.Navigation?.isCurrentPanel('composer') ?
+          view?.recipients?.numbers : view?.activeThread?.participants;
+        const body = window.Compose?.getText?.() || '';
+        if (!numbers?.length || !body) return;
+        if (window.Compose.type !== 'sms') { notice(unavailable()); return; }
         VulpesCompat.call('platform.sms', {
-          number:window.ThreadUI?.recipients?.numbers?.join(';') || '',
-          body:window.Compose?.getText?.() || ''
+          number:numbers.join(';'), body
         }).catch(() => notice(unavailable()));
       }, true);
     }

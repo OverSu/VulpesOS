@@ -3,7 +3,7 @@
 <h1 align="center">Vulpes OS</h1>
 <p align="center"><strong>The spirit of Firefox OS. A modern Gecko. One shared Gaia.</strong><br>A community project bringing a web-based phone experience to desktop, Android and native hardware.</p>
 <p align="center">
-<img src="https://img.shields.io/badge/Vulpes-2.7_preview.15-0755be?style=flat-square" alt="Vulpes Preview 15">
+<img src="https://img.shields.io/badge/Vulpes-2.7_preview.17-0755be?style=flat-square" alt="Vulpes Preview 17">
 <img src="https://img.shields.io/badge/Desktop_Gecko-156.0.1-0099cc?style=flat-square" alt="Desktop Gecko 156.0.1">
 <img src="https://img.shields.io/badge/Status-Experimental-f3a712?style=flat-square" alt="Experimental">
 </p>
@@ -26,9 +26,9 @@ This repository now contains the shared interface, desktop host, Android applica
 | **Android APK** | Installable Preview; keeps Android and its permissions underneath | GeckoView **156.0** |
 | **Pixel 3a · Sargo** | Tundra sources; native development build tested on our device | Gecko **156.0.1** ARM64 |
 
-### Android — Preview 15
+### Android — Preview 17
 
-Download the APK and `SHA256SUMS.txt` from [the Preview 15 release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.15). Installing over an earlier signed Vulpes Preview preserves its data.
+Download the APK and `SHA256SUMS.txt` from [the Preview 17 release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.17). Installing over an earlier signed Vulpes Preview preserves its data.
 
 - Minimum declared: **Android 8 / API 26**. Target: **API 37**.
 - Universal APK: **ARM64, ARMv7 and x86_64**; approximately **600 MiB** including GeckoView.
@@ -56,9 +56,20 @@ cd VulpesOS
 
 Our installed Sargo development image has passed startup and persistence checks. Real calls and two-way SMS have been observed; the latest checks cover conversation rendering, camera sensor switching, full-resolution JPEG capture, touch focus, digital zoom and bounded vibration.
 
-**A generic flashable image is not included in this release.** The current private boot depends on the inventoried phone's storage layout, staged system/data images and maintenance credentials. Publishing that file would not give another Pixel a working installation. Tundra's source recipes are included for contributors; they require device inventory, verified backups and locally supplied hardware components. Do not use another device's backup or treat a boot image as a complete ROM.
+**A standalone installation has now been tested locally.** The Fastboot package provides the system, fresh writable storage and the hardware components paired with the kernel. It replaces `userdata`, `boot_a`, `dtbo_a` and `vbmeta_a`: startup no longer uses files from an old Droidian installation and requires neither an Android session nor ADB. Two boots from internal storage passed eleven Gaia and ten native checks each and retained settings.
 
-Preparation tools now accept a private workspace per device: inventory, backups, RAM builds, SSH transfers and recovery. The procedure remains limited to the qualified kernel and compatible ext4/LVM storage; it does not yet install directly from stock Android.
+Installation requires an **unlocked Pixel 3a (Sargo)** and erases all existing `userdata`. The bootloader and device-specific calibration remain in place. This candidate currently reserves an 8 GiB volume, including 1 GiB of writable data; automatic expansion is not implemented yet. It has been tested on our Pixel, not every existing firmware combination.
+
+**The standalone package is not yet available as a download in this release.** Build recipes and the installer are prepared; hardware component provenance and redistribution review are still pending. Development-phone backups and maintenance keys are excluded from the generic package.
+
+## 🛠️ Latest source improvements · 8 October 2026
+
+- **Camera:** serialized sensor switching, reliable release and binary photo transport. Front/rear capture, focus, zoom and Gallery opening tested on our Pixel 3a.
+- **Contacts:** refreshed details after editing, restored SMS/number-picker/dialer flows, and Gallery photo selection. Desktop tests cover search, cropping, favourites and deletion; native tests cover creation, editing and cross-app navigation.
+- **Marketplace:** integrated application installation with permission restrictions and controlled return to Gaia.
+- **Tundra:** standalone build/recovery tools, pinned Bluetooth runtime packages and native trusted certificates. Bluetooth hardware discovery works; Gaia pairing and profiles remain unfinished.
+
+**These are source updates, newer than the published Preview 17 APK.** Updated Android assets are prepared, but no new APK or native image containing all these fixes is published. The latest native candidate is tested in RAM; cellular registration remains under investigation and two-way call audio is not yet qualified. See [`changelog.json`](changelog.json) for the shared desktop/Android/Tundra history.
 
 ## ✨ What is shared
 

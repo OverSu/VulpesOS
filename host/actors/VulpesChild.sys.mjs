@@ -141,6 +141,27 @@ export class VulpesChild extends JSWindowActorChild {
   }
   receiveMessage(message) {
     if(message.name==='Vulpes:Edit') return this.edit(message.data);
+    if (message.name === 'Vulpes:ViewState') {
+      const frame = Array.from(this.document.querySelectorAll('iframe')).find(
+        f => f.browsingContext?.id === message.data.contextId);
+      if (!frame?.isConnected) return {visible:false};
+      const win = this.contentWindow, rect = frame.getBoundingClientRect();
+      const visible = !this.document.hidden && frame.checkVisibility({checkOpacity:true,checkVisibilityCSS:true}) &&
+        [[.5,.5],[.05,.05],[.95,.05],[.05,.95],[.95,.95]].every(([x,y]) =>
+          this.document.elementFromPoint(rect.left+rect.width*x,rect.top+rect.height*y)===frame);
+      let top = Math.max(0,rect.top);
+      // Gaia's status bar belongs above all app content, including native web views.
+      if (this.document.location.hostname === 'system.localhost') {
+        const bar=this.document.getElementById('statusbar');
+        if (bar?.checkVisibility({checkOpacity:true,checkVisibilityCSS:true})) {
+          const r=bar.getBoundingClientRect();
+          if (r.width>0 && r.bottom>top && r.top<=top) top=r.bottom;
+        }
+      }
+      return {visible,left:Math.max(0,rect.left)+win.mozInnerScreenX,
+        top:top+win.mozInnerScreenY,right:Math.min(win.innerWidth,rect.right)+win.mozInnerScreenX,
+        bottom:Math.min(win.innerHeight,rect.bottom)+win.mozInnerScreenY};
+    }
     if (message.name === 'Vulpes:ViewAlive') {
       return Array.from(this.document.querySelectorAll('iframe')).some(
         (frame) => frame.isConnected && frame.browsingContext?.id === message.data.contextId,

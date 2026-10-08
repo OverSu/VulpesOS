@@ -5,10 +5,10 @@ import { SettingsService } from '../../services/settings.mjs';
 
 const context = vm.createContext({ window: {}, Blob, Uint8Array, btoa, atob });
 vm.runInContext(
-  await readFile(new URL('../ui/settings-codec.js', import.meta.url), 'utf8'),
+  await readFile(new URL('../../host/settings-codec.js', import.meta.url), 'utf8'),
   context,
 );
-const { encode, decode } = context.window.VulpesAndroidSettingsCodec;
+const { encode, decode } = context.window.VulpesSettingsCodec;
 // A binary wallpaper larger than the original 1 MiB JSON ceiling, including
 // every byte value. Exercise the actual service, JSON storage and observer path.
 const pixels = Uint8Array.from({ length: 1200000 }, (_, i) => i % 256);

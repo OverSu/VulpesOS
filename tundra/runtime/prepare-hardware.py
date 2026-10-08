@@ -3,10 +3,13 @@
 """Configure isolated oFono/PulseAudio diagnostics; no call or SMS on startup."""
 from pathlib import Path
 import shutil
+import runpy
 
 
 def prepare(root, write):
     write('etc/tundra/hardware-enabled', 'sargo\n')
+    runpy.run_path(str(Path(__file__).with_name('runtime-packages.py')))['stage'](root)
+    runpy.run_path(str(Path(__file__).with_name('prepare-bluetooth.py')))['prepare'](root, write)
     shutil.copy2(Path(__file__).with_name('modem-recovery.py'),
                  root/'etc/tundra/modem-recovery.py')
     write('etc/systemd/system/tundra-hal.service.d/modem-recovery.conf', '''[Service]

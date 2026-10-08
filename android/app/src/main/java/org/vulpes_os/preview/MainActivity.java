@@ -45,8 +45,7 @@ public final class MainActivity extends Activity {
     root.setOnApplyWindowInsetsListener((v, insets) -> {
       if (Build.VERSION.SDK_INT >= 30) {
         android.graphics.Insets bars = insets.getInsets(
-          WindowInsets.Type.systemBars() |
-            WindowInsets.Type.ime() |
+          WindowInsets.Type.ime() |
             WindowInsets.Type.displayCutout()
         );
         v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
@@ -54,11 +53,12 @@ public final class MainActivity extends Activity {
         insets.getSystemWindowInsetLeft(),
         insets.getSystemWindowInsetTop(),
         insets.getSystemWindowInsetRight(),
-        insets.getSystemWindowInsetBottom()
+        insets.getSystemWindowInsetBottom() > dp(100) ? insets.getSystemWindowInsetBottom() : 0
       );
       return insets;
     });
     setContentView(root);
+    immersive();
     // Respect Android's screen timeout; Gaia must not keep the phone awake indefinitely.
     float brightness = app.getSharedPreferences("android", 0).getFloat("brightness", -1);
     if (brightness >= 0) {
@@ -164,6 +164,28 @@ public final class MainActivity extends Activity {
       notice.setText("Impossible de démarrer Vulpes : " + e.getMessage());
       android.util.Log.e("Vulpes", "Startup", e);
     }
+  }
+
+  private void immersive() {
+    if (Build.VERSION.SDK_INT >= 30) {
+      getWindow().setDecorFitsSystemWindows(false);
+      WindowInsetsController controller = getWindow().getInsetsController();
+      if (controller != null) {
+        controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        controller.hide(WindowInsets.Type.systemBars());
+      }
+    } else {
+      getWindow().getDecorView().setSystemUiVisibility(
+        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN |
+        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+    }
+  }
+
+  @Override
+  public void onWindowFocusChanged(boolean focused) {
+    super.onWindowFocusChanged(focused);
+    if (focused) immersive();
   }
 
   private int dp(int value) {
@@ -274,7 +296,7 @@ public final class MainActivity extends Activity {
     setHomeSurface(app.homeVisible);
   }
 
-  private void closeBrowser() {
+  void closeBrowser() {
     webPanel.setVisibility(View.GONE);
     gaiaView.setVisibility(View.VISIBLE);
     setHomeSurface(app.homeVisible);
@@ -356,6 +378,7 @@ public final class MainActivity extends Activity {
   public void onResume() {
     super.onResume();
     resumed = true;
+    immersive();
     app.activity = this;
     if (recoverGaia) {
       recoverGaia = false;

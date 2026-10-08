@@ -196,3 +196,7 @@ html[data-vulpes-app='communications'] body {
 
 /* Camera gestures must not magnify the application chrome. */
 html[data-vulpes-app='camera'], html[data-vulpes-app='camera'] body { touch-action:none; }
+
+/* Homescreen pages must settle at their boundary after a drag (Forgejo #3). */
+html[data-vulpes-app="homescreen"] #panels { scroll-snap-type:x mandatory; }
+html[data-vulpes-app="homescreen"] #panels > * { scroll-snap-align:start; }

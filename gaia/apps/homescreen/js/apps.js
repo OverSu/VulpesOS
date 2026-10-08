@@ -408,6 +408,10 @@
         return;
       }
 
+      if (HIDDEN_ROLES.includes(manifest.role)) {
+        return;
+      }
+
       // Do not add blacklisted apps
       if (BLACKLIST.includes(app.origin)) {
         return;

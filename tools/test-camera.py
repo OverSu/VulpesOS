@@ -76,12 +76,13 @@ with Client(2857) as c:
             "camera",
             'return app.camera.mode==="picture" && app.camera.mozCamera.flashMode==="off";',
         )
-        # Native touch injection targets the camera frame even on high-DPI desktops.
-        point = ev("camera", 'const r=document.querySelector(".js-capture").getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};')
+        # Drive the desktop mouse through the normal touch simulator. Wait for
+        # layout after reload: a decoded video can precede a visible app frame.
+        point = wait("camera", 'const b=document.querySelector(".js-capture"),r=b.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return x>0 && y>0 && x<innerWidth && y<innerHeight && b.contains(document.elementFromPoint(x,y)) && {x,y};')
         script = """const done=arguments[arguments.length-1];
 const root=Services.wm.getMostRecentWindow('vulpes:host').document.getElementById('system').browsingContext;
 function find(b){if(b.currentWindowGlobal?.documentURI.spec.startsWith('http://camera.localhost:8765/'))return b;for(const child of b.children){const result=find(child);if(result)return result;}}
-find(root).currentWindowGlobal.getActor('VulpesProbe').sendQuery('Tap',POINT).then(()=>done(true),e=>done({error:String(e)}));""".replace('POINT',json.dumps(point))
+find(root).currentWindowGlobal.getActor('VulpesProbe').sendQuery('MouseClick',POINT).then(()=>done(true),e=>done({error:String(e)}));""".replace('POINT',json.dumps(point))
         assert c.call('WebDriver:ExecuteAsyncScript',{'script':script,'args':[],
             'newSandbox':True,'sandbox':'system','scriptTimeout':10000})['value'] is True
         photo = wait(

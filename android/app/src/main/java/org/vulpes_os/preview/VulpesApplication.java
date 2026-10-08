@@ -17,8 +17,31 @@ public final class VulpesApplication extends Application {
   GeckoSession gaiaSession;
   AndroidServices services;
   AndroidNotifications notifications;
+  boolean pendingScreenLock;
   boolean homeVisible;
   boolean homeAtBottom;
+
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    android.content.BroadcastReceiver receiver = new android.content.BroadcastReceiver() {
+      @Override public void onReceive(android.content.Context context, android.content.Intent intent) {
+        pendingScreenLock = true;
+        sendScreenLock();
+      }
+    };
+    android.content.IntentFilter filter = new android.content.IntentFilter(android.content.Intent.ACTION_SCREEN_OFF);
+    if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(receiver,filter,RECEIVER_NOT_EXPORTED);
+    else registerReceiver(receiver,filter);
+  }
+
+  void sendScreenLock() {
+    if (port == null || !pendingScreenLock) return;
+    try {
+      port.postMessage(new JSONObject().put("type","android-screen-off"));
+      pendingScreenLock = false;
+    } catch (Exception error) {Log.w("Vulpes","Screen lock pending",error);}
+  }
 
   void prepare() throws IOException {
     if (runtime != null) return;
@@ -58,6 +81,7 @@ public final class VulpesApplication extends Application {
             @Override
             public void onConnect(WebExtension.Port p) {
               port = p;
+              sendScreenLock();
               if (activity != null) notifications.click(activity.getIntent());
               p.setDelegate(
                 new WebExtension.PortDelegate() {
@@ -80,6 +104,18 @@ public final class VulpesApplication extends Application {
                   return GeckoResult.fromException(new SecurityException("EXTENSION_REQUIRED"));
                 }
                 JSONObject json = (JSONObject) message;
+                if (json.optString("type").equals("marketplace.return") && activity!=null) {activity.runOnUiThread(()->activity.closeBrowser());return GeckoResult.fromValue(null);}
+                if (json.optString("type").startsWith("packages.")) {
+                  GeckoResult<Object> result=new GeckoResult<>();
+                  new Thread(()->{try {
+                    String operation=json.getString("type");
+                    if(operation.equals("packages.save"))server.installed.save(json.getJSONObject("item"));
+                    else if(operation.equals("packages.remove"))server.installed.remove(json.getString("id"));
+                    else if(!operation.equals("packages.list"))throw new IOException("INVALID_OPERATION");
+                    result.complete(server.installed.list().toString());
+                  }catch(Exception error){result.completeExceptionally(error);}},"Vulpes-packages").start();
+                  return result;
+                }
                 if (json.optString("type").equals("homeScroll")) {
                   homeAtBottom = json.optBoolean("bottom");
                   if (activity != null) activity.setHomeSurface(homeVisible);
@@ -124,6 +160,7 @@ public final class VulpesApplication extends Application {
   }
 
   void resumed() {
+    sendScreenLock();
     if (port == null) return;
     try {
       port.postMessage(new JSONObject().put("type", "android-resume"));

@@ -6,6 +6,26 @@
     current = null,
     generation = 0;
   let cameraError = null;
+  let opening = Promise.resolve(), closing = Promise.resolve();
+  const releases = new WeakMap();
+  function releaseStream(stream, preview) {
+    if (releases.has(stream)) return releases.get(stream);
+    if (current === stream) current = null;
+    const release = Promise.resolve().then(async () => {
+      for (const video of document.querySelectorAll('video')) {
+        if (video.srcObject === stream) {
+          video.pause(); video.srcObject = null;
+          if ('vulpesCapture' in video.dataset) video.remove();
+        }
+      }
+      preview?.remove();
+      try { await stream.vulpesCameraClose?.(); }
+      finally { stream.getTracks().forEach(track => track.stop()); }
+    });
+    releases.set(stream, release);
+    closing = release.catch(recordError);
+    return release;
+  }
   function recordError(error) {
     cameraError = { name: error.name || 'Error', message: error.message || '' };
     console.warn('Vulpes Camera:', cameraError.name, cameraError.message);
@@ -87,7 +107,7 @@
     Object.assign(event, detail);
     target.dispatchEvent(event);
   }
-  async function discover(stream) {
+  async function discover(stream, name) {
     if (stream.vulpesNative) {
       cameras = ['back', 'front'];
       return;
@@ -104,12 +124,15 @@
     const active = list.find((d) => d.deviceId === settings.deviceId) || list[0];
     const back = list.find((d) => /back|rear|environment/i.test(d.label));
     const front = list.find((d) => /front|user|face/i.test(d.label));
-    const first =
-      back ||
-      (settings.facingMode === 'user' && list.length > 1 ? list.find((d) => d !== active) : active);
+    // Unlabelled webcams must not exchange identities every time we switch.
+    const previousBack = list.find(d => d.deviceId === devices.get('back'));
+    const previousFront = list.find(d => d.deviceId === devices.get('front'));
+    const first = back || previousBack ||
+      ((settings.facingMode === 'user' || name === 'front') && list.length > 1
+        ? list.find(d => d !== active) : active);
     devices = new Map();
     if (first) devices.set('back', first.deviceId);
-    const second = front && front !== first ? front : list.find((d) => d !== first);
+    const second = [front, previousFront].find(d => d && d !== first) || list.find(d => d !== first);
     if (second) devices.set('front', second.deviceId);
     cameras = devices.size ? [...devices.keys()] : ['back'];
   }
@@ -129,75 +152,79 @@
       await call({action:'stop'});
       throw new DOMException('Camera preview requires WebGL', 'NotSupportedError');
     }
-    function shader(type, source) {
-      const value = gl.createShader(type);
-      gl.shaderSource(value, source); gl.compileShader(value);
-      if (!gl.getShaderParameter(value, gl.COMPILE_STATUS)) throw Error('Camera shader compilation failed');
-      return value;
-    }
-    const program = gl.createProgram();
-    gl.attachShader(program, shader(gl.VERTEX_SHADER, `
-      attribute vec2 position; varying vec2 coord;
-      void main() { gl_Position=vec4(position,0.,1.); coord=vec2(position.x*.5+.5,.5-position.y*.5); }
-    `));
-    gl.attachShader(program, shader(gl.FRAGMENT_SHADER, `
-      precision mediump float; varying vec2 coord;
-      uniform sampler2D luma; uniform sampler2D chroma; uniform float rotation;
-      void main() {
-        vec2 p=coord;
-        if(rotation==90.) p=vec2(coord.y,1.-coord.x);
-        else if(rotation==270.) p=vec2(1.-coord.y,coord.x);
-        else if(rotation==180.) p=1.-coord;
-        float y=1.16438356*(texture2D(luma,p).r-16./255.);
-        vec4 vu=texture2D(chroma,p);
-        float v=vu.r-128./255.; float u=vu.a-128./255.;
-        gl_FragColor=vec4(y+1.59602678*v,y-.39176229*u-.81296764*v,y+2.01723214*u,1.);
-      }
-    `));
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw Error('Camera shader link failed');
-    gl.useProgram(program);
-    const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
-    const position=gl.getAttribLocation(program,'position');
-    gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
-    gl.uniform1f(gl.getUniformLocation(program,'rotation'),meta.orientation);
-    const textures = ['luma','chroma'].map((name,index) => {
-      const texture=gl.createTexture();gl.activeTexture(gl.TEXTURE0+index);gl.bindTexture(gl.TEXTURE_2D,texture);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-      gl.uniform1i(gl.getUniformLocation(program,name),index);return texture;
-    });
     const timing = {frames:0, startedAt:performance.now(), conversionMs:0};
-    let stopped = false, timer, stream, sequence = -1, closing;
+    let stopped = false, timer, stream, sequence = -1, closing, program, buffer;
+    const textures = [], shaders = [];
     const stop = () => {
       if (closing) return closing;
       stopped = true; clearTimeout(timer);
       closing = call({action:'stop'}).finally(() => {
         textures.forEach(texture => gl.deleteTexture(texture));
-        gl.deleteBuffer(buffer); gl.deleteProgram(program);
+        shaders.forEach(value => gl.deleteShader(value));
+        if (buffer) gl.deleteBuffer(buffer);
+        if (program) gl.deleteProgram(program);
         gl.getExtension('WEBGL_lose_context')?.loseContext();
       });
       return closing;
     };
-    const draw = async () => {
-      const frame = await call({action:'frame'});
-      if (stopped || !frame.data || frame.sequence === sequence) return false;
-      const data = new Uint8Array(frame.data), w = meta.width, h = meta.height;
-      if (data.length !== w * h * 3 / 2) throw Error('Invalid native camera frame');
-      sequence = frame.sequence;
-      const start=performance.now();
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,textures[0]);
-      gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,w,h,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,data.subarray(0,w*h));
-      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,textures[1]);
-      gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE_ALPHA,w/2,h/2,0,gl.LUMINANCE_ALPHA,gl.UNSIGNED_BYTE,data.subarray(w*h));
-      gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-      timing.frames++;timing.conversionMs+=performance.now()-start;
-      return true;
-    };
     try {
+      function shader(type, source) {
+        const value = gl.createShader(type);
+        shaders.push(value);
+        gl.shaderSource(value, source); gl.compileShader(value);
+        if (!gl.getShaderParameter(value, gl.COMPILE_STATUS)) throw Error('Camera shader compilation failed');
+        return value;
+      }
+      program = gl.createProgram();
+      gl.attachShader(program, shader(gl.VERTEX_SHADER, `
+        attribute vec2 position; varying vec2 coord;
+        void main() { gl_Position=vec4(position,0.,1.); coord=vec2(position.x*.5+.5,.5-position.y*.5); }
+      `));
+      gl.attachShader(program, shader(gl.FRAGMENT_SHADER, `
+        precision mediump float; varying vec2 coord;
+        uniform sampler2D luma; uniform sampler2D chroma; uniform float rotation;
+        void main() {
+          vec2 p=coord;
+          if(rotation==90.) p=vec2(coord.y,1.-coord.x);
+          else if(rotation==270.) p=vec2(1.-coord.y,coord.x);
+          else if(rotation==180.) p=1.-coord;
+          float y=1.16438356*(texture2D(luma,p).r-16./255.);
+          vec4 vu=texture2D(chroma,p);
+          float v=vu.r-128./255.; float u=vu.a-128./255.;
+          gl_FragColor=vec4(y+1.59602678*v,y-.39176229*u-.81296764*v,y+2.01723214*u,1.);
+        }
+      `));
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw Error('Camera shader link failed');
+      gl.useProgram(program);
+      buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+      gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+      const position=gl.getAttribLocation(program,'position');
+      gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
+      gl.uniform1f(gl.getUniformLocation(program,'rotation'),meta.orientation);
+      ['luma','chroma'].forEach((name,index) => {
+        const texture=gl.createTexture();textures.push(texture);gl.activeTexture(gl.TEXTURE0+index);gl.bindTexture(gl.TEXTURE_2D,texture);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+        gl.uniform1i(gl.getUniformLocation(program,name),index);
+      });
+      const draw = async () => {
+        const frame = await call({action:'frame'});
+        if (stopped || !frame.data || frame.sequence === sequence) return false;
+        const data = new Uint8Array(frame.data), w = meta.width, h = meta.height;
+        if (data.length !== w * h * 3 / 2) throw Error('Invalid native camera frame');
+        sequence = frame.sequence;
+        const start=performance.now();
+        gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,textures[0]);
+        gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,w,h,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,data.subarray(0,w*h));
+        gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,textures[1]);
+        gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE_ALPHA,w/2,h/2,0,gl.LUMINANCE_ALPHA,gl.UNSIGNED_BYTE,data.subarray(w*h));
+        gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+        timing.frames++;timing.conversionMs+=performance.now()-start;
+        return true;
+      };
       const deadline = Date.now() + 6000;
       while (!(await draw())) {
         if (Date.now() > deadline) throw new DOMException('No camera frames', 'NotReadableError');
@@ -227,11 +254,19 @@
       return stream;
     } catch (error) { await stop().catch(() => {}); throw error; }
   }
-  async function getCamera(name, config = {}) {
+  function getCamera(name, config = {}) {
+    const ticket = ++generation;
+    const request = opening.then(() => openCamera(name, config, ticket));
+    opening = request.catch(() => {});
+    return request;
+  }
+  async function openCamera(name, config, ticket) {
     if (config.mode && config.mode !== 'picture')
       throw new DOMException('Video capture is not ported yet', 'NotSupportedError');
-    const ticket = ++generation;
-    await current?.release?.();
+    if (current) await releaseStream(current);
+    await closing;
+    if (document.hidden || ticket !== generation)
+      throw new DOMException('Camera request superseded or hidden', 'AbortError');
     const selected = devices.get(name);
 
     cameraError = null;
@@ -245,7 +280,7 @@
         video: {
           ...(selected
             ? { deviceId: { exact: selected } }
-            : { facingMode: { ideal: 'environment' } }),
+            : { facingMode: { ideal: name === 'front' ? 'user' : 'environment' } }),
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
@@ -255,7 +290,7 @@
       throw error;
     }
     if (document.hidden || ticket !== generation) {
-      stream.getTracks().forEach((t) => t.stop());
+      await releaseStream(stream);
       const error = new DOMException('Camera hidden', 'AbortError');
       recordError(error);
       throw error;
@@ -264,7 +299,7 @@
     current = stream;
     let preview;
     try {
-      await discover(stream);
+      await discover(stream, name);
       if (document.hidden || ticket !== generation)
         throw new DOMException('Camera hidden', 'AbortError');
 
@@ -294,7 +329,7 @@
       const native = stream.vulpesCameraMetadata;
       const pictureSizes = native?.pictureSizes || [size];
       let pictureSize = pictureSizes.reduce((a,b)=>a.width*a.height>b.width*b.height?a:b);
-      let focusArea = null, zoom = 1, releasing;
+      let focusArea = null, zoom = 1;
       const configuration = () => ({
         mode: 'picture',
         previewSize: size,
@@ -378,19 +413,7 @@
           emit(stream, 'previewstatechange', { newState: 'started' });
         },
         release() {
-          if (releasing) return releasing;
-          // Detach first: visibility changes and Gaia may release the same stream
-          // again while its hardware worker is still shutting down.
-          if (current === stream) current = null;
-          releasing = Promise.resolve().then(async () => {
-            for (const video of document.querySelectorAll('video')) {
-              if (video.srcObject === stream) { video.pause(); video.srcObject = null; }
-            }
-            preview.remove();
-            await stream.vulpesCameraClose?.();
-            stream.getTracks().forEach(t => t.stop());
-          });
-          return releasing;
+          return releaseStream(stream, preview);
         },
         async startRecording() {
           throw new DOMException('Video unavailable', 'NotSupportedError');
@@ -416,12 +439,7 @@
       return { camera: stream, configuration: configuration() };
     } catch (error) {
       recordError(error);
-      stream.getTracks().forEach((t) => t.stop());
-      if (preview) {
-        preview.srcObject = null;
-        preview.remove();
-      }
-      if (current === stream) current = null;
+      await releaseStream(stream, preview).catch(recordError);
       throw error;
     }
   }
@@ -433,8 +451,7 @@
     // Keep that request valid; its completion still checks visibility.
     if (!current) return;
     ++generation;
-    if (current?.release) current.release().catch(recordError);
-    else current?.getTracks().forEach((t) => t.stop());
+    releaseStream(current).catch(recordError);
   };
   addEventListener('pagehide', stop);
   addEventListener('visibilitychange', () => {

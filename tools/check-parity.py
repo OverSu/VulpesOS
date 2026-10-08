@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Reject stale Android payloads and inconsistent common release metadata."""
 
-import argparse, hashlib, io, json, re, zipfile
+import argparse, contextlib, hashlib, io, json, re, zipfile
 from project import ROOT, release_info
 
 p = argparse.ArgumentParser()
-p.add_argument("--apk", type=str)
+group = p.add_mutually_exclusive_group()
+group.add_argument("--apk", type=str)
+group.add_argument("--assets", action="store_true", help="Check staged Android resources, not a compiled APK")
 args = p.parse_args()
 r = release_info()
 apk = ROOT / (args.apk or f'android/dist/vulpes-os-preview-{r["version"]}.apk')
@@ -18,8 +20,15 @@ def translate(s):
     return pattern.sub(lambda m: f"http://{m[1] or m[2]}.localhost:18765", s)
 
 
+class StagedAssets:
+    def read(self, name):
+        if not name.startswith('assets/') or '..' in name.split('/'):
+            raise ValueError('Invalid packaged path')
+        return (ROOT / 'android/app/src/main' / name).read_bytes()
+
 results = {}
-with zipfile.ZipFile(apk) as archive:
+source = contextlib.nullcontext(StagedAssets()) if args.assets else zipfile.ZipFile(apk)
+with source as archive:
     metadata = json.loads(archive.read("assets/build-info.json"))
     packaged = json.loads(archive.read("assets/bridge/release.json"))
     assert metadata["version"] == r["version"], metadata
@@ -30,6 +39,7 @@ with zipfile.ZipFile(apk) as archive:
             "platform-ui.js",
             "gaia-camera.js",
             "gaia-compat.js",
+            "settings-codec.js",
             "gaia-services.js",
             "gaia-styles.js",
             "gaia-restoration.js",
@@ -65,6 +75,9 @@ with zipfile.ZipFile(apk) as archive:
             ("calendar", "js/bundle.js", "overrides"),
             ("gallery", "js/metadata_scripts.js", "assets/webapps"),
             ("gallery", "js/ImageEditor.js", "assets/webapps"),
+            ("communications", "contacts/js/views/form.js", "assets/webapps"),
+            ("communications", "contacts/js/contacts.js", "assets/webapps"),
+            ("communications", "contacts/js/activities.js", "assets/webapps"),
         ]:
             expected = translate((ROOT / source / (app + ".gaiamobile.org") / path).read_text())
             for old, new in [("-moz-calc(", "calc("), ("-moz-box-sizing:", "box-sizing:"),
@@ -76,13 +89,17 @@ with zipfile.ZipFile(apk) as archive:
             actual = gaia.read(app + "/" + path)
             assert actual == expected, "Stale application workflow: " + app + "/" + path
             results[app + "/" + path] = hashlib.sha256(actual).hexdigest()
+        for name in ("marketplace.js", "marketplace.css", "icon.png"):
+            expected = (ROOT / "assets/webapps/marketplace.gaiamobile.org" / name).read_bytes()
+            if name.endswith(".js"): expected = translate(expected.decode()).encode()
+            assert gaia.read("marketplace/" + name) == expected, "Stale Marketplace: " + name
         for path in (ROOT / "overrides/search.gaiamobile.org/home").rglob("*"):
             if path.is_file():
                 relative = path.relative_to(ROOT / "overrides/search.gaiamobile.org")
                 assert gaia.read("search/" + relative.as_posix()) == path.read_bytes(), str(relative)
         assert b"vulpes-local-home" in gaia.read("search/newtab.html")
     assert archive.read("assets/bridge/Messages.mjs") == (ROOT / "host/Messages.sys.mjs").read_bytes()
-    for name in ["platform.mjs", "settings.mjs", "datastores.mjs", "screen-power.mjs"]:
+    for name in ["platform.mjs", "settings.mjs", "datastores.mjs", "screen-power.mjs", "activities.mjs", "packages.mjs"]:
         assert (
             archive.read("assets/bridge/services/" + name)
             == (ROOT / "services" / name).read_bytes()
@@ -99,8 +116,11 @@ report = {
     "androidEngine": r["androidEngine"],
     "exactEngineMatch": r["desktopEngine"] == r["androidEngine"],
     "sharedFiles": results,
-    "apk": str(apk),
+    "apk": None if args.assets else str(apk),
+    "stagedAssetsOnly": args.assets,
     "scope": "Payload and metadata parity; hardware behavior requires separate integration tests.",
 }
-(ROOT / "logs/parity-payload.json").write_text(json.dumps(report, indent=2) + "\n")
+report_path = ROOT / ("logs/parity-staged.json" if args.assets else "logs/parity-payload.json")
+report_path.parent.mkdir(parents=True, exist_ok=True)
+report_path.write_text(json.dumps(report, indent=2) + "\n")
 print(json.dumps(report, indent=2))

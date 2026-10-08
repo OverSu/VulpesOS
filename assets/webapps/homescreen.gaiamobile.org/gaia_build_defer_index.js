@@ -846,7 +846,7 @@ Apps.prototype={get iconSize(){if(!this._iconSize){var children=this.icons.child
 return this._iconSize;},toggleSmall:function(small){if(this.icons.classList.contains('small')===small){return;}
 this.icons.classList.toggle('small',small);this.icons.synchronise();this.refreshGridSize();this.snapScrollPosition();},toggleScrollSnapping:function(scrollSnapping){if(this.scrollable.classList.contains('snapping')===scrollSnapping){return;}
 this.scrollable.classList.toggle('snapping',scrollSnapping);this.snapScrollPosition();},onVisualLoad:function(){this.visualLoadComplete=true;this.icons.thaw();this.icons.classList.remove('loading');window.performance.mark('visuallyLoaded');window.performance.mark('contentInteractive');},addApp:function(app){var manifest=app.manifest||app.updateManifest;if(!manifest){return;}
-if(BLACKLIST.includes(app.origin)){return;}
+if(HIDDEN_ROLES.includes(manifest.role)||BLACKLIST.includes(app.origin)){return;}
 if(manifest.entry_points){for(var entryPoint in manifest.entry_points){this.addAppIcon(app,entryPoint);}}else{this.addAppIcon(app);}},addIconContainer:function(icon,entry){var container=document.createElement('div');container.classList.add('icon-container');container.order=-1;container.appendChild(icon);if(entry!==-1&&this.startupMetadata[entry].order>=0){container.order=this.startupMetadata[entry].order;var children=this.icons.children;for(var i=0,iLen=children.length;i<iLen;i++){var child=children[i];if(child.order!==-1&&child.order<container.order){continue;}
 this.icons.insertBefore(container,child);if(this.startupMetadata===null){this.iconAdded(container);}
 break;}}

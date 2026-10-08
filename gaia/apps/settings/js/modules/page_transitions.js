@@ -43,7 +43,39 @@ define(function() {
         return;
       }
 
+      // A hidden or newly inserted panel may not animate. Complete navigation
+      // in that case too, otherwise its onShow hook never runs.
+      var completed = false;
+      var fallback;
+      function paintWait(event) {
+        if (event && event.target !== newPanel) {
+          return;
+        }
+        if (completed) {
+          return;
+        }
+        completed = true;
+        clearTimeout(fallback);
+        newPanel.removeEventListener('transitionend', paintWait);
+        newPanel.removeEventListener('transitioncancel', paintWait);
+        _sendPanelReady(oldPanel && '#' + oldPanel.id, '#' + newPanel.id);
+        if (callback) {
+          callback();
+        }
+      }
+      newPanel.addEventListener('transitionend', paintWait);
+      newPanel.addEventListener('transitioncancel', paintWait);
       newPanel.className = 'current';
+      var style = window.getComputedStyle(newPanel);
+      var seconds = function(value) {
+        return parseFloat(value) * (value.trim().endsWith('ms') ? 1 : 1000) || 0;
+      };
+      var durations = style.transitionDuration.split(',').map(seconds);
+      var delays = style.transitionDelay.split(',').map(seconds);
+      var duration = Math.max.apply(Math, durations.map(function(value, index) {
+        return value + delays[index % delays.length];
+      }));
+      fallback = setTimeout(paintWait, Math.max(0, duration) + 100);
 
       /**
        * Most browsers now scroll content into view taking CSS transforms into
@@ -57,22 +89,6 @@ define(function() {
         window.scrollTo(0, 0);
       }
 
-      newPanel.addEventListener('transitionend', function paintWait() {
-        newPanel.removeEventListener('transitionend', paintWait);
-        if (oldPanel) {
-          _sendPanelReady('#' + oldPanel.id, '#' + newPanel.id);
-
-          if (oldPanel.className === 'current') {
-            return;
-          }
-        } else {
-          _sendPanelReady(null, '#' + newPanel.id);
-        }
-
-        if (callback) {
-          callback();
-        }
-      });
     },
 
     /**

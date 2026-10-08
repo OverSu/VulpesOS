@@ -1,1 +1,45 @@
-{"manifest_version":2,"name":"Vulpes Android host","version":"1.1","browser_specific_settings":{"gecko":{"id":"android-host@vulpes-os.org"}},"permissions":["storage","unlimitedStorage","nativeMessaging","geckoViewAddons","http://*.localhost/*"],"background":{"page":"background.html","persistent":true},"content_scripts":[{"matches":["http://*.localhost/*"],"js":["content.js"],"all_frames":true,"run_at":"document_start"}]}
+{
+  "manifest_version": 2,
+  "name": "Vulpes Android host",
+  "version": "1.1",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "android-host@vulpes-os.org"
+    }
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "nativeMessaging",
+    "geckoViewAddons",
+    "http://*.localhost/*",
+    "https://vulpes-os.org/*"
+  ],
+  "background": {
+    "page": "background.html",
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.localhost/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://vulpes-os.org/marketplace/*"
+      ],
+      "js": [
+        "marketplace-page.js",
+        "marketplace-content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_end"
+    }
+  ]
+}

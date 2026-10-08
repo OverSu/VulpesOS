@@ -15,7 +15,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=8765)
 parser.add_argument("--legacy-apps", action="store_true")
 args = parser.parse_args()
-from project import build_info, validate_assets, release_info
+from project import build_info, validate_assets, release_info, application_manifest
+from installed_apps import InstalledApps
+INSTALLED = InstalledApps(ROOT / "profiles/installed-apps", args.port)
 
 validate_assets()
 info = build_info()
@@ -44,7 +46,7 @@ for manifest_path in manifests:
     if not re.fullmatch("[a-z0-9_-]+", name):
         continue
     origin = f"http://{name}.localhost:{args.port}"
-    manifest = json.loads(translate(manifest_path.read_text()))
+    manifest = application_manifest(name, json.loads(translate(manifest_path.read_text())), os.environ.get("VULPES_SHOW_DEV_APPS") == "1")
     ORIGINS[urlsplit(origin).netloc] = manifest_path.parent.resolve()
     REGISTRY.append(
         {
@@ -56,7 +58,7 @@ for manifest_path in manifests:
     )
 ORIGINS[f"theme.localhost:{args.port}"] = ORIGINS[f"default_theme.localhost:{args.port}"]
 (ROOT / "assets/registry.json").write_text(
-    json.dumps(REGISTRY, ensure_ascii=False, indent=2) + "\n"
+    json.dumps(REGISTRY + INSTALLED.records(), ensure_ascii=False, indent=2) + "\n"
 )
 (ROOT / "assets/settings-current-defaults.json").write_text(
     translate((ROOT / "assets/settings-defaults.json").read_text())
@@ -64,7 +66,45 @@ ORIGINS[f"theme.localhost:{args.port}"] = ORIGINS[f"default_theme.localhost:{arg
 
 
 class Handler(BaseHTTPRequestHandler):
+    def json_reply(self, value):
+        data = json.dumps(value).encode()
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def do_POST(self):
+        import secrets
+        if self.headers.get('Host') != f'system.localhost:{args.port}' or not secrets.compare_digest(self.headers.get('X-Vulpes-Install', ''), INSTALLED.token):
+            self.send_error(403); return
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            if not 0 < length <= 70*1024*1024: raise ValueError('INVALID_SIZE')
+            data = json.loads(self.rfile.read(length))
+            if self.path == '/_vulpes/packages/save': INSTALLED.save(data)
+            elif self.path == '/_vulpes/packages/remove': INSTALLED.remove(data['id'])
+            else: self.send_error(404); return
+            self.json_reply(INSTALLED.records())
+        except (ValueError, KeyError, OSError): self.send_error(400)
+
     def do_GET(self):
+        host = self.headers.get('Host', '').lower()
+        if host == f'system.localhost:{args.port}' and self.path == '/_vulpes/packages/list':
+            self.json_reply(INSTALLED.records()); return
+        app_id = host.removesuffix(f'.localhost:{args.port}')
+        if INSTALLED.valid_id(app_id) and host == f'{app_id}.localhost:{args.port}':
+            path = unquote(urlsplit(self.path).path).lstrip('/') or 'index.html'
+            data = INSTALLED.read(app_id, path)
+            if data is None: self.send_error(404); return
+            self.send_response(200)
+            self.send_header('Content-Type', mimetypes.guess_type(path)[0] or 'application/octet-stream')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('X-Content-Type-Options', 'nosniff')
+            self.send_header('Content-Security-Policy', "object-src 'none'; frame-ancestors http://*.localhost:"+str(args.port))
+            self.end_headers(); self.wfile.write(data); return
         root = ORIGINS.get(self.headers.get("Host", "").lower())
         if root is None:
             self.send_error(421, "Unregistered application host")
@@ -93,7 +133,7 @@ class Handler(BaseHTTPRequestHandler):
         # Only this non-privileged compatibility layer is exposed, never host modules.
         if path in [
             "/_vulpes/" + name
-            for name in ["gaia-compat.js", "gaia-input.js", "gaia-services.js", "gaia-styles.js", "gaia-restoration.js", "gaia-wifi.js", "desktop.css", "platform-ui.js", "gaia-camera.js"]
+            for name in ["settings-codec.js", "gaia-compat.js", "gaia-input.js", "gaia-services.js", "gaia-styles.js", "gaia-restoration.js", "gaia-wifi.js", "desktop.css", "platform-ui.js", "gaia-camera.js"]
         ]:
             file = ROOT / "host" / path.rsplit("/", 1)[1]
         else:
@@ -157,13 +197,13 @@ class Handler(BaseHTTPRequestHandler):
         if file.suffix == ".html" and root in LEGACY_ROOTS:
             data = data.replace(
                 b"<head>",
-                b'<head><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script>',
+                b'<head><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script>',
                 1,
             )
         elif file.suffix == ".html" and not (root.name == "search.gaiamobile.org" and path.startswith("/home/")):
             data = data.replace(
                 b"<head>",
-                b'<head><script src="/_vulpes/platform-config.js"></script><link rel="stylesheet" href="/_vulpes/desktop.css"><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script><script src="/_vulpes/gaia-styles.js"></script><script src="/_vulpes/gaia-restoration.js"></script><script src="/_vulpes/platform-ui.js"></script><script src="/_vulpes/gaia-camera.js"></script>',
+                b'<head><script src="/_vulpes/platform-config.js"></script><link rel="stylesheet" href="/_vulpes/desktop.css"><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script><script src="/_vulpes/gaia-styles.js"></script><script src="/_vulpes/gaia-restoration.js"></script><script src="/_vulpes/platform-ui.js"></script><script src="/_vulpes/gaia-camera.js"></script>',
                 1,
             )
         if (

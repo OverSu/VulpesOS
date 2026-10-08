@@ -23,6 +23,8 @@ def load(name, path):
 def checked_build(folder):
     folder=Path(folder).resolve()
     build=json.loads((folder/'build.json').read_text())
+    if build.get('storageMode') in ('raw-userdata-ext4', 'container-test'):
+        raise ValueError('Use the standalone installer; the old boot-only plan is incompatible')
     if build.get('localDebugger'):raise ValueError('Diagnostic debugger image cannot be flashed')
     qualification=json.loads((folder/'qualification.json').read_text())
     if (not qualification.get('passed') or not qualification.get('privateInstallReady')

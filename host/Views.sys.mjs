@@ -15,11 +15,51 @@ export const Views = {
     );
     Services.ppmm.sharedData.flush();
   },
+  hideAll() {
+    for (const entry of this.entries.values()) entry.browser.style.visibility='hidden';
+  },
+  async layout(entry) {
+    const geometry=entry.geometry;
+    if (!geometry) return;
+    let {left,top,width,height,visible}=geometry;
+    let right=left+width,bottom=top+height;
+    try {
+      // A child document can remain visible while its owning Gaia app is hidden.
+      // Check every embedding frame in its own process, up to the system app.
+      for (let child=entry.actor.browsingContext;child.parent;child=child.parent) {
+        const state=await child.parent.currentWindowGlobal.getActor('Vulpes').sendQuery(
+          'Vulpes:ViewState',{contextId:child.id});
+        visible=visible && state.visible;
+        if (!visible) break;
+        left=Math.max(left,state.left);top=Math.max(top,state.top);
+        right=Math.min(right,state.right);bottom=Math.min(bottom,state.bottom);
+      }
+    } catch (_) {visible=false;}
+    if (entry.geometry!==geometry || !entry.browser.isConnected) return;
+    const shell=entry.browser.ownerDocument.defaultView;
+    const bounds=shell.document.getElementById('screen').getBoundingClientRect();
+    const x=shell.mozInnerScreenX+bounds.left,y=shell.mozInnerScreenY+bounds.top;
+    left=Math.max(x,left);top=Math.max(y,top);
+    right=Math.min(x+bounds.width,right);bottom=Math.min(y+bounds.height,bottom);
+    Object.assign(entry.browser.style,{left:(left-x)+'px',top:(top-y)+'px',
+      width:Math.max(0,right-left)+'px',height:Math.max(0,bottom-top)+'px',
+      visibility:visible && right>left && bottom>top?'visible':'hidden'});
+  },
   prune() {
     for (const [id, entry] of this.entries) {
       if (!BrowsingContext.get(id)?.parent) {
         this.remove(id, entry);
         continue;
+      }
+      this.layout(entry);
+      const document=entry.browser.browsingContext?.currentWindowGlobal;
+      const page=document?.documentURI.spec || '';
+      // A retry keeps the previous error document until the next navigation commits.
+      if (document?.innerWindowId!==entry.previousDocumentId &&
+          /^about:(neterror|certerror|tabcrashed)/.test(page) && entry.errorPage!==page) {
+        entry.errorPage=page;
+        try {entry.actor.sendAsyncMessage('Vulpes:Event',{type:'view',
+          data:{contextId:id,type:'error',detail:{type:'other'}}});} catch (_) {}
       }
       // A detached iframe's BrowsingContext can outlive its DOM element.
       // Ask the trusted child actor about actual ownership, not just the BC tree.
@@ -123,7 +163,9 @@ export const Views = {
             if (flags & Ci.nsIWebProgressListener.STATE_STOP) {
               emit('loadend', { backgroundColor: 'rgb(255, 255, 255)' });
               emit('titlechange', browser.contentTitle || browser.currentURI.spec);
-              if (!Components.isSuccessCode(status)) emit('error', { type: 'other', status });
+              // Replacing a navigation cancels the previous request normally.
+              if (!Components.isSuccessCode(status) && status !== Cr.NS_BINDING_ABORTED)
+                emit('error', { type: 'other', status });
             }
           },
           onProgressChange() {},
@@ -143,6 +185,8 @@ export const Views = {
         this.entries.set(contextId, entry);
       }
       entry.url = url;
+      entry.errorPage=null;
+      entry.previousDocumentId=entry.browser.browsingContext?.currentWindowGlobal?.innerWindowId;
       entry.browser.loadURI(uri, {
         triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       });
@@ -153,22 +197,8 @@ export const Views = {
     if (operation === 'geometry') {
       const { left, top, width, height, visible } = geometry || {};
       if (![left, top, width, height].every(Number.isFinite)) throw new Error('INVALID_GEOMETRY');
-      const shell = browser.ownerDocument.defaultView,
-        screen = shell.document.getElementById('screen');
-      const bounds = screen.getBoundingClientRect();
-      const x = left - shell.mozInnerScreenX - bounds.left;
-      const y = top - shell.mozInnerScreenY - bounds.top;
-      const right = Math.min(480, x + width),
-        bottom = Math.min(800, y + height);
-      const clippedX = Math.max(0, x),
-        clippedY = Math.max(0, y);
-      Object.assign(browser.style, {
-        left: clippedX + 'px',
-        top: clippedY + 'px',
-        width: Math.max(0, right - clippedX) + 'px',
-        height: Math.max(0, bottom - clippedY) + 'px',
-        visibility: visible && right > clippedX && bottom > clippedY ? 'visible' : 'hidden',
-      });
+      entry.geometry={left,top,width,height,visible};
+      await this.layout(entry);
       return null;
     }
     if (operation === 'back') {

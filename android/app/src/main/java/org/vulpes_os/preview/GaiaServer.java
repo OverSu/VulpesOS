@@ -14,11 +14,13 @@ import java.util.zip.*;
 final class GaiaServer implements Closeable {
 
   static final int PORT = 18765;
+  final InstalledApps installed;
   private final ZipFile zip;
   private final ServerSocket socket;
   private final ExecutorService workers = Executors.newFixedThreadPool(4);
 
   GaiaServer(Context context) throws IOException {
+    try {installed=new InstalledApps(context);}catch(Exception e){throw new IOException(e);}
     File archive = new File(context.getCacheDir(), "gaia.zip");
     // Atomic refresh on every process start; the APK is the source of truth.
     File temp = new File(context.getCacheDir(), "gaia.zip.tmp");
@@ -94,7 +96,7 @@ final class GaiaServer implements Closeable {
       }
       String app = host.substring(0, host.indexOf('.'));
       if (app.equals("theme")) app = "default_theme";
-      if (zip.getEntry(app + "/manifest.webapp") == null) {
+      if (!InstalledApps.valid(app) && zip.getEntry(app + "/manifest.webapp") == null) {
         error(out, 404);
         return;
       }
@@ -109,6 +111,16 @@ final class GaiaServer implements Closeable {
         return;
       }
       if (path.endsWith("/")) path += "index.html";
+      if (InstalledApps.valid(app)) {
+        byte[] body=installed.read(app,path.substring(1));
+        if(body==null){error(out,404);return;}
+        String ext=path.substring(path.lastIndexOf('.')+1).toLowerCase(Locale.ROOT);
+        String mime=MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+        if(ext.equals("js"))mime="text/javascript";
+        if(ext.equals("webapp"))mime="application/json";
+        if(mime==null)mime="application/octet-stream";
+        out.write(("HTTP/1.1 200 OK\r\nContent-Type: "+mime+"\r\nContent-Length: "+body.length+"\r\nConnection: close\r\nX-Content-Type-Options: nosniff\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: *\r\nContent-Security-Policy: object-src 'none'; frame-ancestors http://*.localhost:"+PORT+"\r\n\r\n").getBytes(StandardCharsets.US_ASCII));out.write(body);return;
+      }
       String key = path.startsWith("/_vulpes/") ? path.substring(1) : app + path;
       ZipEntry entry = zip.getEntry(key);
       if (entry == null && path.startsWith("/shared/")) entry = zip.getEntry(

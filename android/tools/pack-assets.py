@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
-from project import build_info, validate_assets, release_info
+from project import build_info, validate_assets, release_info, application_manifest
 
 validate_assets()
 OUT = ROOT / "android/app/src/main/assets"
@@ -39,7 +39,7 @@ for manifest in sorted(APPS.glob("*/manifest.webapp")):
             id=name,
             origin=origin,
             manifestURL=origin + "/manifest.webapp",
-            manifest=json.loads(translate(manifest.read_text())),
+            manifest=application_manifest(name, json.loads(translate(manifest.read_text())), "--include-dev-apps" in sys.argv),
         )
     )
 info = build_info()
@@ -126,7 +126,7 @@ if "--bridge-only" not in sys.argv or not (OUT / "gaia.zip").exists():
                 .read_text()
             )
             put("_vulpes/" + name, translate(text).encode())
-        put("_vulpes/settings-codec.js", (ROOT / "android/ui/settings-codec.js").read_bytes())
+        put("_vulpes/settings-codec.js", (ROOT / "host/settings-codec.js").read_bytes())
         put("_vulpes/android-ui.js", (ROOT / "android/ui/android-ui.js").read_bytes())
         put(
             "_vulpes/android.css",
@@ -145,6 +145,7 @@ for name in ["Connections", "Contacts", "Messages"]:
     )
     (ext / f"{name}.mjs").write_text(text)
 shutil.copy2(ROOT / "host/Alarms.sys.mjs", ext / "Alarms.mjs")
+shutil.copy2(ROOT / "host/marketplace-page.js", ext / "marketplace-page.js")
 (ext / "release.json").write_text(json.dumps(release))
 (ext / "registry.json").write_text(json.dumps(registry, ensure_ascii=False))
 settings = json.loads(translate((ROOT / "assets/settings-defaults.json").read_text()))

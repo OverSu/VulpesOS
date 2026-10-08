@@ -143,7 +143,7 @@ TonePlayer.prototype = {
   _setExclusiveMode: function(exclusive) {
     if (exclusive) {
       if (!this._source) {
-        this._context = new AudioContext('ringer');
+        this._context = new AudioContext();
         this._source = this._context.createMediaElementSource(this._player);
         this._source.connect(this._context.destination);
       }

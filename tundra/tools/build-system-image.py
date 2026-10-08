@@ -128,7 +128,7 @@ def main():
                         ignore=shutil.ignore_patterns('__pycache__', 'test', 'tests'))
     for name in ('tools', 'tests', 'logs', 'profiles'):
         (product/name).mkdir(exist_ok=True)
-    for name in ('serve-gaia.py', 'project.py', 'run-host.py'):
+    for name in ('serve-gaia.py', 'project.py', 'run-host.py', 'installed_apps.py'):
         shutil.copy2(PROJECT/'tools'/name, product/'tools'/name)
     shutil.copy2(PROJECT/'tests/ProbeChild.sys.mjs', product/'tests/ProbeChild.sys.mjs')
     shutil.copy2(PROJECT/'release.json', product/'release.json')

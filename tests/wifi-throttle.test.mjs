@@ -107,3 +107,27 @@ test('Native Wi-Fi acknowledges unchanged settings and completes delayed radio c
   assert.equal(enabled,1);
   assert.equal(navigator.mozWifiManager.enabled,true);
 });
+
+test('scan without an association does not send Gaia an invalid signal event', async () => {
+  const {readFile}=await import('node:fs/promises');
+  const vm=await import('node:vm');
+  let connected=false, signals=0;
+  const navigator={};
+  const context=vm.createContext({navigator,console,Event,EventTarget,DOMException,
+    window:{VulpesNativeWifi:true},location:{hostname:'settings.localhost'},addEventListener(){},
+    VulpesCompat:{request:p=>p,call:async()=>({enabled:true,networks:[
+      {ssid:'Test network',id:'/ap/1',signal:80,security:'wpa-psk',connected}
+    ]})}});
+  vm.runInContext(await readFile(new URL('../host/gaia-wifi.js',import.meta.url),'utf8'),context);
+  const manager=navigator.mozWifiManager;
+  manager.onconnectioninfoupdate=event=>{
+    // The original Settings WifiUtils reads event.network.ssid unconditionally.
+    assert.equal(event.network.ssid,'Test network');
+    assert.equal(event.relSignalStrength,80);signals++;
+  };
+  assert.equal((await manager.getNetworks()).length,1);
+  assert.equal(signals,0);assert.equal(manager.connectionInformation,null);
+  connected=true;await manager.getNetworks();
+  assert.equal(signals,1);assert.equal(manager.connection.status,'connected');
+  connected=false;await manager.getNetworks();assert.equal(signals,1);
+});

@@ -19,7 +19,7 @@ const VCARD_MIME_TYPES = [
 var ActivityHandler = {
   _currentActivity: null,
 
-  _launchedAsInlineActivity: (window.location.search == '?pick'),
+  _launchedAsInlineActivity: new URLSearchParams(window.location.search).has('pick'),
 
   mozContactParam: null,
 
@@ -124,6 +124,7 @@ var ActivityHandler = {
         this.launch_activity(activity, 'add-parameters');
         break;
       case 'pick':
+        if (window.VulpesCompat) this._launchedAsInlineActivity = true;
         if (!this._launchedAsInlineActivity) {
           return;
         }
@@ -356,15 +357,18 @@ var ActivityHandler = {
   postNewSuccess: function ah_postNewSuccess(contact) {
     this._currentActivity.postResult({ contact: contact });
     this._currentActivity = null;
+    if (window.VulpesCompat) this._launchedAsInlineActivity = false;
   },
 
   postPickSuccess: function ah_postPickSuccess(result) {
     this._currentActivity.postResult(result);
     this._currentActivity = null;
+    if (window.VulpesCompat) this._launchedAsInlineActivity = false;
   },
 
   postCancel: function ah_postCancel() {
     this._currentActivity.postError('canceled');
     this._currentActivity = null;
+    if (window.VulpesCompat) this._launchedAsInlineActivity = false;
   }
 };

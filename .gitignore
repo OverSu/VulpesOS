@@ -19,3 +19,6 @@ __pycache__/
 
 # Old B2G registry is unused by the modern host and contains historical paths.
 /assets/webapps/webapps.json
+
+# Local issue tracking and roadmap; not included in publication.
+/tickets/

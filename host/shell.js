@@ -50,7 +50,12 @@ window.addEventListener('load', async () => {
       },
       allFrames: true,
       safeForUntrustedWebProcess: true,
-      matches: Runtime.apps.map((app) => 'http://' + Services.io.newURI(app.origin).host + '/*'),
+      matches: Runtime.apps.filter(app=>!app.installed).map((app) => 'http://' + Services.io.newURI(app.origin).host + '/*'),
+    });
+    ChromeUtils.registerWindowActor('VulpesMarketplace', {
+      parent:{esModuleURI:'resource://vulpes/host/actors/MarketplaceParent.sys.mjs'},
+      child:{esModuleURI:'resource://vulpes/host/actors/MarketplaceChild.sys.mjs',events:{DOMContentLoaded:{capture:true}}},
+      allFrames:true,safeForUntrustedWebProcess:true,matches:['https://vulpes-os.org/marketplace/*']
     });
     ChromeUtils.registerWindowActor('VulpesTouch', {
       child: {
@@ -154,6 +159,7 @@ window.addEventListener('load', async () => {
       home.setPointerCapture(event.pointerId);
       holdTimer = setTimeout(() => {
         held = true;
+        Views.hideAll();
         Runtime.broadcast('holdhome', {}, 'system');
       }, 650);
     });
@@ -162,12 +168,13 @@ window.addEventListener('load', async () => {
     home.addEventListener('pointerup', cancel);
     home.addEventListener('pointercancel', cancel);
     home.addEventListener('click', () => {
-      if (!held) Runtime.broadcast('home', {}, 'system');
+      if (!held) {Views.hideAll();Runtime.broadcast('home', {}, 'system');}
       held = false;
     });
     window.addEventListener('keydown', (event) => {
       if (event.ctrlKey && event.code === 'Space') {
         event.preventDefault();
+        Views.hideAll();
         Runtime.broadcast('holdhome', {}, 'system');
       }
     });

@@ -67,8 +67,10 @@ export async function run(win) {
     .then(async response=>dump(`TUNDRA_HTTP ${response.status} ${(await response.text()).length}\n`))
     .catch(error=>dump('TUNDRA_HTTP_ERROR '+error+' offline='+Services.io.offline+'\n'));
   async function evaluate(app, code, message = 'Evaluate') {
+    const prefix=app==='contacts'?'http://communications.localhost:8765/contacts/':
+      app==='dialer'?'http://communications.localhost:8765/dialer/':`http://${app}.localhost:8765/`;
     function find(context) {
-      if(context.currentWindowGlobal?.documentURI.spec.startsWith(`http://${app}.localhost:8765/`)) return context;
+      if(context.currentWindowGlobal?.documentURI.spec.startsWith(prefix)) return context;
       for(const child of context.children) {const found=find(child); if(found) return found;}
       return null;
     }
@@ -90,14 +92,15 @@ export async function run(win) {
     }
     throw new Error(`${app}: timeout: ${last}`);
   }
-        async function tap(app, selector) {
-          if(app==='keyboard') selector='.keyboard-type-container[data-active] '+selector;
-          await wait(app, `const e=document.querySelector(${JSON.stringify(selector)});if(!e)return false;const r=e.getBoundingClientRect();return r.width>0 && r.height>0 && e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));`);
-          await sleep(600);
-          const point = await evaluate(app, `const e=document.querySelector(${JSON.stringify(selector)});const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};`);
-          await evaluate(app,point,'Tap');
-          await sleep(350);
-        }
+  async function tap(app, selector) {
+    if(app==='keyboard') selector='.keyboard-type-container[data-active] '+selector;
+    const point=await wait(app, `for(const e of document.querySelectorAll(${JSON.stringify(selector)})) {
+      const r=e.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;
+      if(x>0 && y>0 && x<innerWidth && y<innerHeight && e.contains(document.elementFromPoint(x,y)))return {x,y};
+    }return false;`);
+    await evaluate(app,point,'Tap');
+    await sleep(350);
+  }
   try {
     const lock=await IOUtils.readJSON(`${root}/engine-lock.json`);
     if(report.engine.version!==lock.version || !report.engine.ABI.startsWith('aarch64'))
@@ -229,241 +232,7 @@ export async function run(win) {
     }
     // Fixed diagnostics can be requested again over the private maintenance SSH.
     // Markers never contain scripts or arbitrary commands.
-    async function requestedUiChecks() {
-    const cameraMarker = `${root}/logs/test-camera`;
-    if (await IOUtils.exists(cameraMarker)) {
-      await IOUtils.remove(cameraMarker);
-      const cameraReport = {bootId:report.bootId, imagesRetained:false, passed:false};
-      try {
-        await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});return true;");
-        await wait('system', "return !Service.query('locked');");
-        await evaluate('system', "await VulpesCompat.call('apps.launch',{manifestURL:'http://camera.localhost:8765/manifest.webapp'});return true;");
-        await wait('camera', "return !!window.app?.camera?.mozCamera && document.querySelector('video')?.videoWidth>0;");
-        // Gaia remembers the selected lens; establish a known starting state.
-        await evaluate('camera', "if(app.settings.cameras.selected('key')!=='back')app.settings.cameras.next();return true;");
-        await wait('camera', "return app.settings.cameras.selected('key')==='back' && !!app.camera.mozCamera && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
-        cameraReport.gaia = await evaluate('camera', `
-          const video=document.querySelector('video');
-          const camera=app.camera.mozCamera;
-          window.__cameraBeforeSwitch=camera;
-          const capabilities=camera.capabilities;
-          let focus=null;
-          if(capabilities.maxFocusAreas>0) {
-            camera.setFocusAreas([{top:-150,left:-150,bottom:150,right:150}]);
-            await camera.autoFocus();focus=true;
-          }
-          if(capabilities.zoomRatios.length>1) {
-            camera.zoom=2;
-            await new Promise(r=>setTimeout(r,700));
-          }
-          const testedZoom=camera.zoom;
-          camera.zoom=1;
-          const photo=await camera.takePicture();
-          const bitmap=await createImageBitmap(photo);
-          const picture={width:bitmap.width,height:bitmap.height};bitmap.close();
-          return {width:video.videoWidth,height:video.videoHeight,native:camera.vulpesNative===true,
-            picture,focus,zoom:testedZoom,focusAreas:capabilities.maxFocusAreas,
-            jpegBytes:photo.size,jpegType:photo.type,errors:window.__vulpesDiagnostics};
-        `);
-        cameraReport.performance = await evaluate('camera', `
-          const stream=app.camera.mozCamera, before=stream.vulpesTiming?.frames||0;
-          const start=performance.now();await new Promise(r=>setTimeout(r,4000));
-          const elapsed=performance.now()-start;
-          const hud=document.querySelector('.hud');
-          const button=document.querySelector('.js-camera');
-          return {fps:(stream.vulpesTiming.frames-before)*1000/elapsed,
-            conversionMs:stream.vulpesTiming.conversionMs/stream.vulpesTiming.frames,
-            switchVisible:getComputedStyle(button).opacity!=='0' && hud.getAttribute('camera-enabled')==='true',
-            flashVisible:getComputedStyle(document.querySelector('.js-flash')).visibility==='visible'};
-        `);
-        await evaluate('camera', "document.querySelector('.js-camera').click();return true;");
-        await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__cameraBeforeSwitch && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
-        cameraReport.switched = await evaluate('camera', `
-          const photo=await app.camera.mozCamera.takePicture();
-          window.__cameraBeforeHome=app.camera.mozCamera;
-          return {camera:app.settings.cameras.selected('key'),jpegBytes:photo.size,
-            previousStopped:window.__cameraBeforeSwitch.getTracks().every(t=>t.readyState==='ended')};
-        `);
-        cameraReport.roundTrips = [];
-        for (let i=0; i<4; i++) {
-          await evaluate('camera', "window.__switchFrom=app.camera.mozCamera;return true;");
-          await tap('camera', '.js-camera');
-          await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__switchFrom && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
-          cameraReport.roundTrips.push(await evaluate('camera', `
-            const camera=app.camera.mozCamera, before=camera.vulpesTiming.frames;
-            await new Promise(r=>setTimeout(r,700));
-            return {camera:app.settings.cameras.selected('key'),
-              frames:camera.vulpesTiming.frames-before,
-              previousStopped:window.__switchFrom.getTracks().every(t=>t.readyState==='ended')};
-          `));
-        }
-        await evaluate('camera', 'window.__cameraBeforeHome=app.camera.mozCamera;return true;');
-        // Test Gaia's Home action, independent of a held pointer on the shell button.
-        cameraReport.beforeHome = await evaluate('system', "return {active:Service.query('getTopMostWindow')?.origin, top:Service.query('getTopMostUI')?.name, locked:Service.query('locked'), screen:ScreenManager.screenEnabled};");
-        await evaluate('system', "dispatchEvent(new CustomEvent('home'));return true;");
-        cameraReport.afterHome = await evaluate('system', "await new Promise(r=>setTimeout(r,1000));return {active:Service.query('getTopMostWindow')?.origin, top:Service.query('getTopMostUI')?.name, locked:Service.query('locked'), screen:ScreenManager.screenEnabled};");
-        cameraReport.hidden = await wait('camera', 'return document.hidden;');
-        cameraReport.stopped = await wait('camera', "return window.__cameraBeforeHome.getTracks().every(t=>t.readyState==='ended');");
-        cameraReport.passed=cameraReport.gaia.native && cameraReport.gaia.picture.width*cameraReport.gaia.picture.height>10000000 && cameraReport.gaia.focus && cameraReport.gaia.zoom>1 && cameraReport.gaia.jpegBytes>1000 && cameraReport.gaia.jpegType==='image/jpeg' && cameraReport.switched.jpegBytes>1000 && cameraReport.switched.previousStopped && cameraReport.stopped && cameraReport.roundTrips.every(r=>r.frames>0 && r.previousStopped);
-      } catch(error) { cameraReport.error=String(error); }
-      finally { win.document.getElementById('home')?.click(); }
-      await IOUtils.writeJSON(`${root}/logs/camera.json`, cameraReport);
-    }
-    const smsMarker = `${root}/logs/test-sms-display`;
-    if (await IOUtils.exists(smsMarker)) {
-      await IOUtils.remove(smsMarker);
-      const smsReport = {bootId:report.bootId, passed:false, sent:false};
-      try {
-        await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;");
-        await wait('sms', "return !!window.Navigation && !!window.MessageManager;");
-        smsReport.threads = await evaluate('sms', `
-          const threads=await new Promise((resolve,reject)=>{const rows=[];const c=navigator.mozMobileMessage.getThreads();c.onsuccess=()=>{if(c.done)resolve(rows);else{rows.push(c.result);c.continue();}};c.onerror=()=>reject(c.error);});
-          window.__smsReviewThreads=threads.map(t=>t.id);
-          return {count:threads.length,validDates:threads.every(t=>Number.isFinite(+t.timestamp))};
-        `);
-        smsReport.conversations=[];
-        for(let i=0;i<Math.min(smsReport.threads.count,5);i++) {
-          await evaluate('sms', `await Navigation.toPanel('thread',{id:window.__smsReviewThreads[${i}]});return true;`);
-          await sleep(1500);
-          smsReport.conversations.push(await evaluate('sms', `
-            const nodes=[...document.querySelectorAll('#messages-container .message')];
-            return {bubbles:nodes.length,validDates:nodes.every(e=>Number.isFinite(+e.querySelector('time')?.dataset.time)),
-              nonempty:nodes.every(e=>!!e.querySelector('.message-content-body')?.textContent),
-              errorCount:window.__vulpesDiagnostics?.length||0};
-          `));
-        }
-        smsReport.passed=smsReport.threads.validDates && smsReport.conversations.length>0 && smsReport.conversations.every(c=>c.bubbles>0 && c.validDates && c.nonempty);
-      } catch(error) {smsReport.error=String(error);}
-      finally {win.document.getElementById('home')?.click();}
-      await IOUtils.writeJSON(`${root}/logs/sms-display.json`,smsReport);
-    }
-    const inputMarker = `${root}/logs/test-keyboard`;
-    if (await IOUtils.exists(inputMarker)) {
-      await IOUtils.remove(inputMarker);
-      const inputReport = {bootId:report.bootId,recordedAt:Date.now(),passed:false,sent:false};
-      try {
-        await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;');
-        await sleep(1500);
-        await evaluate('system', `await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;`);
-        await wait('sms', 'return document.querySelector("#threads-composer-link") && innerWidth>0;');
-        await evaluate('sms', 'await Navigation.toPanel("thread-list");await Navigation.toPanel("composer");return true;');
-        await wait('sms','return !!document.querySelector(".recipient[contenteditable]");');
-        await tap('sms','.recipient[contenteditable]');
-        await wait('keyboard', 'return navigator.mozInputMethod?.inputcontext?.inputType==="tel" && !!document.querySelector("button[aria-label=\\"2\\"]");');
-        await tap('keyboard','button[aria-label="2"]');
-        await tap('keyboard','button[aria-label="3"]');
-        inputReport.recipientTyped = await evaluate('sms','return document.querySelector(".recipient[contenteditable]").textContent.endsWith("23");');
-        const recipientBefore=await evaluate('sms','return document.querySelector(".recipient[contenteditable]").textContent;');
-        await tap('sms','#messages-input');
-        await wait('keyboard', 'return navigator.mozInputMethod?.inputcontext?.inputType==="text" && !!document.querySelector("button[aria-label=\\"a\\"]");');
-        inputReport.keyboard = await evaluate('keyboard', `const e=document.querySelector('button[aria-label="a"]');const r=e.getBoundingClientRect();
-          window.__keyTrial=[];for(const type of ['touchstart','touchend','pointerdown','click']) e.addEventListener(type,()=>__keyTrial.push(type),{once:true});
-          return {width:innerWidth,height:innerHeight,key:r.toJSON(),font:getComputedStyle(document.documentElement).fontSize,portrait:app.viewManager.screenInPortraitMode(),engine:app.inputMethodManager.currentIMEngine?.constructor?.name};`);
-        await tap('keyboard','button[aria-label="a"]');
-        await sleep(2000);
-        inputReport.context = await evaluate('keyboard', 'const c=navigator.mozInputMethod.inputcontext;return c&&{id:c.id,type:c.type,inputType:c.inputType,textLength:c.text.length};');
-        inputReport.message = await evaluate('sms', 'const text=document.querySelector("#messages-input").textContent;return {length:text.length,lowercase:text.includes("a"),uppercase:text.includes("A")};');
-        inputReport.messageTyped = inputReport.message.lowercase || inputReport.message.uppercase;
-        inputReport.events = await evaluate('keyboard','return window.__keyTrial;');
-        inputReport.recipientUnchanged=await evaluate('sms',`return document.querySelector(".recipient[contenteditable]").textContent===${JSON.stringify(recipientBefore)};`);
-        inputReport.passed=inputReport.recipientTyped && inputReport.messageTyped && inputReport.recipientUnchanged && inputReport.keyboard.portrait && inputReport.keyboard.key.height>=44;
-        if(!inputReport.messageTyped) {
-          try {
-            await evaluate('keyboard','await navigator.mozInputMethod.inputcontext.sendKey(0,97);return true;');
-            inputReport.directKey = await evaluate('sms','return document.querySelector("#messages-input").textContent.length>0;');
-          } catch(error) {inputReport.directKeyError=String(error);}
-        }
-        inputReport.fonts=await evaluate('sms',null,'RenderedFonts');
-        for (const face of inputReport.fonts) delete face.samples;
-      } catch(error) {inputReport.error=String(error);}
-      finally {win.document.getElementById('home').click();}
-      await IOUtils.writeJSON(`${root}/logs/keyboard.json`,inputReport);
-    }
-    const sendMarker=`${root}/logs/test-send-sms.json`;
-    if(await IOUtils.exists(sendMarker)) {
-      const request=await IOUtils.readJSON(sendMarker);
-      await IOUtils.remove(sendMarker);
-      const result={bootId:report.bootId,recordedAt:Date.now(),submitted:false,deliveryConfirmed:false};
-      try {
-        if(typeof request.recipient!=='string' || !/^\+[0-9]{8,15}$/.test(request.recipient)) throw Error('INVALID_TEST_RECIPIENT');
-        const {tundraRadio}=ChromeUtils.importESModule('resource://vulpes/host/Tundra.sys.mjs');
-        const state=await tundraRadio('status');
-        if(!['registered','roaming'].includes(state.registration?.[0]?.Status?.data)) throw Error('RADIO_NOT_REGISTERED');
-        await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;');
-        await sleep(1000);
-        await evaluate('system', `await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;`);
-        await wait('sms','return !!window.Navigation;');
-        await evaluate('sms','await Navigation.toPanel("thread-list");await Navigation.toPanel("composer");return true;');
-        await evaluate('sms','if(ConversationView.recipients.length || document.querySelector(".recipient[contenteditable]").textContent.trim() || Compose.getText())throw Error("TEST_DRAFT_PRESENT");return true;');
-        await tap('sms','.recipient[contenteditable]');
-        await wait('keyboard','return navigator.mozInputMethod?.inputcontext?.inputType==="tel";');
-        await evaluate('keyboard',`await navigator.mozInputMethod.inputcontext.replaceSurroundingText(${JSON.stringify(request.recipient)},0,0);return true;`);
-        await tap('sms','#messages-input');
-        await wait('keyboard','return navigator.mozInputMethod?.inputcontext?.inputType==="text";');
-        const body='Vulpes OS - test SMS '+new Date().toISOString();
-        await evaluate('keyboard',`await navigator.mozInputMethod.inputcontext.replaceSurroundingText(${JSON.stringify(body)},0,0);return true;`);
-        await wait('sms','return !document.querySelector("#messages-send-button").disabled;');
-        await evaluate('sms',`if(!Navigation.isCurrentPanel('composer') ||
-          JSON.stringify(ConversationView.recipients.numbers)!==JSON.stringify([${JSON.stringify(request.recipient)}]) ||
-          Compose.getText()!==${JSON.stringify(body)})throw Error('TEST_MESSAGE_MISMATCH');
-          document.querySelector('#messages-send-button').click();return true;`);
-        result.submitted=await wait('sms',`return await new Promise((resolve,reject)=>{
-          const cursor=navigator.mozMobileMessage.getMessages(null,true);
-          cursor.onsuccess=()=>{const m=cursor.result;if(!m){resolve(false);return;}
-            if(m.body===${JSON.stringify(body)}){if(m.delivery==='error'){reject(Error('MODEM_TRANSMISSION_FAILED'));return;}resolve(m.delivery==='sent');return;}cursor.continue();};
-          cursor.onerror=()=>reject(cursor.error);
-        });`);
-      } catch(error) {result.error=String(error);}
-      finally {win.document.getElementById('home').click();}
-      await IOUtils.writeJSON(`${root}/logs/send-sms.json`,result);
-    }
-    const notificationMarker = `${root}/logs/test-notifications`;
-    if (await IOUtils.exists(notificationMarker)) {
-      await IOUtils.remove(notificationMarker);
-      const result = {bootId:report.bootId,passed:false,silent:true};
-      let id;
-      try {
-        await evaluate('system', `ScreenManager.turnScreenOn(true);await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;`);
-        await wait('sms', 'return typeof Notification.get === "function";');
-        await evaluate('system', 'if(!Service.query("locked"))await Service.request("lock");return true;');
-        result.lockState=await evaluate('system','return {service:Service.query("locked"),direct:lockScreen.locked,preview:NotificationScreen.lockscreenPreview};');
-        await wait('system', 'return Service.query("locked") && NotificationScreen.lockscreenPreview;');
-        id = await evaluate('sms', `return await new Promise((resolve,reject)=>{
-          const n=new Notification('Vulpes — test local',{body:'Notification de qualification',tag:'vulpes-qualification',silent:true});
-          n.onshow=()=>resolve(n.id);n.onerror=()=>reject(n.error);
-        });`);
-        const selector = `[data-notification-id="${id}"]`;
-        result.tray = await wait('system', `return !!NotificationScreen.container.querySelector(${JSON.stringify(selector)});`);
-        result.lockscreen = await wait('system', `return !!NotificationScreen.getLockScreenContainer()?.querySelector(${JSON.stringify(selector)});`);
-        await evaluate('sms', `const rows=await Notification.get({tag:'vulpes-qualification'});rows.forEach(n=>n.close());return true;`);
-        result.removed = await wait('system', `return !NotificationScreen.container.querySelector(${JSON.stringify(selector)}) && !NotificationScreen.getLockScreenContainer()?.querySelector(${JSON.stringify(selector)});`);
-        result.passed = result.tray && result.lockscreen && result.removed;
-      } catch(error) { result.error=String(error); }
-      finally {
-        if(id) await evaluate('sms', `for(const n of await Notification.get({tag:'vulpes-qualification'})) n.close();return true;`).catch(()=>{});
-        win.document.getElementById('home').click();
-      }
-      await IOUtils.writeJSON(`${root}/logs/notifications.json`,result);
-    }
-    }
-    await requestedUiChecks();
-    let uiCheckRunning=false;
-    const uiCheckTimer=setInterval(async()=>{
-      if(uiCheckRunning) return;
-      uiCheckRunning=true;
-      try {
-        const reloadMarker=`${root}/logs/test-reload-gaia`;
-        if(await IOUtils.exists(reloadMarker)) {
-          await IOUtils.remove(reloadMarker);
-          win.document.querySelector('browser').reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE);
-          await wait('system', "return document.body?.getAttribute('ready-state')==='fullyLoaded';");
-          await sleep(1500);
-        }
-        await requestedUiChecks();
-      } catch(error) {dump('TUNDRA_UI_CHECK_ERROR '+error+'\n');}
-      finally {uiCheckRunning=false;}
-    },3000);
-    win.addEventListener('unload',()=>clearInterval(uiCheckTimer),{once:true});
+    async function requestedControls() {
     const controlsMarker = `${root}/logs/test-controls`;
     if (await IOUtils.exists(controlsMarker)) {
       await IOUtils.remove(controlsMarker);
@@ -569,6 +338,392 @@ export async function run(win) {
       controls.brightness=brightnessCheck;
       await IOUtils.writeJSON(`${root}/logs/controls.json`, controls);
     }
+    }
+    async function requestedUiChecks() {
+      await requestedControls();
+    const marketplaceMarker = `${root}/logs/test-marketplace-views`;
+    if (await IOUtils.exists(marketplaceMarker)) {
+      await IOUtils.remove(marketplaceMarker);
+      const result = {bootId:report.bootId,passed:false,checks:{},fixture:'http://127.0.0.1:8767/'};
+      const {Views}=ChromeUtils.importESModule('resource://vulpes/host/Views.sys.mjs');
+      const {Runtime}=ChromeUtils.importESModule('resource://vulpes/host/Runtime.sys.mjs');
+      const until=async check=>{
+        for(let i=0;i<80;i++){if(await check())return true;await sleep(250);}
+        throw Error('Marketplace view check timed out');
+      };
+      const visible=()=>[...Views.entries.values()].some(e=>e.browser.style.visibility==='visible');
+      const open=async()=>{
+        await evaluate('system', 'await VulpesCompat.call("apps.launch",{manifestURL:"http://marketplace.localhost:8765/manifest.webapp"});return true;');
+        await wait('marketplace', 'return !!document.getElementById("browse");');
+        await sleep(1000);
+        await evaluate('marketplace', 'document.getElementById("browse").click();document.getElementById("catalogue").src="http://127.0.0.1:8767/";return true;');
+        await until(visible);
+      };
+      try {
+        await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;');
+        await sleep(1000);
+        // This fixture tests web-view ownership, not the lockscreen gesture.
+        // Service.unlock can leave the legacy overlay visible during clock teardown.
+        result.unlockFixture=await evaluate('system', 'let note=null;if(window.lockScreen){try{if(lockScreen.locked)lockScreen.unlock(true);}catch(e){note=String(e);}lockScreen.locked=false;lockScreen.overlay.classList.add("unlocked");}return {forced:true,cleanupError:note};');
+        await open();
+        result.checks.belowStatusBar=[...Views.entries.values()].filter(e=>e.browser.style.visibility==='visible').every(e=>parseFloat(e.browser.style.top)>=20);
+        await evaluate('marketplace', 'document.getElementById("catalogue").src="https://marketplace-offline.invalid/";return true;');
+        result.checks.offlineMessage=await wait('marketplace', 'return !document.getElementById("message").hidden && /inaccessible|unavailable/.test(document.getElementById("status").textContent);');
+        result.checks.errorHidden=await until(()=>!visible());
+        await open();
+        result.checks.retry=true;
+        win.document.getElementById('home').click();
+        result.checks.home=await until(()=>!visible());
+        await sleep(1000);
+        await open();
+        Runtime.broadcast('holdhome',{},'system');
+        await wait('system','return appWindowManager.taskManager.isActive();');
+        result.checks.taskSwitcher=await until(()=>!visible());
+        await sleep(1000);
+        await evaluate('system', 'const row=[...appWindowManager.taskManager.appToCardMap].find(([app])=>app.origin.includes("marketplace.localhost"));row[1].element.querySelector(".close-button").click();return true;');
+        result.checks.closed=await until(()=>Views.entries.size===0);
+        result.passed=Object.values(result.checks).every(Boolean);
+      } catch(error) {
+        result.error=String(error);
+        result.views=[...Views.entries.values()].map(e=>({geometry:e.geometry,style:e.browser.style.cssText}));
+      } finally {win.document.getElementById('home').click();}
+      await IOUtils.writeJSON(`${root}/logs/marketplace-views.json`,result);
+    }
+    const ticketMarker = `${root}/logs/test-tickets-20261005`;
+    if (await IOUtils.exists(ticketMarker)) {
+      await IOUtils.remove(ticketMarker);
+      const result = {bootId:report.bootId,passed:false,checks:{}};
+      try {
+        await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});return true;");
+        await wait('system', "return !Service.query('locked');");
+        await evaluate('system', "await VulpesCompat.call('apps.launch',{manifestURL:'http://settings.localhost:8765/manifest.webapp'});return true;");
+        await wait('settings', "return document.readyState==='complete';");
+        await evaluate('settings', "window.__ticketLanguage=(await VulpesCompat.call('settings.get',{key:'language.current'})).value;return true;");
+        for (const lang of ['en-US','fr']) {
+          await evaluate('settings', `await VulpesCompat.call('settings.set',{values:{'language.current':${JSON.stringify(lang)}}});return true;`);
+          result.checks['language_'+lang] = await wait('homescreen', `return navigator.language===${JSON.stringify(lang)} && document.documentElement.lang===${JSON.stringify(lang)};`);
+        }
+        result.checks.developmentHidden = await evaluate('homescreen', "return [...document.querySelectorAll('gaia-app-icon')].every(e=>!/(uitest|test-|membuster|template|ds-test)/.test(e.app?.origin || ''));");
+        result.checks.snap = await evaluate('homescreen', "return getComputedStyle(document.getElementById('panels')).scrollSnapType==='x mandatory';");
+        await evaluate('settings', "window.__ticketPicker=new MozActivity({name:'pick',data:{type:'image/*'}});return true;");
+        await wait('wallpaper', "return !!window.Wallpaper?.pickActivity && document.querySelectorAll('.wallpaper').length>1;");
+        await evaluate('wallpaper', "document.querySelectorAll('.wallpaper')[1].click();return true;");
+        result.checks.wallpaperPicker = await wait('settings', "return __ticketPicker.readyState==='done' && __ticketPicker.result?.blob instanceof Blob && __ticketPicker.result.blob.size>0;");
+        await evaluate('settings', "window.__ticketPicker=new MozActivity({name:'pick',data:{type:'alerttone'}});return true;");
+        await wait('ringtones', "return document.body.dataset.ready==='true' && document.querySelectorAll('gaia-radio').length>3;");
+        await evaluate('ringtones', "document.querySelectorAll('gaia-radio')[2].click();return true;");
+        await wait('ringtones', "return !document.getElementById('set').disabled;");
+        await evaluate('ringtones', "document.getElementById('set').click();return true;");
+        result.checks.tonePicker = await wait('settings', "return __ticketPicker.readyState==='done' && __ticketPicker.result?.blob instanceof Blob && __ticketPicker.result.blob.size>0;");
+        result.passed=Object.values(result.checks).every(Boolean);
+      } catch(error) {result.error=String(error);}
+      finally {
+        await evaluate('settings', "if(window.__ticketLanguage)await VulpesCompat.call('settings.set',{values:{'language.current':__ticketLanguage}});return true;").catch(()=>{});
+        win.document.getElementById('home').click();
+      }
+      await IOUtils.writeJSON(`${root}/logs/tickets-20261005.json`,result);
+    }
+    const cameraMarker = `${root}/logs/test-camera`;
+    if (await IOUtils.exists(cameraMarker)) {
+      await IOUtils.remove(cameraMarker);
+      const cameraReport = {bootId:report.bootId, imagesRetained:false, passed:false};
+      try {
+        await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});return true;");
+        await wait('system', "return !Service.query('locked');");
+        await evaluate('system', "await VulpesCompat.call('apps.launch',{manifestURL:'http://camera.localhost:8765/manifest.webapp'});return true;");
+        await wait('camera', "return !!window.app?.camera?.mozCamera && document.querySelector('video')?.videoWidth>0;");
+        // Gaia remembers the selected lens; establish a known starting state.
+        await evaluate('camera', "if(app.settings.cameras.selected('key')!=='back')app.settings.cameras.next();return true;");
+        await wait('camera', "return app.settings.cameras.selected('key')==='back' && !!app.camera.mozCamera && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
+        cameraReport.gaia = await evaluate('camera', `
+          const video=document.querySelector('video');
+          const camera=app.camera.mozCamera;
+          window.__cameraBeforeSwitch=camera;
+          const capabilities=camera.capabilities;
+          let focus=null, focusError=null;
+          if(capabilities.maxFocusAreas>0) {
+            try {
+              camera.setFocusAreas([{top:-150,left:-150,bottom:150,right:150}]);
+              await camera.autoFocus();focus=true;
+            } catch(error) { focus=false;focusError=String(error); }
+          }
+          if(capabilities.zoomRatios.length>1) {
+            camera.zoom=2;
+            await new Promise(r=>setTimeout(r,700));
+          }
+          const testedZoom=camera.zoom;
+          camera.zoom=1;
+          const photo=await camera.takePicture();
+          const bitmap=await createImageBitmap(photo);
+          const picture={width:bitmap.width,height:bitmap.height};bitmap.close();
+          return {width:video.videoWidth,height:video.videoHeight,native:camera.vulpesNative===true,
+            picture,focus,focusError,zoom:testedZoom,focusAreas:capabilities.maxFocusAreas,
+            jpegBytes:photo.size,jpegType:photo.type,errors:window.__vulpesDiagnostics};
+        `);
+        cameraReport.performance = await evaluate('camera', `
+          const stream=app.camera.mozCamera, before=stream.vulpesTiming?.frames||0;
+          const start=performance.now();await new Promise(r=>setTimeout(r,4000));
+          const elapsed=performance.now()-start;
+          const hud=document.querySelector('.hud');
+          const button=document.querySelector('.js-camera');
+          return {fps:(stream.vulpesTiming.frames-before)*1000/elapsed,
+            conversionMs:stream.vulpesTiming.conversionMs/stream.vulpesTiming.frames,
+            switchVisible:getComputedStyle(button).opacity!=='0' && hud.getAttribute('camera-enabled')==='true',
+            flashVisible:getComputedStyle(document.querySelector('.js-flash')).visibility==='visible'};
+        `);
+        await evaluate('camera', "document.querySelector('.js-camera').click();return true;");
+        await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__cameraBeforeSwitch && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
+        cameraReport.switched = await evaluate('camera', `
+          const photo=await app.camera.mozCamera.takePicture();
+          window.__cameraBeforeHome=app.camera.mozCamera;
+          return {camera:app.settings.cameras.selected('key'),jpegBytes:photo.size,
+            previousStopped:window.__cameraBeforeSwitch.getTracks().every(t=>t.readyState==='ended')};
+        `);
+        cameraReport.roundTrips = [];
+        for (let i=0; i<4; i++) {
+          await evaluate('camera', "window.__switchFrom=app.camera.mozCamera;return true;");
+          await tap('camera', '.js-camera');
+          await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__switchFrom && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
+          cameraReport.roundTrips.push(await evaluate('camera', `
+            const camera=app.camera.mozCamera, before=camera.vulpesTiming.frames;
+            await new Promise(r=>setTimeout(r,700));
+            return {camera:app.settings.cameras.selected('key'),
+              frames:camera.vulpesTiming.frames-before,
+              previousStopped:window.__switchFrom.getTracks().every(t=>t.readyState==='ended')};
+          `));
+        }
+        await evaluate('camera', 'window.__cameraBeforeHome=app.camera.mozCamera;return true;');
+        // Test Gaia's Home action, independent of a held pointer on the shell button.
+        await evaluate('camera', "window.__cameraFilesBefore=new Set((await VulpesCompat.call('media.request',{type:'pictures',operation:'enumerate'})).map(f=>f.name));return true;");
+        await tap('camera','.js-capture');
+        await wait('camera', "const files=await VulpesCompat.call('media.request',{type:'pictures',operation:'enumerate'});window.__cameraSavedPhoto=files.find(f=>!__cameraFilesBefore.has(f.name));return !!__cameraSavedPhoto;");
+        cameraReport.savedPhoto=await evaluate('camera', 'return {name:__cameraSavedPhoto.name,size:__cameraSavedPhoto.size,type:__cameraSavedPhoto.type};');
+        await evaluate('system', "await VulpesCompat.call('apps.launch',{manifestURL:'http://gallery.localhost:8765/manifest.webapp'});return true;");
+        await wait('gallery', `return typeof files!=='undefined' && files.some(f=>f.name===${JSON.stringify(cameraReport.savedPhoto.name)} && f.metadata.width>0 && f.metadata.thumbnail);`);
+        await evaluate('gallery', `document.querySelector('[data-filename="'+${JSON.stringify(cameraReport.savedPhoto.name)}+'"]')?.click();return true;`);
+        cameraReport.galleryOpened=await wait('gallery', "return document.body.classList.contains('fullscreenView');");
+        await evaluate('system', "await VulpesCompat.call('apps.launch',{manifestURL:'http://camera.localhost:8765/manifest.webapp'});return true;");
+        await wait('camera', "return !!app.camera.mozCamera && !app.camera.isBusy && !document.hidden;");
+        await evaluate('camera', `await navigator.getDeviceStorage('pictures').delete(${JSON.stringify(cameraReport.savedPhoto.name)});window.__cameraBeforeHome=app.camera.mozCamera;return true;`);
+        cameraReport.captureStored=cameraReport.savedPhoto.size>1000;
+        delete cameraReport.savedPhoto.name;
+        cameraReport.beforeHome = await evaluate('system', "return {active:Service.query('getTopMostWindow')?.origin, top:Service.query('getTopMostUI')?.name, locked:Service.query('locked'), screen:ScreenManager.screenEnabled};");
+        await evaluate('system', "dispatchEvent(new CustomEvent('home'));return true;");
+        cameraReport.afterHome = await evaluate('system', "await new Promise(r=>setTimeout(r,1000));return {active:Service.query('getTopMostWindow')?.origin, top:Service.query('getTopMostUI')?.name, locked:Service.query('locked'), screen:ScreenManager.screenEnabled};");
+        cameraReport.hidden = await wait('camera', 'return document.hidden;');
+        cameraReport.stopped = await wait('camera', "return window.__cameraBeforeHome.getTracks().every(t=>t.readyState==='ended');");
+        cameraReport.passed=cameraReport.captureStored && cameraReport.galleryOpened && cameraReport.gaia.native && cameraReport.gaia.picture.width*cameraReport.gaia.picture.height>10000000 && cameraReport.gaia.focus && cameraReport.gaia.zoom>1 && cameraReport.gaia.jpegBytes>1000 && cameraReport.gaia.jpegType==='image/jpeg' && cameraReport.switched.jpegBytes>1000 && cameraReport.switched.previousStopped && cameraReport.stopped && cameraReport.roundTrips.every(r=>r.frames>0 && r.previousStopped);
+      } catch(error) { cameraReport.error=String(error); }
+      finally { win.document.getElementById('home')?.click(); }
+      await IOUtils.writeJSON(`${root}/logs/camera.json`, cameraReport);
+    }
+    const contactsMarker=`${root}/logs/test-contacts`;
+    if(await IOUtils.exists(contactsMarker)) {
+      await IOUtils.remove(contactsMarker);
+      const result={bootId:report.bootId,passed:false}, name='Vulpes QA '+Date.now();
+      let id;
+      const lookup=`const r=navigator.mozContacts.find({filterBy:['givenName'],filterOp:'equals',filterValue:${JSON.stringify(name)}});
+        return await new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result[0]||null);r.onerror=()=>no(r.error);});`;
+      const field=async(selector,value)=>evaluate('contacts',`const e=document.querySelector(${JSON.stringify(selector)});
+        e.value=${JSON.stringify(value)};e.dispatchEvent(new Event('input',{bubbles:true}));return true;`);
+      try {
+        await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});await VulpesCompat.call('apps.launch',{manifestURL:'http://communications.localhost:8765/manifest.webapp',entryPoint:'contacts'});return true;");
+        await wait('contacts', "return typeof Loader!=='undefined' && window.MainNavigation?.currentView()==='view-contacts-list';");
+        await tap('contacts','#add-contact-button');
+        await wait('contacts', "return MainNavigation.currentView()==='view-contact-form' && !!document.querySelector('#number_0');");
+        await field('#givenName',name);await field('#familyName','Élodie Test');
+        await field('#number_0','5550199');await field('#email_0','qa@example.invalid');
+        await tap('contacts','#save-button');
+        const saved=await wait('contacts',lookup);id=saved.id;
+        result.created=saved.tel[0].value==='5550199';
+        const selector='[data-uuid="'+id+'"]';
+        await tap('contacts',selector);await tap('contacts','#edit-contact-button');
+        await wait('contacts', "return MainNavigation.currentView()==='view-contact-form';");
+        await field('#familyName','Élodie Modifiée');await tap('contacts','#save-button');
+        result.edited=await wait('contacts', "return document.querySelector('#contact-name-title')?.textContent.includes('Élodie Modifiée');");
+        await evaluate('contacts', "document.querySelector('#send-sms-button-0').scrollIntoView({block:'center'});return true;");
+        await tap('contacts','#send-sms-button-0');
+        result.sms=await wait('sms', "return !document.hidden && window.ConversationView?.recipients?.numbers.includes('5550199');");
+        await tap('sms','#messages-contact-pick-button');
+        await wait('contacts', 'return !document.hidden && ActivityHandler.currentlyHandling;');
+        await tap('contacts',selector);await tap('contacts','[data-l10n-id=pick_destination]');
+        await wait('contacts','return !ActivityHandler.currentlyHandling;');
+        result.picker=await wait('sms', "return !document.hidden && ConversationView.recipients.numbers.includes('5550199');");
+        await evaluate('sms', "new MozActivity({name:'dial',data:{type:'webtelephony/number',number:'5550199'}});return true;");
+        result.dialer=await wait('dialer', "return !document.hidden && document.querySelector('#phone-number-view')?.value==='5550199';");
+        result.passed=result.created&&result.edited&&result.sms&&result.picker&&result.dialer;
+      } catch(error) {result.error=String(error);}
+      finally {
+        try {
+          if(!id) id=(await evaluate('contacts',lookup))?.id;
+          if(id) {
+            await evaluate('contacts', `const r=navigator.mozContacts.remove(${JSON.stringify(id)});await new Promise((ok,no)=>{r.onsuccess=ok;r.onerror=()=>no(r.error);});return true;`);
+            result.temporaryContactRemoved=!(await evaluate('contacts',lookup));
+          }
+        } catch(error) {result.cleanupError=String(error);}
+        win.document.getElementById('home')?.click();
+      }
+      await IOUtils.writeJSON(`${root}/logs/contacts.json`,result);
+    }
+    const smsMarker = `${root}/logs/test-sms-display`;
+    if (await IOUtils.exists(smsMarker)) {
+      await IOUtils.remove(smsMarker);
+      const smsReport = {bootId:report.bootId, passed:false, sent:false};
+      try {
+        await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;");
+        await wait('sms', "return !!window.Navigation && !!window.MessageManager;");
+        smsReport.threads = await evaluate('sms', `
+          const threads=await new Promise((resolve,reject)=>{const rows=[];const c=navigator.mozMobileMessage.getThreads();c.onsuccess=()=>{if(c.done)resolve(rows);else{rows.push(c.result);c.continue();}};c.onerror=()=>reject(c.error);});
+          window.__smsReviewThreads=threads.map(t=>t.id);
+          return {count:threads.length,validDates:threads.every(t=>Number.isFinite(+t.timestamp))};
+        `);
+        smsReport.conversations=[];
+        for(let i=0;i<Math.min(smsReport.threads.count,5);i++) {
+          await evaluate('sms', `await Navigation.toPanel('thread',{id:window.__smsReviewThreads[${i}]});return true;`);
+          await sleep(1500);
+          smsReport.conversations.push(await evaluate('sms', `
+            const nodes=[...document.querySelectorAll('#messages-container .message')];
+            return {bubbles:nodes.length,validDates:nodes.every(e=>Number.isFinite(+e.querySelector('time')?.dataset.time)),
+              nonempty:nodes.every(e=>!!e.querySelector('.message-content-body')?.textContent),
+              errorCount:window.__vulpesDiagnostics?.length||0};
+          `));
+        }
+        smsReport.passed=smsReport.threads.validDates && smsReport.conversations.length>0 && smsReport.conversations.every(c=>c.bubbles>0 && c.validDates && c.nonempty);
+      } catch(error) {smsReport.error=String(error);}
+      finally {win.document.getElementById('home')?.click();}
+      await IOUtils.writeJSON(`${root}/logs/sms-display.json`,smsReport);
+    }
+    const inputMarker = `${root}/logs/test-keyboard`;
+    if (await IOUtils.exists(inputMarker)) {
+      await IOUtils.remove(inputMarker);
+      const inputReport = {bootId:report.bootId,recordedAt:Date.now(),passed:false,sent:false};
+      try {
+        await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;');
+        await sleep(1500);
+        await evaluate('system', `await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;`);
+        await wait('sms', 'return document.querySelector("#threads-composer-link") && innerWidth>0;');
+        await evaluate('sms', 'await Navigation.toPanel("thread-list");await Navigation.toPanel("composer");return true;');
+        await wait('sms','return !!document.querySelector(".recipient[contenteditable]");');
+        await tap('sms','.recipient[contenteditable]');
+        await wait('keyboard', 'return navigator.mozInputMethod?.inputcontext?.inputType==="tel" && !!document.querySelector("button[aria-label=\\"2\\"]");');
+        await tap('keyboard','button[aria-label="2"]');
+        await tap('keyboard','button[aria-label="3"]');
+        inputReport.recipientTyped = await evaluate('sms','return document.querySelector(".recipient[contenteditable]").textContent.endsWith("23");');
+        const recipientBefore=await evaluate('sms','return document.querySelector(".recipient[contenteditable]").textContent;');
+        await tap('sms','#messages-input');
+        await wait('keyboard', 'return navigator.mozInputMethod?.inputcontext?.inputType==="text" && !!document.querySelector("button[aria-label=\\"a\\"]");');
+        inputReport.keyboard = await evaluate('keyboard', `const e=document.querySelector('button[aria-label="a"]');const r=e.getBoundingClientRect();
+          window.__keyTrial=[];for(const type of ['touchstart','touchend','pointerdown','click']) e.addEventListener(type,()=>__keyTrial.push(type),{once:true});
+          return {width:innerWidth,height:innerHeight,key:r.toJSON(),font:getComputedStyle(document.documentElement).fontSize,portrait:app.viewManager.screenInPortraitMode(),engine:app.inputMethodManager.currentIMEngine?.constructor?.name};`);
+        await tap('keyboard','button[aria-label="a"]');
+        await sleep(2000);
+        inputReport.context = await evaluate('keyboard', 'const c=navigator.mozInputMethod.inputcontext;return c&&{id:c.id,type:c.type,inputType:c.inputType,textLength:c.text.length};');
+        inputReport.message = await evaluate('sms', 'const text=document.querySelector("#messages-input").textContent;return {length:text.length,lowercase:text.includes("a"),uppercase:text.includes("A")};');
+        inputReport.messageTyped = inputReport.message.lowercase || inputReport.message.uppercase;
+        inputReport.events = await evaluate('keyboard','return window.__keyTrial;');
+        inputReport.recipientUnchanged=await evaluate('sms',`return document.querySelector(".recipient[contenteditable]").textContent===${JSON.stringify(recipientBefore)};`);
+        inputReport.passed=inputReport.recipientTyped && inputReport.messageTyped && inputReport.recipientUnchanged && inputReport.keyboard.portrait && inputReport.keyboard.key.height>=44;
+        if(!inputReport.messageTyped) {
+          try {
+            await evaluate('keyboard','await navigator.mozInputMethod.inputcontext.sendKey(0,97);return true;');
+            inputReport.directKey = await evaluate('sms','return document.querySelector("#messages-input").textContent.length>0;');
+          } catch(error) {inputReport.directKeyError=String(error);}
+        }
+        inputReport.fonts=await evaluate('sms',null,'RenderedFonts');
+        for (const face of inputReport.fonts) delete face.samples;
+      } catch(error) {inputReport.error=String(error);}
+      finally {win.document.getElementById('home').click();}
+      await IOUtils.writeJSON(`${root}/logs/keyboard.json`,inputReport);
+    }
+    const sendMarker=`${root}/logs/test-send-sms.json`;
+    if(await IOUtils.exists(sendMarker)) {
+      const request=await IOUtils.readJSON(sendMarker);
+      await IOUtils.remove(sendMarker);
+      const result={bootId:report.bootId,recordedAt:Date.now(),submitted:false,deliveryConfirmed:false};
+      try {
+        if(typeof request.recipient!=='string' || !/^\+[0-9]{8,15}$/.test(request.recipient)) throw Error('INVALID_TEST_RECIPIENT');
+        const {tundraRadio}=ChromeUtils.importESModule('resource://vulpes/host/Tundra.sys.mjs');
+        const state=await tundraRadio('status');
+        if(!['registered','roaming'].includes(state.registration?.[0]?.Status?.data)) throw Error('RADIO_NOT_REGISTERED');
+        await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;');
+        await sleep(1000);
+        await evaluate('system', `await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;`);
+        await wait('sms','return !!window.Navigation;');
+        await evaluate('sms','await Navigation.toPanel("thread-list");await Navigation.toPanel("composer");return true;');
+        await evaluate('sms','if(ConversationView.recipients.length || document.querySelector(".recipient[contenteditable]").textContent.trim() || Compose.getText())throw Error("TEST_DRAFT_PRESENT");return true;');
+        await tap('sms','.recipient[contenteditable]');
+        await wait('keyboard','return navigator.mozInputMethod?.inputcontext?.inputType==="tel";');
+        await evaluate('keyboard',`await navigator.mozInputMethod.inputcontext.replaceSurroundingText(${JSON.stringify(request.recipient)},0,0);return true;`);
+        await tap('sms','#messages-input');
+        await wait('keyboard','return navigator.mozInputMethod?.inputcontext?.inputType==="text";');
+        const body='Vulpes OS - test SMS '+new Date().toISOString();
+        await evaluate('keyboard',`await navigator.mozInputMethod.inputcontext.replaceSurroundingText(${JSON.stringify(body)},0,0);return true;`);
+        await wait('sms','return !document.querySelector("#messages-send-button").disabled;');
+        result.preSend=await evaluate('sms',`return {composer:Navigation.isCurrentPanel('composer'),
+          recipientMatch:JSON.stringify(ConversationView.recipients.numbers.map(n=>navigator.mozPhoneNumberService.normalize(n)))===JSON.stringify([${JSON.stringify(request.recipient)}]),
+          recipientCount:ConversationView.recipients.numbers.length,
+          bodyMatch:Compose.getText()===${JSON.stringify(body)},bodyLength:Compose.getText().length,
+          expectedLength:${body.length}};`);
+        if(!result.preSend.composer || !result.preSend.recipientMatch || !result.preSend.bodyMatch)
+          throw Error('TEST_MESSAGE_MISMATCH');
+        await evaluate('sms',"document.querySelector('#messages-send-button').click();return true;");
+        result.submitted=await wait('sms',`return await new Promise((resolve,reject)=>{
+          const cursor=navigator.mozMobileMessage.getMessages(null,true);
+          cursor.onsuccess=()=>{const m=cursor.result;if(!m){resolve(false);return;}
+            if(m.body===${JSON.stringify(body)}){if(m.delivery==='error'){reject(Error('MODEM_TRANSMISSION_FAILED'));return;}resolve(m.delivery==='sent');return;}cursor.continue();};
+          cursor.onerror=()=>reject(cursor.error);
+        });`);
+      } catch(error) {result.error=String(error);}
+      finally {win.document.getElementById('home').click();}
+      await IOUtils.writeJSON(`${root}/logs/send-sms.json`,result);
+    }
+    const notificationMarker = `${root}/logs/test-notifications`;
+    if (await IOUtils.exists(notificationMarker)) {
+      await IOUtils.remove(notificationMarker);
+      const result = {bootId:report.bootId,passed:false,silent:true};
+      let id;
+      try {
+        await evaluate('system', `ScreenManager.turnScreenOn(true);await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;`);
+        await wait('sms', 'return typeof Notification.get === "function";');
+        await evaluate('system', 'if(!Service.query("locked"))await Service.request("lock");return true;');
+        result.lockState=await evaluate('system','return {service:Service.query("locked"),direct:lockScreen.locked,preview:NotificationScreen.lockscreenPreview};');
+        await wait('system', 'return Service.query("locked") && NotificationScreen.lockscreenPreview;');
+        id = await evaluate('sms', `return await new Promise((resolve,reject)=>{
+          const n=new Notification('Vulpes — test local',{body:'Notification de qualification',tag:'vulpes-qualification',silent:true});
+          n.onshow=()=>resolve(n.id);n.onerror=()=>reject(n.error);
+        });`);
+        const selector = `[data-notification-id="${id}"]`;
+        result.tray = await wait('system', `return !!NotificationScreen.container.querySelector(${JSON.stringify(selector)});`);
+        result.lockscreen = await wait('system', `return !!NotificationScreen.getLockScreenContainer()?.querySelector(${JSON.stringify(selector)});`);
+        await evaluate('sms', `const rows=await Notification.get({tag:'vulpes-qualification'});rows.forEach(n=>n.close());return true;`);
+        result.removed = await wait('system', `return !NotificationScreen.container.querySelector(${JSON.stringify(selector)}) && !NotificationScreen.getLockScreenContainer()?.querySelector(${JSON.stringify(selector)});`);
+        result.passed = result.tray && result.lockscreen && result.removed;
+      } catch(error) { result.error=String(error); }
+      finally {
+        if(id) await evaluate('sms', `for(const n of await Notification.get({tag:'vulpes-qualification'})) n.close();return true;`).catch(()=>{});
+        win.document.getElementById('home').click();
+      }
+      await IOUtils.writeJSON(`${root}/logs/notifications.json`,result);
+    }
+    }
+    await requestedUiChecks();
+    let uiCheckRunning=false;
+    const uiCheckTimer=setInterval(async()=>{
+      if(uiCheckRunning) return;
+      uiCheckRunning=true;
+      try {
+        const reloadMarker=`${root}/logs/test-reload-gaia`;
+        if(await IOUtils.exists(reloadMarker)) {
+          await IOUtils.remove(reloadMarker);
+          win.document.querySelector('browser').reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE);
+          await wait('system', "return document.body?.getAttribute('ready-state')==='fullyLoaded';");
+          await sleep(1500);
+        }
+        await requestedUiChecks();
+      } catch(error) {dump('TUNDRA_UI_CHECK_ERROR '+error+'\n');}
+      finally {uiCheckRunning=false;}
+    },3000);
+    win.addEventListener('unload',()=>clearInterval(uiCheckTimer),{once:true});
     report.layout=await evaluate('homescreen',"return {width:innerWidth,height:innerHeight,dpr:devicePixelRatio,rootFont:getComputedStyle(document.documentElement).fontSize,bodyFont:getComputedStyle(document.body).fontFamily,zoom:visualViewport.scale,rootWidth:document.documentElement.scrollWidth};");
     report.textFonts = await evaluate('homescreen', `
       await document.fonts.ready;

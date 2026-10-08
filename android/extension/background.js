@@ -1,3 +1,5 @@
+import { Packages, packageURL } from './services/packages.mjs';
+import { Activities, isGaiaActivity } from './services/activities.mjs';
 import { authorizePlatform } from './services/platform.mjs';
 import { SettingsService } from './services/settings.mjs';
 import { DataStoreService } from './services/datastores.mjs';
@@ -7,6 +9,9 @@ import { Messages } from './Messages.mjs';
 import { Connections } from './Connections.mjs';
 import { Alarms } from './Alarms.mjs';
 const peers = new Set();
+let activities, packages;
+const nativePackages=(operation,data={})=>browser.runtime.sendNativeMessage('vulpes',{type:'packages.'+operation,...data}).then(JSON.parse);
+async function refreshInstalled(){const installed=await nativePackages('list');apps.splice(0,apps.length,...apps.filter(a=>!a.installed),...installed);}
 let apps, values, settings, dataStores, contacts, messages, connections, alarms, storage;
 const identity = (peer) => peer.app;
 function notify(peer, type, data) {
@@ -26,7 +31,7 @@ function grants(app) {
 function broadcast(type, data, target) {
   for (const peer of peers) {
     if (target && peer.app.id !== target) continue;
-    if (type === 'settingchange' && !grants(peer.app).includes('settings.read')) continue;
+    if (type === 'settingchange' && data.key !== 'language.current' && !grants(peer.app).includes('settings.read')) continue;
     if (
       type === 'contactchange' &&
       !peer.app.manifest.permissions?.contacts?.access?.includes('read')
@@ -45,7 +50,7 @@ function broadcast(type, data, target) {
     notify(peer, type, data);
   }
 }
-function launch(target, entryPoint, path) {
+function launch(target, entryPoint, path, reload = false) {
   path ||=
     target.manifest.entry_points?.[entryPoint]?.launch_path ||
     target.manifest.launch_path ||
@@ -53,7 +58,7 @@ function launch(target, entryPoint, path) {
   const url = new URL(path, target.origin);
   if (url.origin !== target.origin) throw Error('INVALID_URL');
   broadcast(
-    'launch',
+    reload ? 'activity-launch' : 'launch',
     {
       manifestURL: target.manifestURL,
       origin: target.origin,
@@ -66,6 +71,8 @@ function launch(target, entryPoint, path) {
 }
 const ready = (async () => {
   apps = await (await fetch('registry.json')).json();
+  await refreshInstalled();
+  packages=new Packages({save:item=>nativePackages('save',{item}),changed:refreshInstalled});
   const defaults = await (await fetch('defaults.json')).json();
   const saved = await browser.storage.local.get('settings');
   values = { ...defaults, ...saved.settings };
@@ -82,6 +89,8 @@ const ready = (async () => {
     values['wallpaper.image.valid'] = false;
     await browser.storage.local.set({ settings: values });
   }
+  activities = new Activities({identity,apps:()=>apps,notify,uuid:()=>crypto.randomUUID(),
+    launch:(target,path,{reload=false,entryPoint}={})=>launch(target,entryPoint,path,reload)});
   let writes = Promise.resolve();
   settings = new SettingsService(
     {
@@ -123,6 +132,12 @@ const ready = (async () => {
 // Java owns this port. Web pages have no access to native messaging.
 let native;
 let systemReady = false;
+let pendingScreenLock = false;
+function deliverScreenLock() {
+  if (!systemReady || !pendingScreenLock) return;
+  pendingScreenLock = false;
+  broadcast('screen-off', {}, 'system');
+}
 let pendingNotification;
 function deliverNotification() {
   if (!systemReady || !pendingNotification) return;
@@ -140,7 +155,15 @@ function connectNative() {
   native.onMessage.addListener(async (message) => {
     await ready;
     if (['home', 'holdhome'].includes(message.type)) broadcast(message.type, {}, 'system');
-    if (message.type === 'android-resume') await refreshAndroid().catch(console.warn);
+    if (message.type === 'android-screen-off') {
+      pendingScreenLock = true;
+      deliverScreenLock();
+    }
+    if (message.type === 'android-resume') {
+      deliverScreenLock();
+      broadcast('screen-on', {}, 'system');
+      await refreshAndroid().catch(console.warn);
+    }
     if (message.type === 'notification-click') {
       pendingNotification = message.data;
       deliverNotification();
@@ -206,6 +229,7 @@ async function handle(peer, request) {
   if (method === 'android.systemReady') {
     if (app.id !== 'system') throw Error('PERMISSION_DENIED');
     systemReady = true;
+    deliverScreenLock();
     deliverNotification();
     return null;
   }
@@ -278,6 +302,7 @@ async function handle(peer, request) {
     }
     if (!Object.keys(params.values).length) return null;
   }
+  if (method === 'locale.current') return values['language.current'] || 'en-US';
   if (method === 'settings.snapshot') {
     if (!grants(app).includes('settings.read')) throw Error('PERMISSION_DENIED');
     return { ...values };
@@ -286,6 +311,14 @@ async function handle(peer, request) {
     const reply = await settings.bindSession(app.id, grants(app))(request);
     if (reply.error) throw Error(reply.error.code);
     return reply.result;
+  }
+  if(method.startsWith('marketplace.')) {
+    if(app.id!=='marketplace')throw Error('PERMISSION_DENIED');
+    if(method==='marketplace.poll'){const url=marketplaceDownload;marketplaceDownload=null;return url;}
+    if(method==='marketplace.cancel'){packages.cancel();return true;}
+    if(method==='marketplace.prepare')return packages.prepare(params.url);
+    if(method==='marketplace.install'){const id=await packages.install(params.token);const installed=apps.find(a=>a.id===id);broadcast('apps-installed',installed);return installed;}
+    throw Error('METHOD_NOT_SUPPORTED');
   }
   if (method === 'apps.self') {
     console.info('VULPES app ready', app.id);
@@ -297,6 +330,10 @@ async function handle(peer, request) {
   if (method === 'apps.list') {
     if (!manage) throw Error('PERMISSION_DENIED');
     return apps;
+  }
+  if(method==='apps.uninstall') {
+    const installed=apps.find(a=>a.id===params.id && a.installed);if(!manage || !installed)throw Error('PERMISSION_DENIED');
+    await nativePackages('remove',{id:params.id});await refreshInstalled();broadcast('apps-uninstalled',installed);return true;
   }
   if (method === 'apps.launch') {
     const target = apps.find((a) => a.manifestURL === params.manifestURL);
@@ -319,9 +356,13 @@ async function handle(peer, request) {
     connections.close(peer, params.id);
     return null;
   }
+  if (method === 'activities.cancel') return activities.cancel(peer);
+  if (method === 'activities.subscribe') return activities.subscribe(peer);
+  if (method === 'activities.finish') return activities.finish(peer,params);
+  if (method === 'activities.start' && isGaiaActivity(params)) return activities.start(peer,params);
   if (method === 'activities.start') {
     if (params.name === 'record' && params.data?.type === 'photos') {
-      if (app.id === 'gallery') {
+      if (['gallery', 'system'].includes(app.id)) {
         const camera = apps.find((a) => a.id === 'camera');
         if (!camera) throw Error('ACTIVITY_NOT_SUPPORTED');
         launch(camera);
@@ -430,9 +471,21 @@ browser.runtime.onConnect.addListener((port) => {
         peers.delete(peer);
         if (peer.app.id === 'system' && ![...peers].some((p) => p.app.id === 'system'))
           systemReady = false;
+        activities.cleanup(peer);
         connections.cleanup(peer);
         alarms.cleanup(peer);
       })
       .catch(() => {});
   });
+});
+
+let marketplaceDownload=null;
+browser.runtime.onMessage.addListener(async (message,sender)=>{
+  if(!message.marketplaceDownload)return;
+  const origin=new URL(sender.url);
+  if(origin.origin!=='https://vulpes-os.org' || !origin.pathname.startsWith('/marketplace/'))throw Error('PERMISSION_DENIED');
+  await ready;marketplaceDownload=packageURL(message.marketplaceDownload);
+  const app=apps.find(a=>a.id==='marketplace');launch(app);
+  await browser.runtime.sendNativeMessage('vulpes',{type:'marketplace.return'});
+  return true;
 });

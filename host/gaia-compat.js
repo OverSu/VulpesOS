@@ -21,7 +21,7 @@
   addEventListener('error', (event) =>
     record('error', [event.message, event.filename, event.lineno]),
   );
-  // Desktop transports Blobs directly; Android installs a JSON-compatible codec.
+  // Binary settings use the same persistence format on every host.
   const battery = Object.assign(new EventTarget(), {level:NaN, charging:false, chargingTime:Infinity, dischargingTime:Infinity});
   Object.defineProperty(navigator, 'battery', {value:battery});
   async function refreshBattery() {
@@ -128,15 +128,16 @@
   Object.defineProperty(navigator, 'mozPhoneNumberService', {value:{
     normalize: number => String(number || '').normalize('NFKC').replace(/[^0-9+*#]/g, '')
   }});
-  const settingsCodec = window.VulpesAndroidSettingsCodec;
+  const settingsCodec = window.VulpesSettingsCodec;
   async function call(method, params) {
     if (!navigator.vulpesRequest) return Promise.reject(new Error('VULPES_HOST_UNAVAILABLE'));
-    if (settingsCodec && ['settings.set', 'media.request'].includes(method))
+    if (settingsCodec && (method === 'settings.set' ||
+        (window.VulpesPlatform === 'android' && ['media.request', 'activities.finish', 'contacts.request'].includes(method))))
       params = await settingsCodec.encode(params);
     return navigator.vulpesRequest({ version: 1, id: ++sequence, method, params }).then((reply) => {
       if (reply.error) throw new DOMException(reply.error.code, reply.error.code);
       return settingsCodec &&
-        ['settings.get', 'settings.snapshot', 'media.request'].includes(method)
+        ['settings.get', 'settings.snapshot', 'media.request', 'activities.start', 'contacts.request'].includes(method)
         ? settingsCodec.decode(reply.result)
         : reply.result;
     });
@@ -165,6 +166,16 @@
     }
     return r;
   }
+  let language = navigator.language;
+  function setLanguage(value) {
+    if (typeof value !== 'string' || !/^[a-z]{2,3}(?:-[a-zA-Z0-9]{2,8})*$/.test(value)) return;
+    const changed = language !== value;
+    language = value;
+    if (changed) dispatchEvent(new Event('languagechange'));
+  }
+  Object.defineProperty(navigator, 'language', {get:() => language});
+  Object.defineProperty(navigator, 'languages', {get:() => Object.freeze([language])});
+  call('locale.current').then(setLanguage).catch(() => {});
   const observers = new Map();
   const settings = new EventTarget();
   settings.createLock = () => ({
@@ -196,6 +207,7 @@
   addEventListener('vulpes-service-event', (event) => {
     const { type, data } = event.detail;
     if (type === 'settingchange') {
+      if (data.key === 'language.current') setLanguage(data.value);
       const change = {
         settingName: data.key,
         settingValue: settingsCodec ? settingsCodec.decode(data.value) : data.value,
@@ -205,8 +217,17 @@
     }
     if (type === 'callscreen-closed') document.querySelector('iframe[name="call_screen"]')?.dispatchEvent(new CustomEvent('mozbrowserclose',{bubbles:true}));
     if (type === 'hardware-key') dispatchEvent(new CustomEvent('softwareButtonEvent', {detail:data}));
+    if (type === 'activity-launch') dispatchEvent(new CustomEvent('open-app', {detail:{...data,showApp:true,onlyShowApp:false}}));
     if (type === 'launch') dispatchEvent(new CustomEvent('webapps-launch', { detail: data }));
-    if (type === 'home' || type === 'holdhome') dispatchEvent(new CustomEvent(type));
+    if (type === 'screen-off') {
+      dispatchEvent(new CustomEvent('secure-killapps'));
+      window.Service?.request('lock').catch(console.error);
+    }
+    if (type === 'screen-on') window.ScreenManager?.turnScreenOn(true);
+    if (type === 'home' || type === 'holdhome') {
+      call('activities.cancel', {}).catch(console.error);
+      dispatchEvent(new CustomEvent(type));
+    }
     if (type === 'activity-view') dispatchEvent(new CustomEvent('activity-view', { detail: data }));
   });
   function application(record) {
@@ -215,7 +236,7 @@
     const { id, ...publicRecord } = record;
     const app = Object.assign(new EventTarget(), publicRecord, {
       installState: 'installed',
-      removable: false,
+      removable: record.removable === true,
       installTime: 0,
       updateTime: 0,
       downloadAvailable: false,
@@ -238,6 +259,14 @@
   }
   const mgmt = new EventTarget();
   mgmt.getAll = () => request(call('apps.list').then((apps) => apps.map(application)));
+  mgmt.uninstall = app => request(call('apps.uninstall',{id:new URL(app.origin).hostname.split('.')[0]}));
+  addEventListener('vulpes-service-event',event=>{
+    const {type,data}=event.detail;
+    if(!['apps-installed','apps-uninstalled'].includes(type))return;
+    const name=type==='apps-installed'?'install':'uninstall';
+    const change=new Event(name);Object.defineProperty(change,'application',{value:application(data)});
+    mgmt.dispatchEvent(change);if(typeof mgmt['on'+name]==='function')mgmt['on'+name](change);
+  });
   mgmt.getNotInstalled = () => request(Promise.resolve([]));
   mgmt.getIcon = async (app, size, entry) => {
     const manifest = app.manifest.entry_points?.[entry] || app.manifest;
@@ -319,10 +348,19 @@
   const handlers = new Map();
   navigator.mozSetMessageHandler = (name, fn) => {
     handlers.set(name, fn);
+    if (name === 'activity') call('activities.subscribe', {}).catch(console.error);
     if (name === 'connection') call('iac.subscribe', {}).catch(console.error);
     if (name === 'alarm') call('alarms.request', { operation: 'subscribe' }).catch(console.error);
   };
-  navigator.mozHasPendingMessage = () => false;
+  addEventListener('vulpes-service-event', ({detail}) => {
+    if (detail.type !== 'activity') return;
+    const {id,source} = detail.data;
+    setTimeout(() => handlers.get('activity')?.({source,
+      postResult: result => call('activities.finish',{id,result}).catch(console.error),
+      postError: error => call('activities.finish',{id,error:String(error)}).catch(console.error)
+    }),0);
+  });
+  navigator.mozHasPendingMessage = name => name === 'activity' && (new URLSearchParams(location.search).has('activity') || /\/(pick|share)\.html$/.test(location.pathname));
   navigator.mozSetMessageHandlerPromise = (promise) => promise;
   window.VulpesCompat = { call, request, handlers };
   window.MozActivity = function (source) {
@@ -657,13 +695,29 @@
     Object.setPrototypeOf(GaiaElement.prototype, prototype);
     customElements.define(name, GaiaElement);
     registered.add(name);
-    return GaiaElement;
+    function LegacyGaiaElement() {
+      return initialize(nativeCreate(name));
+    }
+    LegacyGaiaElement.prototype = GaiaElement.prototype;
+    return LegacyGaiaElement;
   };
   document.createElement = function (name, options) {
     const element = nativeCreate(name, options);
     if (name.toLowerCase() === 'iframe') wire(element);
     return registered.has(name) ? initialize(element) : element;
   };
+  // v0 created callbacks ran for detached fragments too. Gaia reads component
+  // state immediately after parsing its templates, before attaching them.
+  const innerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+  Object.defineProperty(Element.prototype, 'innerHTML', {
+    ...innerHTML,
+    set(value) {
+      innerHTML.set.call(this, value);
+      for (const element of this.querySelectorAll('*')) {
+        if (registered.has(element.localName)) initialize(element);
+      }
+    },
+  });
   HTMLElement.prototype.createShadowRoot = function () {
     const host = this,
       root = this.attachShadow({ mode: 'open' });

@@ -23,7 +23,9 @@
     manager.connection = {status, network};
     manager.connectionInformation = network ? {relSignalStrength:network.relSignalStrength} : null;
     if (changed) emit('statuschange', manager.connection);
-    emit('connectioninfoupdate', manager.connectionInformation || {});
+    // Gaia's signal listeners require the associated network. A scan while
+    // disconnected must not announce connection information for a missing AP.
+    if (network) emit('connectioninfoupdate', {network, ...manager.connectionInformation});
   }
   let scanPending;
   function scan() {

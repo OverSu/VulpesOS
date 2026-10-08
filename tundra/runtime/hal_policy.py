@@ -20,7 +20,7 @@ NETWORK_SERVICES = frozenset(('irsc_util', 'vendor.per_mgr', 'vendor.rmt_storage
                               'vendor.tftp_server', 'cnss-daemon', 'pd_mapper'))
 
 
-HARDWARE_SERVICES = frozenset(('vendor.qcrild', 'vendor.google.radioext@1.0',
+HARDWARE_SERVICES = frozenset(('vendor.bluetooth-1-0', 'vendor.qcrild', 'vendor.google.radioext@1.0',
                                'vendor.audio-hal-2-0', 'vendor.camera-provider-2-4',
                                'camera_service', 'minimedia', 'minisf', 'miniaf'))
 

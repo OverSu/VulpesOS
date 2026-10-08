@@ -1,6 +1,6 @@
 /* Extension world: the browser provides origin/tab/frame identity, never Gaia. */
 (() => {
-  if (location.port !== '18765') return;
+  if (location.port !== '18765' || location.hostname.startsWith('user-')) return;
   const win = window.wrappedJSObject;
   console.info('VULPES Android bridge', location.origin);
   let port;

@@ -1,6 +1,8 @@
-import { setInterval } from 'resource://gre/modules/Timer.sys.mjs';
+import { setInterval, setTimeout, clearTimeout } from 'resource://gre/modules/Timer.sys.mjs';
 import {Input} from 'resource://vulpes/host/Input.sys.mjs';
 import { ScreenPower } from 'resource://vulpes/services/screen-power.mjs';
+import { Packages } from 'resource://vulpes/services/packages.mjs';
+import { Activities, isGaiaActivity } from 'resource://vulpes/services/activities.mjs';
 import { SettingsService } from 'resource://vulpes/services/settings.mjs';
 import { DataStoreService } from 'resource://vulpes/services/datastores.mjs';
 import { DataStoresIndexedDB } from 'resource://vulpes/adapters/datastores-indexeddb.mjs';
@@ -29,6 +31,7 @@ export const Runtime = {
   wakeLocks: new Map(),
   idleListeners: new Map(),
   cleanup(actor) {
+    this.activities?.cleanup(actor);
     this.input?.cleanup(actor);
     this.platform?.nativeCamera.cleanup(actor);
     this.connections?.cleanup(actor);
@@ -45,6 +48,22 @@ export const Runtime = {
     this.input = new Input(this);
     const root = Services.env.get('VULPES_WORKSPACE_ROOT');
     this.apps = await IOUtils.readJSON(PathUtils.join(root, 'assets', 'registry.json'));
+    const storeURL = 'http://system.localhost:8765/_vulpes/packages/';
+    const store = async (operation, item) => {
+      const token = await IOUtils.readUTF8(PathUtils.join(root,'profiles','installed-apps','.token'));
+      const response = await fetch(storeURL+operation,{method:'POST',headers:{'X-Vulpes-Install':token,'Content-Type':'application/json'},body:JSON.stringify(item)});
+      if(!response.ok)throw Error('PACKAGE_STORAGE_FAILED');
+      return response.json();
+    };
+    this.refreshInstalled = async () => {
+      const response=await fetch(storeURL+'list');if(!response.ok)throw Error('PACKAGE_STORAGE_FAILED');
+      const installed=await response.json();
+      this.apps.splice(0,this.apps.length,...this.apps.filter(a=>!a.installed),...installed);
+      return installed;
+    };
+    this.packages = new Packages({schedule:setTimeout,unschedule:clearTimeout,save:item=>store('save',item),changed:()=>this.refreshInstalled(),uuid:()=>Services.uuid.generateUUID().toString()});
+    this.removePackage = async id => {const app=this.apps.find(a=>a.id===id && a.installed);if(!app)throw Error('NOT_REMOVABLE');
+      await store('remove',{id});await this.refreshInstalled();this.broadcast('apps-uninstalled',app);};
     // Installed Gaia audio apps must be able to ring when an alarm fires. This
     // permission is scoped to their origins in this profile, never web pages.
     for (const app of this.apps)
@@ -91,6 +110,11 @@ export const Runtime = {
       this.values['vulpes.gaia-restoration.v1'] = true;
     }
     Services.prefs.setStringPref('intl.accept_languages', this.values['language.current']);
+    this.activities = new Activities({identity:actor=>this.identity(actor),apps:()=>this.apps,
+      uuid:()=>Services.uuid.generateUUID().toString(),
+      notify:(actor,type,data)=>actor.sendAsyncMessage('Vulpes:Event',{type,data}),
+      launch:(target,path,{reload=false,entryPoint}={})=>this.broadcast(reload?'activity-launch':'launch',{manifestURL:target.manifestURL,origin:target.origin,
+        entryPoint,url:new URL(path || target.manifest.launch_path || '/index.html',target.origin).href,timestamp:Date.now()},'system')});
     this.writeQueue = Promise.resolve();
     this.settings = new SettingsService({
       get: async (key) => this.values[key],
@@ -115,7 +139,7 @@ export const Runtime = {
         this.writeQueue = write.catch(() => {});
         return write;
       },
-    });
+    }, {maxBytes:32 * 1024 * 1024});
     const storage = new DataStoresIndexedDB(indexedDB, IDBKeyRange, () =>
       Services.uuid.generateUUID().toString(),
     );
@@ -202,6 +226,16 @@ export const Runtime = {
     this.actors.add(actor);
     const { method, params } = request;
     if (typeof method !== 'string') return { error: { code: 'INVALID_REQUEST' } };
+    if(method.startsWith('marketplace.')) {
+      if(app.id!=='marketplace')return {error:{code:'PERMISSION_DENIED'}};
+      try {
+        if(method==='marketplace.poll'){const url=this.marketplaceDownload;this.marketplaceDownload=null;return {result:url||null};}
+        if(method==='marketplace.cancel'){this.packages.cancel();return {result:true};}
+        if(method==='marketplace.prepare')return {result:await this.packages.prepare(params.url)};
+        if(method==='marketplace.install') {const id=await this.packages.install(params.token);const installed=this.apps.find(a=>a.id===id);this.broadcast('apps-installed',installed);return {result:installed};}
+      } catch(error) {return {error:{code:error.message}};}
+      return {error:{code:'METHOD_NOT_SUPPORTED'}};
+    }
     if(method==='hardware.vibrate') {
       if(app.id!=='system' || Services.env.get('VULPES_TUNDRA')!=='1') return {error:{code:'NOT_SUPPORTED'}};
       const pattern=params?.pattern;
@@ -267,10 +301,19 @@ export const Runtime = {
       }
     }
     if (typeof method !== 'string') return { error: { code: 'INVALID_REQUEST' } };
+    if (['activities.subscribe','activities.finish','activities.cancel'].includes(method) || (method === 'activities.start' && isGaiaActivity(params))) {
+      try {
+        const result = method === 'activities.cancel' ? this.activities.cancel(actor)
+          : method === 'activities.subscribe' ? this.activities.subscribe(actor)
+          : method === 'activities.finish' ? this.activities.finish(actor,params)
+          : await this.activities.start(actor,params);
+        return {result:result ?? null};
+      } catch(error) {return {error:{code:error.message}};}
+    }
     if (method === 'activities.start') {
       if (params?.name === 'record' && params.data?.type === 'photos') {
-        // Gallery's Photo button opens the shared Gaia UI; it expects no result file.
-        if (app.id === 'gallery') {
+        // Gallery and the lockscreen open Gaia Camera without expecting a file result.
+        if (['gallery', 'system'].includes(app.id)) {
           const camera = this.apps.find((a) => a.id === 'camera');
           if (!camera) return { error: { code: 'ACTIVITY_NOT_SUPPORTED' } };
           this.broadcast(
@@ -316,6 +359,7 @@ export const Runtime = {
         return { error: { code: error.message || 'VIEW_ERROR' } };
       }
     }
+    if (method === 'locale.current') return { result: this.values['language.current'] || 'en-US' };
     if (method === 'settings.snapshot')
       return this.grants(app).includes('settings.read')
         ? { result: { ...this.values } }
@@ -441,6 +485,10 @@ export const Runtime = {
     if (method === 'apps.self') return { result: app };
     if (method === 'apps.list')
       return manage ? { result: this.apps } : { error: { code: 'PERMISSION_DENIED' } };
+    if(method==='apps.uninstall') {
+      if(!manage)return {error:{code:'PERMISSION_DENIED'}};
+      try {await this.removePackage(params.id);return {result:true};}catch(error){return {error:{code:error.message}};}
+    }
     if (method === 'apps.launch') {
       const target = this.apps.find((a) => a.manifestURL === params?.manifestURL);
       if (!target || (!manage && app.id !== target.id))
@@ -469,7 +517,7 @@ export const Runtime = {
       try {
         const app = this.identity(actor);
         if (!app || (target && app.id !== target)) continue;
-        if (type === 'settingchange' && !this.grants(app).includes('settings.read')) continue;
+        if (type === 'settingchange' && data.key !== 'language.current' && !this.grants(app).includes('settings.read')) continue;
         if (
           type === 'mediachange' &&
           !app.manifest.permissions?.['device-storage:' + data.type]?.access?.includes('read')

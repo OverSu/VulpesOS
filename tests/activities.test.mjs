@@ -1,0 +1,83 @@
+import assert from 'node:assert/strict';
+import {Activities} from '../services/activities.mjs';
+const apps=[{id:'settings',origin:'http://settings.localhost'},{id:'wallpaper',origin:'http://wallpaper.localhost',manifest:{activities:{pick:{href:'/pick.html'}}}},{id:'ringtones',origin:'http://ringtones.localhost',manifest:{activities:{pick:{href:'/pick.html'}}}}];
+const caller={app:apps[0],manager:{documentURI:{spec:'http://settings.localhost/#display'}}};
+const picker={app:apps[1]}, stranger={app:apps[2]};
+const events=[],launches=[];
+const broker=new Activities({identity:p=>p.app,apps:()=>apps,launch:(...a)=>launches.push(a),notify:(...a)=>events.push(a),uuid:()=> 'request-1'});
+const pending=broker.start(caller,{name:'pick',data:{type:'image/*'}});
+assert.equal(events.length,0);
+broker.subscribe(picker);assert.equal(events.length,1);
+assert.throws(()=>broker.finish(stranger,{id:'request-1',result:{}}),/PERMISSION_DENIED/);
+assert.throws(()=>broker.start(caller,{name:'pick',data:{type:'image/*'}}),/ACTIVITY_BUSY/);
+broker.finish(picker,{id:'request-1',result:{blob:{__vulpesBlobV1:true,type:'image/png',base64:'YWJj'}}});
+assert.equal((await pending).blob.base64,'YWJj');assert.equal(launches.at(-1)[1],'http://settings.localhost/#display');
+const cancelled=broker.start(caller,{name:'pick',data:{type:'image/*'}});
+broker.subscribe(picker);broker.cleanup(picker);await assert.rejects(cancelled,/ACTIVITY_CANCELLED/);
+assert.throws(()=>broker.start({app:{id:'untrusted'}},{name:'pick',data:{type:'image/*'}}),/PERMISSION_DENIED/);
+assert.throws(()=>broker.provider({name:'pick',data:{type:'video/mp4'}}),/ACTIVITY_NOT_SUPPORTED/);
+const abandoned = broker.start(caller,{name:'pick',data:{type:'image/*'}});
+assert.throws(()=>broker.cancel(stranger),/PERMISSION_DENIED/);
+broker.cancel({app:{id:'system'}});
+await assert.rejects(abandoned,/ACTIVITY_CANCELLED/);
+const reopened = broker.start(caller,{name:'pick',data:{type:'image/*'}});
+broker.subscribe(picker);
+broker.finish(picker,{id:'request-1',result:{reopened:true}});
+assert.equal((await reopened).reopened,true);
+console.log('Activity routing, result ownership, cancellation and return navigation: OK');
+const phone={id:'communications',origin:'http://communications.localhost',manifest:{activities:{
+  pick:{href:'/contacts/index.html?pick',filters:{type:{value:['webcontacts/tel']}}},
+  dial:{href:'/dialer/index.html#keyboard-view',filters:{type:'webtelephony/number'},disposition:'window'},
+  open:[{href:'/contacts/views/details/details.html',filters:{type:'webcontacts/contact'}},
+    {href:'/contacts/views/vcard_load/vcard_load.html',filters:{type:'text/vcard'}}],
+}}};
+const sms={id:'sms',origin:'http://sms.localhost',manifest:{activities:{new:{href:'/index.html#/activity-new',filters:{type:'websms/sms'},returnValue:true}}}};
+apps.push(phone,sms);
+const smsPeer={app:sms,manager:{documentURI:{spec:'http://sms.localhost/index.html#composer'}}};
+const phonePeer={app:phone};
+const choose=broker.start(smsPeer,{name:'pick',data:{type:'webcontacts/tel'}});
+assert.equal(new URL(launches.at(-1)[1]).searchParams.has('pick'),true);
+broker.subscribe(phonePeer);
+broker.finish(phonePeer,{id:'request-1',result:{number:'5550199',name:'Test'}});
+assert.equal((await choose).number,'5550199');
+assert.equal(launches.at(-1)[1],'http://sms.localhost/index.html#composer');
+const dial=broker.start(smsPeer,{name:'dial',data:{type:'webtelephony/number',number:'5550199'}});
+broker.subscribe(phonePeer);await dial;
+assert.equal(broker.pending.size,0,'dial only opens the keypad, with no stale activity left behind');
+const draft=broker.start(phonePeer,{name:'new',data:{type:'websms/sms',target:'5550199'}});
+assert.equal(new URL(launches.at(-1)[1]).hash,'','activity handler chooses the composer after startup');
+broker.subscribe(smsPeer);
+assert.equal(events.at(-1)[2].source.data.target,'5550199');
+broker.finish(smsPeer,{id:'request-1',result:null});await draft;
+assert.equal(broker.route({name:'open',data:{type:'webcontacts/contact'}}).url.pathname,'/contacts/views/details/details.html');
+assert.throws(()=>broker.route({name:'open',data:{type:'url'}}),/ACTIVITY_NOT_SUPPORTED/);
+console.log('Contacts/SMS picker, contact details, SMS draft and dialer routing: OK');
+
+let serial=0;
+const nested=new Activities({identity:p=>p.app,apps:()=>apps,launch:(...a)=>launches.push(a),notify:(...a)=>events.push(a),uuid:()=>String(++serial)});
+const contactsPeer={app:phone,manager:{documentURI:{spec:'http://communications.localhost/contacts/index.html'}}};
+nested.subscribe(contactsPeer);
+const nestedDraft=nested.start(contactsPeer,{name:'new',data:{type:'websms/sms',target:'5550199'}});
+nested.subscribe(smsPeer);
+const nestedPicker=nested.start(smsPeer,{name:'pick',data:{type:'webcontacts/tel'}});
+assert.equal(launches.at(-1)[2].reload,undefined,'reuse the address book without destroying the outer SMS activity');
+assert.equal(events.at(-1)[0],contactsPeer);
+nested.finish(contactsPeer,{id:'2',result:{number:'5550199'}});
+assert.equal((await nestedPicker).number,'5550199');
+assert.equal(nested.pending.size,1);
+nested.finish(smsPeer,{id:'1',result:null});await nestedDraft;
+assert.equal(nested.pending.size,0);
+
+const gallery={id:'gallery',origin:'http://gallery.localhost',manifest:{activities:{pick:{href:'/index.html#pick',filters:{type:['image/jpeg']},returnValue:true}}}};
+apps.push(gallery);
+const normalGallery={app:gallery,manager:{documentURI:{spec:'http://gallery.localhost/index.html'}}};
+nested.subscribe(normalGallery);
+const photo=nested.start(contactsPeer,{name:'pick',data:{type:'image/jpeg'}});
+assert.equal(launches.at(-1)[2].reload,true,'normal Gallery must reload in picker mode');
+assert.equal(new URL(launches.at(-1)[1]).hash,'#pick');
+const galleryPicker={app:gallery,manager:{documentURI:{spec:launches.at(-1)[1]}}};
+nested.subscribe(galleryPicker);
+const photoRequest=events.at(-1)[2].id;
+assert.throws(()=>nested.finish(normalGallery,{id:photoRequest,result:{}}),/PERMISSION_DENIED/);
+nested.finish(galleryPicker,{id:photoRequest,result:{blob:new Blob(['image'])}});
+assert.equal(await (await photo).blob.text(),'image');

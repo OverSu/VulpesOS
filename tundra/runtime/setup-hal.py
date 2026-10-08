@@ -53,7 +53,19 @@ def main():
     with image.open('rb') as f:sha=hashlib.file_digest(f,'sha256').hexdigest()
     if sha!='132d0e18c6a6a111293447e940267f35aa2b14fa00a872ef160b20dc2014d886':raise RuntimeError('Android reference changed')
     run('mount','-t','ext4','-o','loop,ro,noload',str(image),'/run/tundra/android-original')
-    run('mount','-t','ext4','-o','ro,noload','/dev/mmcblk0p70','/run/tundra/vendor-original')
+    hardware = Path('/etc/tundra/hardware-images.json')
+    bundled = json.loads(hardware.read_text())['images'] if hardware.exists() else None
+    if bundled:
+        if set(bundled) != {'vendor.img', 'modem.img'}:
+            raise RuntimeError('Expected both standalone hardware images')
+        for name, record in bundled.items():
+            path = Path('/reference')/name
+            with path.open('rb') as source:
+                if path.stat().st_size != record['bytes'] or hashlib.file_digest(source, 'sha256').hexdigest() != record['sha256']:
+                    raise RuntimeError('Standalone hardware image changed: '+name)
+        run('mount','-t','ext4','-o','loop,ro,noload','/reference/vendor.img','/run/tundra/vendor-original')
+    else:
+        run('mount','-t','ext4','-o','ro,noload','/dev/mmcblk0p70','/run/tundra/vendor-original')
     run('mount','-t','ext4','-o','ro,noload','/dev/mmcblk0p48','/mnt/vendor/persist')
     overlay('/run/tundra/android-original','/android','android')
     overlay('/run/tundra/vendor-original','/android/vendor','vendor')
@@ -65,7 +77,10 @@ def main():
         if count != 1:raise RuntimeError('Expected exactly one Sargo WLAN IPA setting')
         config.write_text(text)  # vendor overlay upper is tmpfs, never the partition
     directory('/android/vendor/firmware_mnt')
-    run('mount','-t','vfat','-o','ro','/dev/mmcblk0p21','/android/vendor/firmware_mnt')
+    if bundled:
+        run('mount','-t','vfat','-o','loop,ro','/reference/modem.img','/android/vendor/firmware_mnt')
+    else:
+        run('mount','-t','vfat','-o','ro','/dev/mmcblk0p21','/android/vendor/firmware_mnt')
     report={}
     for p in sorted(Path('/android').rglob('*.rc')):
         if not p.is_file() or p.is_symlink() or not is_init_script(p):continue

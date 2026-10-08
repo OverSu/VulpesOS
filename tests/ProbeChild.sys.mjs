@@ -1,6 +1,17 @@
 // Test-only actor, registered by tools/inspect-host.py through Marionette.
 export class VulpesProbeChild extends JSWindowActorChild {
   async receiveMessage(message) {
+    if (message.name === 'MouseClick') {
+      const {x,y}=message.data, win=this.contentWindow;
+      if (!Number.isFinite(x) || !Number.isFinite(y) || x<0 || y<0 ||
+          x>=win.innerWidth || y>=win.innerHeight) throw Error('INVALID_TEST_POINT');
+      const {setTimeout}=ChromeUtils.importESModule('resource://gre/modules/Timer.sys.mjs');
+      for (const type of ['mousemove','mousedown','mouseup']) {
+        win.synthesizeMouseEvent(type,x,y,{button:0,clickCount:1},{isAsyncEnabled:false});
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      return true;
+    }
     if (message.name === 'Tap') {
       const {x,y}=message.data, win=this.contentWindow;
       if (!Number.isFinite(x) || !Number.isFinite(y) || x<0 || y<0 ||
