@@ -10,6 +10,10 @@ def prepare(root, write):
     write('etc/tundra/hardware-enabled', 'sargo\n')
     runpy.run_path(str(Path(__file__).with_name('runtime-packages.py')))['stage'](root)
     runpy.run_path(str(Path(__file__).with_name('prepare-bluetooth.py')))['prepare'](root, write)
+    shutil.copy2(Path(__file__).with_name('audio-devices.py'), root/'etc/tundra/audio-devices.py')
+    write('etc/udev/rules.d/99-tundra-audio.rules', '\n'.join(
+        'KERNEL=="'+name+'", GROUP="1005", MODE="0660"'
+        for name in ('msm_audio_cal', 'msm_rtac', 'msm_cirrus_playback'))+'\n')
     shutil.copy2(Path(__file__).with_name('modem-recovery.py'),
                  root/'etc/tundra/modem-recovery.py')
     write('etc/systemd/system/tundra-hal.service.d/modem-recovery.conf', '''[Service]
@@ -60,14 +64,39 @@ StateDirectory=tundra/sms
 StateDirectoryMode=0700
 ReadWritePaths=/run/tundra-radio /var/lib/tundra/sms
 ''')
-    write('etc/pulse/client.conf', 'autospawn = no\n')
+    write('etc/systemd/system/tundra-radio.service.d/clock.conf', Path(__file__).with_name('clock-service.conf').read_text())
+    runpy.run_path(str(Path(__file__).with_name('mms-codec.py')))['stage'](root)
+    shutil.copy2(Path(__file__).with_name('mms-control.py'),root/'etc/tundra/mms-control.py')
+    write('etc/systemd/system/tundra-mms.service', """[Unit]
+Description=Tundra MMS queue and oFono push agent
+Requires=ofono.service
+After=ofono.service
+[Service]
+ExecStart=/usr/bin/python3 /etc/tundra/mms-control.py
+UMask=0077
+RuntimeDirectory=tundra-mms
+RuntimeDirectoryMode=0755
+StateDirectory=tundra/mms
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/tundra/mms /run/tundra-mms
+MemoryMax=256M
+Restart=on-failure
+RestartSec=3
+""")
+    write('etc/pulse/client.conf' , 'autospawn = no\n')
     write('etc/pulse/daemon.conf', 'exit-idle-time = -1\ndefault-sample-rate = 48000\n')
     write('etc/pulse/default.pa', '''.fail
 load-module module-native-protocol-unix
+load-module module-dbus-protocol
 load-module module-droid-card rate=48000 voice_virtual_stream=true
 load-module module-droid-hidl
 load-module module-default-device-restore
 load-module module-suspend-on-idle
+load-module module-bluetooth-policy auto_switch=0
+load-module module-bluetooth-discover headset=native
 ''')
     # Prefer AAL for the next camera integration tests. The GStreamer probe
     # requests libstagefright_ccodec.so, absent from this Android 9 image.
@@ -77,11 +106,12 @@ load-module module-suspend-on-idle
     write('etc/systemd/system/tundra-audio.service', '''[Unit]
 Description=Tundra Sargo PulseAudio HAL bridge
 Requires=tundra-hal.service systemd-logind.service
-After=tundra-hal.service systemd-logind.service
+After=tundra-hal.service systemd-logind.service bluetooth.service
 [Service]
 User=droidian
 PAMName=tundra
 Environment=XDG_RUNTIME_DIR=/run/user/32011
+ExecStartPre=+/usr/bin/python3 /etc/tundra/audio-devices.py
 ExecStart=/usr/bin/pulseaudio -n --daemonize=no --exit-idle-time=-1 --log-target=journal --file=/etc/pulse/default.pa
 Restart=on-failure
 RestartSec=5
@@ -95,8 +125,10 @@ ExecStart=/usr/bin/python3 /etc/tundra/call-audio.py
 RuntimeDirectory=tundra-call-audio
 Restart=on-failure
 RestartSec=5
-ProtectHome=yes
+ProtectHome=tmpfs
 ProtectSystem=strict
+# The audio socket lives under /run/user, which ProtectHome also hides.
+BindReadOnlyPaths=/run/user/32011
 ReadWritePaths=/run/tundra-call-audio
 ''')
     (root/'var/lib/tundra/sms').mkdir(parents=True,exist_ok=True,mode=0o700)
@@ -108,5 +140,5 @@ ReadWritePaths=/run/tundra-call-audio
         'StateDirectory=tundra/sms','StateDirectoryMode=0700',
         'ReadWritePaths=/var/lib/tundra/sms','Restart=on-failure','RestartSec=3','']))
     wants = root/'etc/systemd/system/tundra.target.wants'
-    for name in ('ofono', 'tundra-audio', 'ModemManager', 'tundra-radio', 'tundra-call-audio', 'tundra-sms'):
+    for name in ('ofono', 'tundra-audio', 'ModemManager', 'tundra-radio', 'tundra-call-audio', 'tundra-sms', 'tundra-mms'):
         (wants/(name+'.service')).symlink_to('../'+name+'.service')

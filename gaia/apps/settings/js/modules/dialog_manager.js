@@ -99,37 +99,35 @@ define(function(require) {
     _transit: function dm__transit(method, dialog, options) {
       var promise = new Promise(function(resolve) {
         var panel = dialog.panel;
-
-        panel.addEventListener('transitionend', function paintWait(evt) {
-          if ((method === 'close' || method === 'open') &&
-            evt.propertyName === 'visibility') {
-              // After transition, we have to `hide` the panel, otherwise
-              // the panel would still exist on the layer and would block
-              // the scrolling event.
-              if (method === 'close') {
-                panel.hidden = true;
-              }
-              panel.removeEventListener('transitionend', paintWait);
-              resolve();
-          }
-        });
-
-        // Before transition, we have to `show` the panel, otherwise
-        // the panel before applying transition class.
-        if (method === 'open') {
-          panel.hidden = false;
+        var completed = false;
+        var fallback;
+        function finish(event) {
+          if (event && (event.target !== panel || event.propertyName !== 'visibility')) return;
+          if (completed) return;
+          completed = true;
+          clearTimeout(fallback);
+          panel.removeEventListener('transitionend', finish);
+          panel.removeEventListener('transitioncancel', finish);
+          if (method === 'close') panel.hidden = true;
+          resolve();
         }
-
-        // We need to apply class later otherwise Gecko can't apply
-        // this transition and 150ms is an approximate number after doing
-        // several rounds of manual tests.
+        if (method === 'open') panel.hidden = false;
         setTimeout(function() {
-          if (method === 'open') {
-            // Let's unhide the panel first
-            panel.classList.add('current');
-          } else {
-            panel.classList.remove('current');
+          panel.addEventListener('transitionend', finish);
+          panel.addEventListener('transitioncancel', finish);
+          panel.classList.toggle('current', method === 'open');
+          var style = window.getComputedStyle(panel);
+          function milliseconds(value) {
+            return parseFloat(value) * (value.trim().endsWith('ms') ? 1 : 1000) || 0;
           }
+          var durations = style.transitionDuration.split(',').map(milliseconds);
+          var delays = style.transitionDelay.split(',').map(milliseconds);
+          var duration = Math.max.apply(Math, durations.map(function(value, index) {
+            return value + delays[index % delays.length];
+          }));
+          // Reduced motion, display changes or interrupted transitions may
+          // omit the visibility event. Always release the dialog queue.
+          fallback = setTimeout(finish, Math.max(0, duration) + 100);
         }, 150);
       });
       return promise;

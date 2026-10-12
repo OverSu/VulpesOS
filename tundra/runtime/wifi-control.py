@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MPL-2.0
 """Narrow native Wi-Fi bridge. Credentials travel over a private Unix socket."""
+from concurrent.futures import ThreadPoolExecutor
+import threading
 import argparse
 import configparser
 import json
@@ -17,6 +19,7 @@ SOCKET = '/run/tundra-wifi/control.sock'
 MAX_REQUEST = 16384
 DEVICE = 'wlan0'
 PROFILE_DIR = Path('/etc/NetworkManager/system-connections')
+MUTATION_LOCK = threading.Lock()
 
 
 class WifiError(Exception):
@@ -82,6 +85,29 @@ def networks(rescan=False):
     return sorted(found, key=lambda row: -row['signal'])[:128]
 
 
+def connection_info():
+    info = {}
+    address = nm('-g','IP4.ADDRESS','device','show',DEVICE,timeout=5)
+    if address.returncode == 0:
+        import ipaddress
+        for line in address.stdout.splitlines():
+            try:info['ipAddress'] = str(ipaddress.ip_interface(line).ip);break
+            except ValueError:continue
+    device = nm('-g','GENERAL.DBUS-PATH','device','show',DEVICE,timeout=5)
+    path=device.stdout.strip() if device.returncode==0 else ''
+    if re.fullmatch(r'/org/freedesktop/NetworkManager/Devices/[0-9]+',path):
+        speed=subprocess.run(['/usr/bin/busctl','--system','--timeout=2','--json=short','get-property',
+                              'org.freedesktop.NetworkManager',path,'org.freedesktop.NetworkManager.Device.Wireless','Bitrate'],
+                             capture_output=True,text=True,timeout=3)
+        if speed.returncode==0:
+            try:
+                kbps=json.loads(speed.stdout)['data']
+                if isinstance(kbps,list):kbps=kbps[0]
+                if type(kbps) is int and kbps>0:info['linkSpeed']=kbps/1000
+            except (ValueError,KeyError,TypeError,IndexError):pass
+    return info
+
+
 def saved_profiles(profile_dir):
     result = []
     for path in profile_dir.glob('vulpes-*.nmconnection'):
@@ -131,14 +157,89 @@ def profile_text(network, password, uid):
             'cloned-mac-address=permanent\nssid=' +
             ''.join(str(b) + ';' for b in ssid.encode()) +
             '\n[ipv4]\nmethod=auto\n[ipv6]\nmethod=auto\n')
+    if network.get('hidden'): text = text.replace('[wifi]\n','[wifi]\nhidden=true\n')
     if mode != 'open':
         escaped = password.replace('\\', '\\\\').replace(' ', '\\s')
         text += f'[wifi-security]\nkey-mgmt={mode}\npsk={escaped}\n'
     return text
 
 
+HOTSPOT_UUID = '5e962c71-d3d0-4c39-b4de-460bb63fc045'
+HOTSPOT_RETURN = Path('/run/tundra-wifi/hotspot-return.json')
+
+
+def active_wifi_uuid():
+    result=nm('-g','GENERAL.CON-UUID','device','show',DEVICE,timeout=5)
+    value=result.stdout.strip() if result.returncode==0 else ''
+    try:return str(uuid.UUID(value))
+    except ValueError:return None
+
+
+def hotspot_state(profile_dir):
+    path=profile_dir/'vulpes-hotspot.nmconnection'
+    result={'enabled':active_wifi_uuid()==HOTSPOT_UUID,'configured':False,'ssid':'Vulpes OS','security':'wpa2-psk','password':''}
+    if path.exists() and not path.is_symlink():
+        config=configparser.ConfigParser(interpolation=None);config.read(path)
+        result.update(configured=True,ssid=bytes(int(b) for b in config['wifi']['ssid'].split(';') if b).decode(),
+                      security='wpa2-psk' if config.has_section('wifi-security') else 'open',
+                      password=re.sub(r'\\([\\s])',lambda match:' ' if match[1]=='s' else '\\',config.get('wifi-security','psk',fallback='')))
+    return result
+
+
+def hotspot(request, profile_dir):
+    action=request.get('operation')
+    allowed={'hotspotStatus':set(),'hotspotSave':{'ssid','security','password'},'hotspotPower':{'enabled'}}
+    if action not in allowed or set(request)-{'operation'}-allowed[action]:raise WifiError('WIFI_INVALID_REQUEST')
+    if action=='hotspotStatus':return hotspot_state(profile_dir)
+    target=profile_dir/'vulpes-hotspot.nmconnection'
+    if action=='hotspotSave':
+        ssid=request.get('ssid');security=request.get('security');password=request.get('password')
+        if not isinstance(ssid,str) or not 1<=len(ssid.encode())<=32 or any(ord(c)<32 for c in ssid):raise WifiError('WIFI_INVALID_REQUEST')
+        if security not in ('open','wpa2-psk') or not isinstance(password,str):raise WifiError('WIFI_INVALID_REQUEST')
+        if any(ord(c)<32 for c in password) or (security=='wpa2-psk' and not 8<=len(password.encode())<=63):raise WifiError('WIFI_INVALID_PASSWORD')
+        if active_wifi_uuid()==HOTSPOT_UUID:raise WifiError('HOTSPOT_IN_USE')
+        previous=target.read_text() if target.exists() and not target.is_symlink() else None
+        value=profile_text({'ssid':ssid,'security':'wpa-psk' if security=='wpa2-psk' else 'open'},password,HOTSPOT_UUID)
+        value=value.replace('id=Vulpes Wi-Fi','id=Vulpes hotspot',1).replace('autoconnect=true','autoconnect=false',1).replace('mode=infrastructure','mode=ap\nband=bg',1).replace('[ipv4]\nmethod=auto','[ipv4]\nmethod=shared',1).replace('[ipv6]\nmethod=auto','[ipv6]\nmethod=disabled',1)
+        if security=='wpa2-psk':value=value.replace('[wifi-security]\n','[wifi-security]\nproto=rsn\n')
+        profile_dir.mkdir(mode=0o700,parents=True,exist_ok=True);private_write(target,value)
+        if nm('connection','load',str(target)).returncode:
+            if previous is not None:private_write(target,previous);nm('connection','load',str(target))
+            else:
+                nm('connection','delete','uuid',HOTSPOT_UUID)
+                target.unlink(missing_ok=True)
+            raise WifiError('HOTSPOT_SAVE_FAILED')
+        return hotspot_state(profile_dir)
+    enabled=request.get('enabled')
+    if type(enabled) is not bool:raise WifiError('WIFI_INVALID_REQUEST')
+    current=active_wifi_uuid()
+    if enabled:
+        if not target.is_file() or target.is_symlink():raise WifiError('HOTSPOT_NOT_CONFIGURED')
+        if current==HOTSPOT_UUID:return hotspot_state(profile_dir)
+        HOTSPOT_RETURN.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
+        private_write(HOTSPOT_RETURN,json.dumps({'uuid':current}))
+        if nm('connection','up','uuid',HOTSPOT_UUID).returncode or active_wifi_uuid()!=HOTSPOT_UUID:
+            nm('connection','down','uuid',HOTSPOT_UUID)
+            if current:nm('connection','up','uuid',current)
+            HOTSPOT_RETURN.unlink(missing_ok=True)
+            raise WifiError('HOTSPOT_START_FAILED')
+    elif current==HOTSPOT_UUID:
+        if nm('connection','down','uuid',HOTSPOT_UUID).returncode:raise WifiError('HOTSPOT_STOP_FAILED')
+        previous=None
+        try:previous=str(uuid.UUID(json.loads(HOTSPOT_RETURN.read_text()).get('uuid')))
+        except (OSError,ValueError,TypeError,AttributeError):pass
+        HOTSPOT_RETURN.unlink(missing_ok=True)
+        if previous and previous!=HOTSPOT_UUID:
+            if nm('connection','up','uuid',previous).returncode:raise WifiError('WIFI_RECONNECT_FAILED')
+    result=hotspot_state(profile_dir)
+    if result['enabled']!=enabled:raise WifiError('HOTSPOT_STATE_MISMATCH')
+    return result
+
+
 def dispatch(request, profile_dir=PROFILE_DIR):
-    if not isinstance(request, dict) or set(request) - {'operation', 'id', 'password', 'enabled'}:
+    if isinstance(request,dict) and request.get('operation') in ('hotspotStatus','hotspotSave','hotspotPower'):
+        return hotspot(request,profile_dir)
+    if not isinstance(request, dict) or set(request) - {'operation', 'id', 'password', 'enabled', 'ssid', 'security'}:
         raise WifiError('WIFI_INVALID_REQUEST')
     operation = request.get('operation')
     saved = saved_profiles(profile_dir)
@@ -168,15 +269,25 @@ def dispatch(request, profile_dir=PROFILE_DIR):
         for network in found:
             stored = next((row for row in saved if row['ssid'] == network['ssid'] and row['security'] == network['security']), None)
             network.update(known=stored is not None, savedId=stored['id'] if stored else None)
-        return {'enabled': enabled, 'networks': found}
+        info={}
+        if any(n['connected'] for n in found):
+            try:info=connection_info()
+            except (WifiError,OSError,subprocess.TimeoutExpired):pass
+        return {'enabled': enabled, 'networks': found, 'connectionInformation':info}
     if operation == 'disconnect':
         if nm('device', 'disconnect', DEVICE).returncode:
             raise WifiError('WIFI_DISCONNECT_FAILED')
         return {'disconnected': True}
-    if operation != 'connect':
+    if operation not in ('connect','connectHidden'):
         raise WifiError('WIFI_INVALID_REQUEST')
     # Resolve an observed AP; clients cannot supply nmcli arguments or arbitrary SSIDs.
-    network = next((row for row in networks() if row['id'] == request.get('id')), None)
+    if operation == 'connectHidden':
+        ssid=request.get('ssid');security=request.get('security')
+        if not isinstance(ssid,str) or not 1<=len(ssid.encode())<=32 or security not in ('open','wpa-psk','sae'):
+            raise WifiError('WIFI_INVALID_REQUEST')
+        network={'ssid':ssid,'security':security,'hidden':True}
+    else:
+        network = next((row for row in networks() if row['id'] == request.get('id')), None)
     if network is None:
         raise WifiError('WIFI_NETWORK_GONE')
     stored = next((row for row in saved if row['ssid'] == network['ssid'] and row['security'] == network['security']), None)
@@ -184,6 +295,8 @@ def dispatch(request, profile_dir=PROFILE_DIR):
     target = profile_dir / ('vulpes-' + uid + '.nmconnection')
     previous = target.read_text() if stored else None
     text = previous if stored and not request.get('password') else profile_text(network, request.get('password', ''), uid)
+    if network.get('hidden') and 'hidden=true' not in text:
+        text = text.replace('[wifi]\n', '[wifi]\nhidden=true\n')
     profile_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
     target = profile_dir / ('vulpes-' + uid + '.nmconnection')
     connected = False
@@ -226,7 +339,12 @@ def handle(stream):
         _, uid, _ = struct.unpack('3i', stream.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
         if uid not in (0, 32011):
             raise WifiError('PERMISSION_DENIED')
-        result = {'result': dispatch(receive(stream, MAX_REQUEST))}
+        request = receive(stream, MAX_REQUEST)
+        if isinstance(request,dict) and request.get('operation') in ('connect','connectHidden','forget','disconnect','setEnabled','hotspotSave','hotspotPower'):
+            with MUTATION_LOCK:
+                result = {'result': dispatch(request)}
+        else:
+            result = {'result': dispatch(request)}
     except WifiError as error:
         result = {'error': str(error)}
     except Exception:
@@ -247,7 +365,8 @@ def main():
             if len(data) > MAX_REQUEST:
                 raise WifiError('WIFI_INVALID_REQUEST')
             with socket.socket(socket.AF_UNIX) as stream:
-                stream.settimeout(90)
+                value=json.loads(data)
+                stream.settimeout(180 if isinstance(value,dict) and value.get('operation')=='hotspotPower' else 90)
                 stream.connect(SOCKET)
                 stream.sendall(json.dumps(json.loads(data)).encode() + b'\n')
                 result = receive(stream, 65536)
@@ -265,10 +384,18 @@ def main():
         os.chown(SOCKET, 0, 32011)
         path.chmod(0o660)
         server.listen(4)
-        while True:
-            stream, _ = server.accept()
-            with stream:
-                handle(stream)
+        # Reading saved profiles must not wait behind a radio scan or connection.
+        # Bound both workers and queued sockets; mutations remain serialized.
+        slots = threading.BoundedSemaphore(8)
+        def serve_client(stream):
+            try:
+                with stream: handle(stream)
+            finally: slots.release()
+        with ThreadPoolExecutor(max_workers=4) as workers:
+            while True:
+                stream, _ = server.accept()
+                if slots.acquire(blocking=False): workers.submit(serve_client,stream)
+                else: stream.close()
 
 
 if __name__ == '__main__':

@@ -1,828 +1,547 @@
-# Journal des évolutions — Vulpes OS
+# Journal des modifications — Vulpes OS
 
 [English](CHANGELOG.en.md)
 
-Une base Gaia, trois plateformes : **PC**, **Android (APK)** et **Tundra / Sargo**.
-Ce journal décrit les changements visibles et les étapes techniques importantes.
-Les rapports détaillés restent dans la documentation de chaque plateforme.
+PC, Android (APK) et Tundra/Sargo. Les statuts indiquent des sources en développement, un APK construit ou une version publiée. Les changements des sources nécessitent une mise à jour du paquet installé.
 
-**Statuts :** « En développement » concerne les sources locales, « APK construit »
-un paquet de test, et « Publié » une release accessible dans le dépôt. Un correctif
-commun n’apparaît dans un APK installé ou une image téléphone qu’après leur mise à jour.
+<a id="2.7-preview.20"></a>
 
-<p align="center"><a href="docs/media/vulpes-gecko.png"><img src="docs/media/vulpes-gecko.png" width="260" alt="Les paramètres de Gaia, écran Informations système"></a></p>
-<p align="center"><em>Paramètres de Gaia · capture de la version pour ordinateur.</em></p>
+## 2.7-preview.20 — APK construit · 13 octobre 2026
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Preview 20 réunit les corrections communes depuis l’APK Preview 17 : paramètres Gaia, apparence, sélecteurs, clavier, contacts, Marketplace et médias.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Photo : enregistrement WebM avec miniature et lecture dans Galerie/Vidéo. Autorisation micro demandée ; commandes adaptées aux capacités du matériel.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Caméra : changement de capteur, arrêt et reprise fiabilisés. PC et Android utilisent leurs API caméra ; Sargo conserve son adaptateur HAL.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : mises à jour Wi-Fi, Bluetooth, appels, SMS/MMS et réglages réseau incluses dans les sources. Les fonctions non raccordées restent indiquées dans les panneaux.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Changelog : reprise des textes simplifiés FR/EN, badges conservés, filtres PC/APK/Sargo indépendants des titres. Markdown, site et notes de release issus du même JSON.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) APK signé avec la clé des Preview précédentes ; alignement et cohérence des 53 fichiers partagés vérifiés. Validation d’exécution Android en cours.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Gecko PC/Sargo 156.0.1 ; GeckoView Android 156.0. Gaia 2.7.0. L’APK délègue appels/SMS à Android : il ne remplace pas le système téléphonique Android.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Preview expérimentale : Compte Mozilla/Sync, localisation distante, extensions Firefox OS et transfert USB restent incomplets. Sargo : aperçu autour de 16 FPS ; son des vidéos et audio téléphonique à qualifier séparément.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Pixel 3a : Preview 20 r62 démarrée en RAM puis flashée sur boot_a. Empreinte relue identique ; démarrage installé, onze contrôles Gaia et dix contrôles natifs réussis. Données conservées, Wi-Fi connecté et enregistrement LTE observé. Pas de nouvelle conversation audio testée.
+
+<a id="development-2026-10-12-video-clock"></a>
+
+## En développement — 12 octobre 2026 — Vidéo et réglages de l’heure
+
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Photo : enregistrement WebM VP8/Opus avec autorisation micro, miniature et stockage. Tampon limité à 32 Mio, arrêt avant libération du capteur.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Photo, Galerie et Vidéo : prise en charge des fichiers WebM et de leurs miniatures.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Paramètres : véritables sélecteurs Date/Heure Gaia, retour du clavier intégré et lettres non tronquées dans les listes.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Améliorer Vulpes : lien vers les tickets du projet. Services non raccordés expliqués dans leurs panneaux.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : vidéo simulée 1920 × 1080 relue ; photo, galerie, reprise caméra et navigation vérifiées.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo r61 en RAM : vidéo 480 × 640 relue, huit bascules avant/arrière réussies. Médias de test supprimés ; son enregistré non écouté.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : aperçu mesuré autour de 16 FPS contre 12 dans le test précédent. 30 FPS restent à atteindre.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : heure automatique par NITZ, réglage persistant et protection des écritures manuelles. Synchronisation dépendante du réseau ; pas de NTP de secours, fuseau choisi manuellement.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Android : ressources préparées et Java compilé, sans nouvel APK ni test vidéo Android à cette étape. Compte Mozilla/Sync, localisation distante, extensions Firefox OS et transfert USB restent à implémenter. Aucun flash ni publication.
+
+<a id="development-2026-10-12-settings-calls-hotspot"></a>
+
+## En développement — 12 octobre 2026 — Appels et partage Wi-Fi
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Dialogues Gaia : fermeture après ouverture, transitions interrompues et nouvelle saisie après validation refusée.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : délai des services opérateur augmenté ; réglages lents séparés des commandes voix/SMS.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : double appel, présentation du numéro et quatre règles de renvoi raccordés à oFono, avec validation et relecture.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : point d’accès Wi-Fi WPA2 ou ouvert, configuration NetworkManager et pare-feu adapté. Mot de passe privé, accessible uniquement à Paramètres.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) r59 en RAM : 69 panneaux, dialogues et APN vérifiés sur PC/Pixel. Point d’accès enregistré, activé puis arrêté depuis Gaia ; Wi-Fi précédent restauré. 44 tests Python et régressions des dialogues réussis.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Transit Internet vers un autre appareil non testé. Messagerie vocale, blocage d’appels, PIN/PUK, certificats Wi-Fi et partage USB restent ouverts. Ressources Android synchronisées ; aucun nouvel APK, flash ou publication.
+
+<a id="development-2026-10-12-settings-network"></a>
+
+## En développement — 12 octobre 2026 — Paramètres réseau
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Wi-Fi : adresse IPv4 et débit réels ; ne plus afficher « undefined » lorsqu’une mesure manque.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : choix GSM/UMTS/LTE et modification des APN Internet/MMS existants, avec validation et relecture.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) APN : refuser les changements d’un profil actif, protéger IMS et les mots de passe, tenter la restauration après échec et signaler son résultat.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : file bornée pour les réglages lents. Lecture des appels en 20 ms pendant une attente de réglages de 5 secondes.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) 38 tests Python, 69 panneaux PC et parcours APN/réseau sur Pixel en RAM vérifiés. Ressources Android synchronisées.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Ajout, suppression et réinitialisation des APN indisponibles. Sélection manuelle d’opérateur et certificats encore ouverts. Aucun nouvel APK, flash ou publication.
+
+<a id="development-2026-10-12-settings-audit"></a>
+
+## En développement — 12 octobre 2026 — Audit des paramètres
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Paramètres : navigation récupérable après échec d’un contrôleur ou d’un dialogue ; génération cohérente des modules.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Filtres d’accessibilité et assistance Vulpes. Panneaux d’origine conservés avec explication des fonctions indisponibles.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) PC : statistiques du profil et téléchargements Gecko. Android : statistiques du stockage privé.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : données mobiles, itinérance, horloge et Wi-Fi masqué raccordés. Erreurs des anciennes interfaces réseau du panneau Son corrigées.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) 97 vues inventoriées ; 69 panneaux PC/Pixel ouverts et sept dialogues natifs vérifiés. Stockage, données et fuseau relus après écriture sur r51 en RAM.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Les vues contextuelles et services indisponibles ne sont pas tous qualifiés. Java Android compilé, sans nouvel APK. Aucun flash, ticket fermé ni publication.
+
+<a id="development-2026-10-12-settings-navigation"></a>
+
+## En développement — 12 octobre 2026 — Navigation des paramètres
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Listes déroulantes : sélecteur Gaia avec confirmation/annulation ; choix Clair/Sombre accessible. Gestionnaire SIM adapté à un emplacement.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Panneaux indisponibles : explication et commandes désactivées au lieu de liens sans effet.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : réseaux Wi-Fi mémorisés séparés des scans lents ; cache conservé lors des lectures d’état.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : informations SIM, centre SMS et accusés de réception reliés au modem.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) r45 en RAM : huit contrôles d’apparence, cinq panneaux et changement réel des accusés SMS validés, puis réglage restauré. Sélecteur PC vérifié ; ressources APK préparées.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Certificats Enterprise et autres options opérateur encore indisponibles. Aucun SMS émis, nouvel APK, flash ou publication.
+
+<a id="development-2026-10-12-sargo-appearance"></a>
+
+## En développement — 12 octobre 2026 — Correctifs communs sur Pixel 3a
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : boot r39 en RAM avec correctifs partagés et premier mode sombre. Noyau et configuration matérielle du r35 conservés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Démarrage, taille d’écran, réglages persistants, batterie, interface d’appel et Fira vérifiés. Services modem, audio, Wi-Fi et Bluetooth actifs.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sept contrôles d’apparence réussis dans Gaia : thème propagé, en-têtes lisibles, libellés placés et retour au clair. Capture Pixel inspectée.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Outil de mise à jour Gaia dans un boot privé, avec empreintes, sources conservées et vérification des composants matériels inchangés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Aucun nouvel appel, SMS ou appairage testé. Thème complet et comportement Android encore à qualifier. Aucun nouvel APK, flash ou publication.
+
+<a id="development-2026-10-11-appearance-input"></a>
+
+## En développement — 11 octobre 2026 — Apparence et clavier partagé
+
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Apparence : Clair, Sombre ou Selon le système, partagé entre les applications et conservé au redémarrage. Fonds d’écran, photos et sites externes préservés.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Clavier : opérations d’édition mutualisées, sélection et effacement, protection contre les réponses tardives.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : neuf contrôles d’apparence et gestes de saisie dans Messages réussis, sans envoi de SMS. Revue visuelle de Paramètres, Messages, Téléphone et Contacts.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Android : option expérimentale de clavier Gaia ; clavier Android conservé par défaut et mode de saisie restauré à la fermeture.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Android : réessayer brièvement le même capteur encore occupé, sans réessayer après refus de permission ou fermeture de Photo.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Preview 19 construit localement : signature, alignement, parité et tests du pont/caméra réussis.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Clavier Gaia, caméra avant Android et thème complet encore à qualifier. Sources prêtes pour Sargo, resté sur r35 à cette étape. Aucun upload, flash ni ticket fermé.
+
+<a id="development-2026-10-11-settings"></a>
+
+## En développement — 11 octobre 2026 — Paramètres et accueil
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Paramètres : gestion des sonneries, saisie/effacement du code PIN, désactivation du verrouillage et liste des permissions des applications tierces.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Accueil : première initialisation du second lanceur et aperçus des fonds d’écran.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Langues : actualiser les libellés Vulpes au changement de langue ; anglais de secours hors français. Fermer le panneau d’échec caméra et les bandeaux d’installation.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Android : ouvrir le volet Gaia en touchant la barre de statut. Preview 18 construit, signé et comparé aux sources.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : neuf parcours Gaia, cinq contrôles de bandeaux et douze tests activités/caméra réussis. Bluetooth Sargo r35 confirmé par l’utilisateur.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Redémarrage à chaud du compositeur encore instable : fichiers restaurés et retour à r35. Corrections non qualifiées sur Sargo à cette étape ; clavier/thème Android ouverts. Aucun APK publié ni flash.
+
+<a id="development-2026-10-09-mms-bluetooth"></a>
+
+## En développement — 9 octobre 2026 — MMS et Bluetooth
+
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Bluetooth : adaptateur Gaia partagé, commandes matérielles séparées et accès limité aux applications autorisées.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : activation, découverte, appairage explicite, connexion et suppression depuis le panneau Bluetooth Gaia. Modules audio Bluetooth intégrés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : services réseau Qualcomm et transport MMS raccordés. Une déconnexion D-Bus ne termine plus le daemon MMS. État persistant, reprise sans doublon ni renvoi automatique incertain.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) r35 en RAM : MMS avec image visible et accepté par le MMSC Orange ; réception destinataire à confirmer. Cinq appareils Bluetooth détectés, A2DP vers PC validé.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) 191 tests Python Tundra et 18 tests JavaScript réussis. Ramdisk allégé et ressources Android synchronisées.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Audio d’appel via casque non qualifié. Aucun nouvel APK, flash ni push à cette étape.
+
+<a id="development-2026-10-08-camera-mms"></a>
+
+## En développement — 8 octobre 2026 — Caméra et transport MMS
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Caméra : arrêter le flux avant de détacher la vidéo ; attendre la fermeture du capteur, réinitialiser le viseur et recalculer sa taille après rotation.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) MMS : préserver les pièces jointes Blob et garder les messages en attente jusqu’à confirmation du transport.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : viseur WebGL réutilisé sans recapture vidéo intermédiaire ; écran maintenu éveillé pendant l’aperçu.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC et Sargo : parcours Photo/Galerie et huit bascules natives vérifiés. JPEG, focus et zoom fonctionnels ; arrière ~16 FPS, avant ~25–27 FPS dans cet essai.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : file MMS persistante, codec Nuntium et transport oFono. Interface texte/photo testée avec transport simulé.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Données mobiles bloquantes pour les MMS opérateur à cette étape. Ressources Android synchronisées ; aucun nouvel APK, flash ou push.
+
+<a id="development-2026-10-08-call-log-dialogs"></a>
+
+## 8 octobre 2026 — Rappel et messages d’erreur
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Dialogues Gaia : texte visible au lieu d’un écran gris avec un bouton seul.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Journal d’appel : rappel via le même service que le pavé numérique, sans anciennes API Gecko. Fichier partagé PC/Android/Sargo.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) MMS : signaler clairement l’envoi indisponible, garder texte et pièces jointes, ne plus annoncer un faux mode avion.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : dialogues FR/EN et composeur préservé. Sargo en RAM : 11 contrôles Gaia réussis, rappel testé avec modem simulé.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Aucun appel réel ni validation audio dans cette étape. Ressources Android synchronisées, aucun nouvel APK publié.
+
+<a id="development-2026-10-08-sms-audio"></a>
+
+## En développement — 8 octobre 2026 — SMS et audio
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) SMS : envoyer en un appui en conservant le clavier. Trombone raccordé au menu Gaia : image, audio, vidéo ou contact.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Interface : indicateur de volume visible, gestes du verrouillage et balayage des notifications corrigés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : clavier, pièces jointes, Galerie, interface d’appel et volume vérifiés ; notification balayée sans déplacer la page. Aucun nouvel APK publié.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : accès à PulseAudio, relais Qualcomm, protocole D-Bus et périphériques de calibration rétablis. Service audio Android concurrent retiré.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : 11 contrôles Gaia, calibration et prévisualisations arrière/avant/arrière réussis.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Appels échouant avant sonnerie avec une erreur réseau dans cet essai. Audio bidirectionnel, geste Pixel et MMS encore non validés. Aucun flash ni publication.
+
+<a id="development-2026-10-08-radio-reliability"></a>
+
+## En développement — 8 octobre 2026 — Fiabilité téléphonie
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : service radio maintenu après fermeture d’un client. Jamais de nouvel appel ou SMS automatique après une réponse perdue. Erreurs sans numéro ni texte du message.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Diagnostic réseau/audio sans identifiants personnels et paramètres opérateur épinglés dans l’image native.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) SMS : attendre le vrai gestionnaire Gaia et accepter les identifiants oFono avec majuscules. Contrôle des conversations rétabli sans réémission.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : LTE retrouvé après redémarrage, SMS confirmé envoyé par le modem, microphone non silencieux et lecture audio acceptée.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Réception destinataire, audio d’appel bidirectionnel et stabilité modem restent à qualifier. Compositeur instable au redémarrage à chaud. Aucun nouvel APK, flash ou push.
 
 <a id="2026-10-08-source-publication"></a>
 
 ## 8 octobre 2026 — Mise à jour des sources publiques
 
-### Commun · PC / Android / Tundra
-
-- Regrouper les correctifs récents de caméra, Contacts, SMS, Marketplace et les outils de construction et de restauration Sargo dans les sources publiques. Mettre à jour les README français et anglais avec les capacités et limites vérifiées.
-- Corriger le contrôle de parité Android pour créer son dossier de rapports sur une copie neuve du dépôt. Vérifier que la configuration Wi-Fi native embarque un répertoire de connexions vide.
-- Conserver les tickets, feuilles de route, documents internes, données personnelles et clés hors du dépôt.
-
-### Paquets et qualification
-
-- L’APK public reste Preview17 : les correctifs du 8 octobre nécessitent une prochaine compilation. Aucune nouvelle image native publiée ni flash dans cette étape.
-- Sur Sargo, l’enregistrement cellulaire reste en recherche lors du dernier contrôle ; audio bidirectionnel, appairage Bluetooth et profils restent à qualifier.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Publication des correctifs Caméra, Contacts, SMS et Marketplace, et des outils Sargo de construction et de restauration.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) README français et anglais actualisés avec les fonctions et limites vérifiées.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Création du dossier de rapports lors du contrôle de parité Android sur un dépôt neuf.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Configuration Wi-Fi native vérifiée : aucun profil de connexion embarqué.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Documents internes, données personnelles et clés exclus du dépôt.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) APK public inchangé (Preview17) ; correctifs du 8 octobre non inclus. Aucune nouvelle image native publiée.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Sargo : modem encore en recherche réseau ; audio des appels, appairage et profils Bluetooth à valider.
 
 <a id="development-2026-10-08-camera-lifecycle"></a>
 
 ## 8 octobre 2026 — Caméra et parcours Contacts · en développement
 
-### Commun · Gaia / PC / Android / Tundra
-
-- Sérialiser les ouvertures de caméra, attendre la fermeture du capteur précédent et libérer les pistes et ressources vidéo même après un échec. Stabiliser l’identification avant/arrière sur PC et Android.
-- Conserver les images binaires lors des échanges PC/Tundra ; encoder explicitement les photos et dates des contacts pour le pont JSON Android.
-- Corriger l’actualisation de la fiche après modification d’un contact. Rétablir les activités Contacts → SMS, sélection d’un numéro et ouverture du pavé numérique, en préservant les demandes imbriquées et les points d’entrée de Gaia.
-- Réouvrir Galerie en mode sélection pour ajouter une photo à un contact, même lorsque Galerie est déjà ouverte en consultation. Sélection, recadrage et enregistrement de la photo validés sur PC.
-- Ajouter des tests de caméra, de stockage des contacts, de permissions, de transport binaire et de routage des activités.
-
-### PC
-
-- Vérifier le parcours original Appareil photo → capture JPEG → Galerie → ouverture de la photo → retour caméra.
-- Vérifier dans Gaia : création et modification d’un contact, actualisation de la fiche, recherche sans accents et sans résultats, favoris, destinataire SMS, sélection d’un numéro, pavé numérique prérempli, annulation puis confirmation de suppression. Le test n’émet ni appel ni SMS et supprime son contact temporaire.
-
-### Tundra · Sargo
-
-- Vérifier en RAM sur Pixel 3a : autofocus, zoom, quatre alternances avant/arrière avec nouvelles trames, capture JPEG depuis Gaia, stockage, ouverture dans Galerie et arrêt du capteur à l’accueil.
-- Vérifier les conversations déjà stockées, le clavier et les notifications. Recherche Wi-Fi : quatre réseaux détectés. Nouvelle émission/réception SMS et audio des appels encore en qualification.
-- Ajouter les paquets BlueZ et les bibliothèques nécessaires, verrouillés par SHA256. Le contrôleur Bluetooth démarre, s’active et lance une recherche ; l’appairage depuis Gaia et les profils ne sont pas encore validés.
-- Ajouter le magasin de certificats natif : HTTPS vérifié sans désactivation de TLS. Tester les archives altérées, collisions de fichiers et reconstructions répétées.
-
-- Corriger les fichiers Contacts embarqués dans le build de démarrage : la création, l’édition, le passage vers SMS, le sélecteur et le pavé numérique passent aussi avec les gestes tactiles sur Sargo.
-
-### Android · APK
-
-- Publier l’APK Preview17 existant, avec téléchargement et SHA256 vérifiés. Il précède les correctifs du 8 octobre.
-- Corriger la transmission des destinataires et du texte de Gaia vers l’application SMS Android, y compris la réponse à une conversation et le numéro saisi sans validation préalable. Tests du pont réussis ; essai Android réel encore nécessaire.
-- Réempaqueter les ressources communes corrigées pour la prochaine compilation ; aucun nouvel APK incluant ces correctifs n’est publié.
-
-**État :** builds natifs de qualification démarrés en RAM. Aucun flash, push de code ni publication de documentation privée dans cette étape. La qualification complète des fonctions de téléphone reste ouverte.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Caméra : ouvertures successives, libération du capteur et identification avant/arrière corrigées.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Contacts : transport des photos et des dates corrigé sur PC, Android et Tundra.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Contacts : actualisation après modification, ouverture de SMS, sélection d’un numéro et préremplissage du pavé numérique rétablis.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Galerie : ouverture en mode sélection pour la photo d’un contact, même si l’application est déjà ouverte.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : fichiers Contacts corrigés inclus dans l’image de démarrage.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Android : transmission du destinataire et du texte à l’application SMS, y compris les réponses et les numéros non encore validés.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Tests de caméra, stockage des contacts, permissions, transport binaire et activités.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : capture JPEG, Galerie, photo de contact, création, édition, recherche, favoris et suppression vérifiés. Aucun appel ni SMS émis.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo en RAM : autofocus, zoom, quatre bascules de caméra, capture et Galerie vérifiés ; parcours Contacts testés au toucher.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : conversations stockées, clavier et notifications vérifiés ; quatre réseaux Wi-Fi détectés. Nouveaux SMS et audio d’appel à valider.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : BlueZ et ses dépendances avec empreintes SHA256. Activation et recherche Bluetooth testées ; appairage et profils à valider.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : magasin de certificats natif. HTTPS, archives altérées, collisions de fichiers et reconstructions testés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Preview17 publié avec téléchargement et SHA256 vérifiés. Les correctifs ci-dessus restent dans les sources ; essai SMS Android réel nécessaire. Aucun flash Sargo.
 
 <a id="development-2026-10-06-marketplace-theme"></a>
 
 ## 6 octobre 2026 — Thème Marketplace intégré · en développement
 
-### Commun · Gaia / PC / Android / Tundra
-
-- Ouvrir le catalogue avec `mode=app`, conservé dans les liens, la recherche, les filtres, les fiches et le changement de langue.
-- Préparer un thème web Vulpes dédié : Fira locale, navigation compacte, boutons tactiles, cartes lisibles, filtres repliables et captures défilantes. Retirer les en-têtes du site dans le mode intégré, tout en conservant l’interface du site classique.
-- Conserver les confirmations et messages système côté Gaia. Le thème ne donne aucun privilège supplémentaire aux pages du catalogue.
-- Vérifier 16 pages FR/EN, 2 pages en mode classique et les ressources du thème. Rendus mobiles de 320 et 360 pixels inspectés. Lanceurs PC et Sargo mis à jour ; les sources seront reprises au prochain empaquetage Android.
-
-Fichiers du site prêts localement, non déployés sur le serveur public. Aucun push ni nouvelle publication APK/ROM.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Marketplace : thème intégré avec Fira locale, navigation compacte, boutons tactiles, filtres repliables et captures défilantes.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Conservation de `mode=app` dans la navigation, la recherche, les filtres et le changement de langue.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) En-têtes du site masqués en mode intégré. Confirmations gérées par Gaia, sans privilèges supplémentaires pour le catalogue.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) 16 pages FR/EN, 2 pages classiques et affichages mobiles à 320 et 360 pixels vérifiés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Thème prêt localement, non déployé. Lanceurs PC et Sargo mis à jour ; intégration Android au prochain APK.
 
 <a id="development-2026-10-06-system-banner"></a>
 
 ## 6 octobre 2026 — Bandeaux Gaia · en développement
 
-### Commun · Gaia / PC / Android / Tundra
-
-- Faire disparaître le bandeau « Application installée » après son délai normal, même si la fin d’animation ne remonte pas du composant Gaia. Conserver son apparence et permettre sa fermeture au toucher.
-- Annuler les anciens délais lorsqu’un nouveau message remplace le précédent pour éviter une disparition prématurée.
-- Vérifier sur PC l’affichage, l’expiration, le remplacement et la fermeture au clic ; vérifier sur le Pixel le retrait effectif du bandeau après cinq secondes. Correctif déployé sur l’essai Sargo en RAM et disponible dans les sources communes pour le prochain APK.
-
-Aucun flash ni publication dans cette étape.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Fermeture automatique du bandeau « Application installée », même sans événement de fin d’animation.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Annulation des anciens délais lorsqu’un nouveau bandeau remplace le précédent.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : affichage, expiration, remplacement et fermeture au clic vérifiés. Sargo : disparition après cinq secondes vérifiée en RAM.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Correctif disponible dans les sources communes pour le prochain APK. Aucun flash ni publication.
 
 <a id="development-2026-10-06-wifi"></a>
 
 ## 6 octobre 2026 — Wi-Fi et panneaux Paramètres · en développement
 
-### Commun · Gaia / PC / Android / Tundra
-
-- Terminer l’ouverture d’un panneau Paramètres même si Gecko ne produit pas l’événement de fin d’animation. Conserver les transitions Gaia et éviter les doubles initialisations.
-- Correctif dans les sources communes et le serveur PC ; inclus au prochain empaquetage Android. Aucun nouvel APK publié dans cette étape.
-
-### Tundra · Sargo
-
-- Corriger les événements de signal Wi-Fi : transmettre le réseau associé et ne pas annoncer de signal de connexion lorsque le téléphone est déconnecté. L’événement incomplet faisait échouer l’affichage des réseaux dans Gaia.
-- Sur le Pixel, vérifier le pilote, le service natif, le passage par Gecko et l’affichage du panneau corrigé : quatre points d’accès détectés, regroupés en deux réseaux, sans erreur de recherche.
-- Connexion Wi-Fi confirmée par l’utilisateur ; requête HTTPS réelle réussie depuis Gecko vers example.org (HTTP 200, vérification des certificats active). Correctifs appliqués à l’essai en RAM ; aucun flash ni push.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Paramètres : ouverture des panneaux même sans événement de fin d’animation, sans double initialisation.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : événements Wi-Fi corrigés pour rétablir l’affichage des réseaux et signaler correctement la déconnexion.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : quatre points d’accès détectés, regroupés en deux réseaux. Connexion confirmée et requête HTTPS réussie avec certificats vérifiés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Sources communes, serveur PC et essai Sargo en RAM mis à jour. Correctifs non inclus dans l’APK public.
 
 <a id="development-2026-10-06-marketplace-views"></a>
 
 ## 6 octobre 2026 — Marketplace · en développement
 
-### PC / Tundra · Sargo
-
-- Maintenir le catalogue sous la barre de statut et dans les limites de son application. Masquer sa vue web à l’accueil et dans le multitâche ; la retirer à la fermeture de l’application.
-- Éviter qu’une navigation annulée ou l’ancienne page d’erreur masque une nouvelle tentative.
-- Afficher un message local et proposer une nouvelle tentative lorsque le catalogue est inaccessible, au lieu de laisser sa page d’erreur recouvrir Gaia.
-- Sur PC : navigation, erreur réseau, nouvelle tentative, retour à l’accueil et fermeture depuis le multitâche vérifiés. Sept contrôles directs passent sur Sargo en RAM, sans fenêtre de débogage, avec une page locale et une précondition de déverrouillage forcée ; le catalogue distant nécessite une connexion Internet sur le téléphone.
-
-### Android · APK
-
-- Reconstruire l’APK local Preview17 avec le message d’erreur Marketplace commun. Signature, alignement et parité des ressources vérifiés ; nouvelle régression sur appareil Android non effectuée dans cette étape.
-
-Aucune publication dans cette étape.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) PC/Sargo : catalogue Marketplace contenu sous la barre de statut, masqué à l’accueil et retiré à la fermeture.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Une navigation annulée ou une ancienne page d’erreur ne masque plus la nouvelle tentative.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Message d’erreur local avec bouton Réessayer lorsque le catalogue est inaccessible.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : navigation, erreur réseau, nouvelle tentative, accueil et fermeture vérifiés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo en RAM : sept contrôles réussis avec une page locale et déverrouillage forcé. Catalogue distant non validé sans connexion Internet.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) APK Preview17 local reconstruit ; signature, alignement et ressources vérifiés. Aucun nouveau test sur appareil Android ni publication.
 
 <a id="2.7-preview.17"></a>
 
 ## 2.7-preview.17 — APK construit · 5 octobre 2026
 
-### Commun · Gaia / PC
-
-- Remettre Marketplace sur l’accueil avec son icône originale et le catalogue Vulpes. Ouvrir sa version française pour les langues fr, anglaise sinon.
-- Adapter les téléchargements du catalogue en installations confirmées : vérifier les archives ZIP, ajouter l’application à l’accueil et permettre son lancement et sa désinstallation.
-- Conserver les applications installées séparément des sources Gaia, sur des origines distinctes et sans privilèges système hérités des anciens manifestes.
-- Valider sur PC le parcours réel avec 2048 : catalogue, confirmation, installation, lancement, persistance et désinstallation. Contrôler les archives corrompues, chemins invalides, limites, annulation et confirmations à usage unique.
-
-### Android · APK
-
-- Construire et signer Preview17 avec le même Marketplace et le même service d’installation. Utiliser la vue GeckoView existante pour le catalogue et le stockage privé Android pour les paquets.
-- Vérifier sur émulateur Android 16/API36 le clic Installer, la confirmation, l’apparition sur l’accueil et le lancement de 2048 sans accès au pont système Vulpes. Vérifier aussi la conservation après arrêt forcé et relance, puis la désinstallation.
-
-### Tundra · Sargo
-
-- Préparer une image de boot locale incluant Marketplace, l’installateur et le serveur des applications ajoutées. Démarrage en RAM effectué sur le Pixel le 6 octobre : accueil et ressources Marketplace vérifiés, sans flash. Neuf contrôles système sur dix passent ; le contrôle global Gaia relève une variation du viewport au déverrouillage. Installation de paquets sur Sargo encore à qualifier.
-
-**Limites :** compatibilité initiale avec les applications web empaquetées. Les anciennes API privilégiées, applications hébergées et services disparus ne sont pas restaurés automatiquement. Rien publié sur Forgejo ni sur le site.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Marketplace sur l’accueil, avec son icône originale et le catalogue Vulpes en français ou en anglais.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Installation confirmée des applications ZIP, lancement depuis l’accueil et désinstallation.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Applications installées isolées des sources Gaia et des privilèges système.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : parcours complet avec 2048 et contrôles des archives, chemins, limites, annulations et confirmations à usage unique.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) APK Preview17 construit et signé avec Marketplace, GeckoView et stockage privé des paquets.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Émulateur Android 16/API 36 : installation, lancement, isolation, conservation après redémarrage de l’application et désinstallation de 2048.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo en RAM le 6 octobre : accueil et ressources Marketplace vérifiés, 9 contrôles système sur 10 réussis. Variation du viewport au déverrouillage ; installation de paquets à valider.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Prise en charge initiale des applications web empaquetées. Anciennes API privilégiées et applications hébergées non restaurées. Aucune publication à cette étape.
 
 <a id="2.7-preview.16"></a>
 
 ## 2.7-preview.16 — APK construit · 5 octobre 2026
 
-### Commun · Gaia / PC
-
-- Rétablir les sélecteurs Gaia de fond d’écran et de sons, leur retour vers Paramètres et leur annulation par Accueil. Partager le transport des images et sons enregistrés entre PC et Android.
-- Propager les changements de langue à l’accueil, y compris sans permission de lecture générale des réglages. Vérifier les libellés FR/EN et la persistance.
-- Rétablir l’arrêt du balayage horizontal sur une page et masquer les applications de développement sur l’accueil, sans les supprimer des sources.
-- Utiliser le logo Vulpes fourni dans le splash et adapter les composants originaux de la liste des sons au moteur actuel.
-- Vérifier sur PC deux changements consécutifs de fond, le choix d’un son et les panneaux Gaia restaurés.
-
-### Android · APK
-
-- APK local Preview16 construit et signé ; contenu commun et version vérifiés. Aucune publication dans cette étape.
-- Valider Vulpes comme lanceur HOME, afficher le verrouillage Gaia après veille et rétablir le retour Android depuis la caméra ouverte au verrouillage.
-- Masquer les barres système Android en mode immersif, en conservant leur accès temporaire par balayage.
-- Tests sur émulateur Android 16/API36 : verrouillage, caméra/retour, FR/EN, accueil sans applications de test, fond d’écran et son. Fond conservé après arrêt forcé et relance, sans changement répété pendant 15 secondes. Autres appareils Android non qualifiés dans cette étape.
-
-### Tundra · Sargo
-
-- Inclure les mêmes correctifs et la politique des applications dans une nouvelle image de boot de test. Le boot précédent réappliquait une copie ancienne des fichiers et annulait les modifications à chaud.
-- Démarrage en RAM sur le Pixel réussi : six contrôles de langues/accueil/sélecteurs et dix contrôles système passent. Sélecteurs image/son vérifiés sans écraser les choix personnels. Le boot installé reste Preview15 ; aucune partition flashée dans cette étape.
-
-**Limites :** l’installation tierce FFAA reste ouverte. Le site dépend d’anciennes API mozApps et d’un script nomodule ; un installateur isolant les applications et leurs permissions reste à construire. Le choix d’un son Gaia ne modifie pas la sonnerie globale Android ; l’audio d’appel réel n’a pas été qualifié ici.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sélecteurs Gaia de fond d’écran et de sons rétablis, avec retour vers Paramètres et annulation par Accueil.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Changement de langue appliqué à l’accueil et conservé après redémarrage.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Arrêt du balayage horizontal sur chaque page ; applications de développement masquées sur l’accueil.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Logo Vulpes au démarrage et liste des sons adaptée au moteur actuel. Transport des médias partagé entre PC et Android.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Android : verrouillage Gaia après veille et retour depuis la caméra du verrouillage. Mode lanceur HOME validé.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Android : barres système masquées en mode immersif, accessibles par balayage. APK Preview16 construit et signé.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC et émulateur Android 16/API 36 : fonds d’écran, sons et panneaux vérifiés ; langue, verrouillage et persistance du fond testés sur Android.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : image de démarrage mise à jour pour ne plus restaurer d’anciens fichiers.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo en RAM : 6 contrôles d’interface et 10 contrôles système réussis. Installation conservée en Preview15, sans flash.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) APK non publié. Installation FFAA et audio d’appel à valider ; le choix d’un son Gaia ne change pas la sonnerie Android.
 
 <a id="2026-10-04-sargo-standalone"></a>
 
 ## En développement — 4 octobre 2026 — Installation autonome Sargo
 
-### Tundra · Sargo
-
-- Construction d’un volume ext4 neuf directement destiné à userdata : système, données et composants matériels vendor/modem embarqués. Le démarrage ne cherche plus de fichiers dans une installation Droidian ; aucune session Android ni connexion ADB n’est nécessaire à l’installation.
-- Installateur Fastboot en Python : contrôle du modèle Sargo, du déverrouillage, des tailles et des empreintes, puis remplacement de userdata, dtbo_a, vbmeta_a et boot_a. Le bootloader reste déverrouillé ; les calibrations propres au téléphone sont conservées.
-- Sauvegarde complète de userdata hors ligne, comparaison intégrale avec le téléphone et vérification de l’archive de restauration avant le flash. Les sauvegardes restent privées ; une restauration réelle n’a pas été effectuée dans cette étape.
-- Deux démarrages depuis le stockage interne réussis : onze contrôles Gaia et dix contrôles natifs par démarrage, image de boot relue et vérifiée, réglages conservés. Le slot A est marqué réussi uniquement après validation du démarrage Gaia courant.
-- Variante générique sans serveur SSH ni clés de maintenance : flash de boot_a et démarrage réel réussis. La variante de développement est ensuite remise sur le Pixel pour poursuivre les travaux. Les images du paquet générique conservent leur état initial vierge.
-- Contrôles finaux sur le démarrage autonome de développement : Photo (dont bascules de capteur), clavier Gaia et notifications réussis.
-- Paquet Fastboot local assemblé avec empreintes et rapport de qualification. 44 tests ciblés passent. Il n’est pas encore publié : la provenance et la redistribution de certains composants matériels restent à finaliser.
-- Limites : qualification sur un Pixel 3a, pas sur toutes les combinaisons de firmware ; volume de 8 Gio comprenant 1 Gio de données modifiables, sans extension automatique. Les fonctionnalités matérielles restent expérimentales.
-
-### PC / Android · APK
-
-- Aucun changement d’interface ni nouveau binaire dans cette étape. Gaia reste partagé entre les trois plateformes.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : volume ext4 autonome pour userdata, avec système, données et composants vendor/modem. Installation indépendante de Droidian et d’ADB.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Installateur Fastboot avec contrôles du modèle, du déverrouillage, des tailles et des empreintes. Remplacement de userdata, dtbo_a, vbmeta_a et boot_a ; calibrations conservées.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sauvegarde complète de userdata et archive de restauration vérifiées avant le flash. Restauration réelle non testée.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Deux démarrages installés réussis : 11 contrôles Gaia et 10 contrôles natifs par démarrage, réglages conservés et boot relu conforme.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Variante sans SSH ni clés de maintenance démarrée après flash. Variante de développement réinstallée ; caméra, clavier et notifications vérifiés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Paquet Fastboot local assemblé ; 44 tests ciblés réussis.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Paquet non publié : provenance et redistribution de composants matériels à finaliser. Essais sur un seul Pixel 3a ; volume de 8 Gio dont 1 Gio modifiable, sans extension automatique.
 
 <a id="2026-10-03-sargo-per-device-installation"></a>
 
 ## En développement — 3 octobre 2026 — Installation Sargo par appareil
 
-### Tundra · Sargo
-
-- Collecte des six partitions de démarrage en lecture seule et du stockage existant, liés à l’identité du téléphone et au slot A. Les sauvegardes restent privées.
-- Dossier appareil portable : construction RAM, contrôle du boot, installation et export du secours peuvent l’utiliser sans l’inventaire partagé du Pixel de développement. Un build lié à un dossier appareil refuse le repli implicite vers cet inventaire.
-- Transfert SSH contrôlé : vérification de l’identité et du stockage, contrôle des empreintes et création des fichiers sans remplacer les données existantes. Aucun formatage, flash ou redémarrage dans l’outil de transfert.
-- Construction et transfert testés sur le Pixel. Premier boot RAM : onze contrôles Gaia et dix contrôles natifs réussis ; clavier et notifications réussis. Le contrôle caméra a rencontré un délai d’autofocus dépassé, conservé dans le rapport.
-- Second boot de la même image : réglage Gaia conservé, onze contrôles Gaia et dix contrôles natifs réussis ; caméra, clavier et notifications réussis. Le timeout autofocus du premier essai reste documenté, pas déclaré corrigé.
-- Retour au build installé vérifié : démarrage Gaia réussi et partition de boot inchangée. Un nouveau transfert refuse bien de remplacer les données déjà utilisées.
-- Provenance du HAL précisée : paquet et recette de téléchargement identifiés, recettes UBports historiques récupérées. La correspondance exacte avec l’ancien artefact Android et son manifeste de sources reste à établir.
-- Prise en charge toujours limitée au noyau qualifié et au stockage ext4/LVM compatible. Ce travail ne fournit pas encore une installation directe depuis Android d’origine.
-
-### PC / Android · APK
-
-- Aucun changement d’interface ni nouvelle compilation dans cette étape.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : dossier appareil portable pour les builds, l’installation et le secours, indépendant de l’inventaire du Pixel de développement.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Collecte en lecture seule des six partitions de démarrage et du stockage, liée à l’identité du téléphone. Sauvegardes privées.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Transfert SSH avec contrôle d’identité, du stockage et des empreintes, sans écrasement, formatage ni flash.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Deux boots RAM : 11 contrôles Gaia et 10 contrôles natifs réussis chacun ; réglage conservé. Timeout autofocus au premier essai, caméra fonctionnelle au second.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Retour au build installé vérifié ; boot inchangé et écrasement des données refusé.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Timeout autofocus non déclaré corrigé. Provenance exacte du HAL encore à établir ; noyau et stockage ext4/LVM compatibles requis, sans installation directe depuis Android d’origine.
 
 <a id="2026-10-03-sargo-installation-tools"></a>
 
 ## En développement — 3 octobre 2026 — Préparation et secours Sargo
 
-### Tundra · Sargo
-
-- Ajout d’un outil de préparation locale : contrôle du manifeste et de l’archive, décompression bornée, vérification ext4 et création d’un espace de données vierge propre à l’installation. Les dossiers existants ne sont pas écrasés.
-- Ajout d’un kit de restauration privé exportable hors du dépôt. Il conserve la sauvegarde originale de boot_a et un outil autonome qui vérifie le modèle, le numéro de série, le slot et les empreintes avant toute restauration explicite. Il ne constitue pas une sauvegarde des données utilisateur.
-- La restauration existante ne dépend plus de la présence de l’image de diagnostic. Les contrôles de la sauvegarde sont conservés.
-- Construction système : référence matérielle ARM64 désormais explicite, avec refus d’une référence limitée à l’affichage ou dépourvue des services requis.
-- Préparation de l’archive système réelle et vérification locale du kit de secours effectuées. Aucun nouveau flash ni nouvelle ROM publiée ; l’installation automatique sur un autre Sargo reste à finaliser.
-
-### Commun · PC / Android / Tundra
-
-- Le journal JSON partagé est conservé dans les futures publications de sources ; les documents de travail Markdown restent exclus.
-
-### PC / Android · APK
-
-- Aucune modification fonctionnelle ni nouvelle compilation dans cette étape.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : préparation locale des paquets avec contrôles d’empreintes, décompression bornée, vérification ext4 et création de données vierges sans écrasement.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Kit de secours privé avec sauvegarde de boot_a et contrôles du modèle, du numéro de série, du slot et des empreintes. Données utilisateur non incluses.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Restauration possible sans l’image de diagnostic.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Construction système : référence matérielle ARM64 complète exigée.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Archive système préparée et kit de secours vérifié localement. Installation sur un autre Sargo à finaliser ; aucun flash ni ROM publiée.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Journal JSON inclus dans les prochaines publications de sources ; documents de travail exclus.
 
 <a id="2026-10-03-sargo-modem-persistence"></a>
 
 ## En développement — 3 octobre 2026 — Sargo : récupération modem et installation vierge
 
-### Tundra · Sargo
-
-- Reconstruction de l’image système avec le correctif du cache des polices et la création du répertoire privé d’oFono au premier démarrage.
-- Récupération limitée au sous-système modem : test contrôlé avec passage hors ligne, remise en service et réenregistrement réseau en environ 22 secondes, sans redémarrage du téléphone. Cela ne corrige pas la cause du watchdog IMS du firmware.
-- Démarrage Gaia, rendu matériel, polices Fira, deux capteurs photo, focus/zoom, clavier et notifications visuelles contrôlés sur le profil neuf. Scan Wi-Fi encore fonctionnel après le redémarrage du modem.
-- Deux démarrages réussis avec conservation du même réglage Gaia sur un espace de données séparé. Caméra, clavier et notifications revérifiés au second démarrage. La partition de boot installée et les données existantes sont conservées.
-- Aucune nouvelle image native publiée : le paquet public d’installation/restauration reste à terminer.
-
-### PC / Android · APK
-
-- Aucun changement de l’interface commune ni nouvelle compilation APK dans cette étape.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : cache des polices et création du dossier privé oFono au premier démarrage corrigés dans l’image système.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Récupération du modem sans redémarrer le téléphone. Réenregistrement réseau mesuré à environ 22 secondes lors d’un essai contrôlé.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Profil neuf : Gaia, rendu matériel, Fira, deux caméras, focus, zoom, clavier et notifications vérifiés. Scan Wi-Fi fonctionnel après redémarrage du modem.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Deux démarrages avec conservation des réglages dans un espace de données séparé. Installation existante préservée.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Cause du watchdog IMS non corrigée. Paquet public d’installation et de restauration encore incomplet ; aucune image publiée.
 
 <a id="2026-10-01-sargo-distribution-preparation"></a>
 
 ## 1er octobre 2026 — Sargo : préparation de la distribution — en développement
 
-### Tundra · Sargo
-
-- Image système Preview 15 reconstruite avec profils vierges, exclusion des documents de travail et conservation des licences ; inventaire des 493 paquets embarqués.
-- Vérification ext4 et contrôle du contenu effectués. Ces contrôles ne constituent pas une validation de démarrage.
-- Inventaire du stockage en lecture seule et génération de la table de montage depuis cet inventaire, au lieu de reprendre systématiquement les dimensions du Pixel de développement. Prise en charge limitée au volume ext4 à une seule étendue sur userdata Sargo ; aucun formatage ajouté.
-- Image nettoyée transférée et vérifiée sur le Pixel chargé. Essais temporaires en RAM, sans écriture de boot_a ; retour automatique vers le build v59 et redémarrage de Gaia contrôlés.
-- SIM reconnue, enregistrement LTE et scan Wi-Fi contrôlés sur cette image ; ces contrôles ne valident pas les appels, SMS ou données mobiles de bout en bout.
-- Correction des droits du cache des polices au premier démarrage : fc-cache utilise le compte de session. Démarrage Gaia, rendu matériel, Fira, deux capteurs photo, clavier et notifications visuelles contrôlés en RAM. La qualification du fichier reconstruit reste incomplète.
-- Redémarrage intermittent identifié dans le firmware IMS du modem ; politique de récupération ciblée appliquée et second démarrage avec LTE, caméra, clavier et notifications réussi. La récupération après un nouveau crash IMS reste non testée. L’image publique reste non flashable et non publiée.
-
-### PC / APK
-
-- Aucun changement fonctionnel ni nouvelle compilation APK dans cette étape.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : image Preview15 reconstruite avec profils vierges, licences et inventaire des 493 paquets. Documents de travail exclus.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Table de montage générée depuis l’inventaire du stockage. Prise en charge limitée à une seule étendue ext4 sur userdata.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Droits du cache des polices au premier démarrage : fc-cache exécuté avec le compte de session.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Contrôles ext4, contenu et transfert réussis. Essais RAM sans écriture de boot_a ; retour au build v59 vérifié.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) SIM, LTE, scan Wi-Fi, Gaia, rendu matériel, Fira, caméras, clavier et notifications vérifiés en RAM.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Récupération ciblée après identification d’un redémarrage intermittent du firmware IMS. Second démarrage réussi ; nouveau crash IMS non testé.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Qualification de l’image incomplète, sans validation des appels, SMS ou données mobiles de bout en bout. Image non publiée et non flashable.
 
 <a id="2.7-preview.15"></a>
 
 ## 2.7-preview.15 — 30 septembre 2026 — publiée
 
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Première publication des sources PC, Android et Tundra, avec README FR/EN, licences et scripts de préparation. Fichiers privés exclus.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) SMS : dates des bulles et états d’envoi/échec corrigés. Libération et remplacement des flux caméra fiabilisés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) PC : tests de navigation stabilisés, délai de démarrage à froid ajusté et fermeture propre après dépassement du délai Gaia.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC avec Gecko 156.0.1 : 42 tests de services, démarrage, navigation, réglages, gestes, historique, isolation et persistance vérifiés.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) APK Preview15 signé avec la clé précédente et GeckoView 156.0 ; parité des ressources vérifiée.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Émulateur Android 16 : mise à jour, Photo/Galerie, reprise caméra, dix retours d’arrière-plan et récupération du rendu validés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Sargo : sources incluses, build privé v59 conservé. Aucune ROM générique ; démarrage lié au stockage et aux images préinstallées.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Sargo : aperçu proche de 16 i/s ; flash, vidéo, rotation et veille profonde incomplets. Audio d’appel et dialogue après envoi SMS à examiner.
+
 [Release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.15)
-
-### Commun · Gaia / PC / Android / Tundra
-
-- Première publication des sources communes, avec README français et anglais, licences et scripts de préparation. Documentation interne, roadmap, profils, clés et images privées exclus du dépôt public.
-- Intégration des derniers correctifs SMS (dates des bulles, états d’envoi/échec) et du cycle de vie caméra. Les deux entrées du 30 septembre détaillent les correctifs matériels.
-
-### PC
-
-- Copie de publication testée avec moteur Gecko 156.0.1 et profil neuf : démarrage Gaia, navigation, réglages, gestes, historique et isolation des pages. 42 tests de services passants ; persistance des services après redémarrage vérifiée.
-- Stabilisation du test de navigation lors du remplacement normal d’un document et allongement de l’attente de démarrage à froid. Fermeture propre de l’hôte même si Gaia dépasse le délai de préparation.
-
-### Android · APK
-
-- Preview 15 signée avec la clé des précédentes Preview, GeckoView 156.0 ; parité des ressources communes vérifiée. Mise à jour installée sur émulateur Android 16.
-- Photo et Galerie : capture, affichage et reprise du capteur validés. Dix passages en arrière-plan et récupération après arrêt du processus d’affichage validés. Cette qualification ne couvre pas tous les téléphones Android.
-
-### Tundra · Sargo
-
-- Sources du runtime incluses ; l’image privée v59 reste celle qualifiée sur le téléphone de développement. Aucune ROM générique flashable publiée : démarrage encore lié au stockage inventorié, aux images préinstallées et aux accès de maintenance privés.
-- Limites conservées : aperçu caméra proche de 16 i/s, flash/vidéo, rotation et veille profonde incomplets ; audio d’appel à qualifier et grand dialogue après envoi SMS à identifier.
 
 <a id="development-2026-09-30-sms-camera-followup"></a>
 
 ## En développement — retours SMS et caméra · 30 septembre 2026
 
-### Commun · Gaia / PC / Tundra
-
-- SMS : convertir les dates en nombres avant de construire les bulles. Corrige les conversations vides dues à une erreur de formatage de date. Parcours du compositeur et affichage des messages envoyés/reçus vérifiés sur PC avec un modem simulé.
-- Photo : fermeture du flux rendue idempotente; détacher les vidéos, attendre la libération du capteur et libérer le contexte WebGL avant de changer de caméra. Identifier chaque session pour qu’un ancien flux ne puisse pas arrêter son remplaçant. Allers-retours arrière/avant vérifiés avec de nouvelles trames à chaque bascule; retour Accueil et arrêt du capteur validés lors de deux démarrages RAM.
-
-### Tundra / Sargo
-
-- Vibreur : utiliser le contrôle brightness du pilote DRV2624; la commande legacy activate ne coupait pas physiquement le moteur. Coupure confirmée par l'utilisateur; impulsion, motif 200/200/200 ms et arrêt du service vérifiés, avec retour à zéro. Ajouter une coupure de secours au démarrage et à la sortie du service.
-- L'utilisateur confirme focus, zoom et transport SMS dans les deux sens sur v54. Cinq conversations existantes affichées sur le Pixel, avec leurs bulles et sans erreur de date.
-- v59 installé sur boot_a après deux démarrages RAM réussis; démarrage installé et relecture vérifiés, slot A marqué réussi. Sources et runtime PC synchronisés. Le grand dialogue après un envoi réel reste à identifier; la fluidité caméra reste un chantier distinct.
-
-### Android · APK
-
-- Sources Gaia communes corrigées; aucun nouvel APK construit ou publié.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) SMS : conversion des dates pour corriger les conversations vides.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Caméra : fermeture des flux et libération du capteur corrigées ; une ancienne session ne peut plus fermer la suivante.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : arrêt physique du vibreur via DRV2624, avec coupure de secours au démarrage et à l’arrêt du service.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : composition et affichage des SMS vérifiés avec modem simulé. Sargo : bascules caméra et arrêt du capteur testés sur deux boots RAM.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v54 : focus, zoom et SMS dans les deux sens confirmés par l’utilisateur. Cinq conversations affichées ; arrêt du vibreur confirmé.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo v59 installé sur boot_a après deux boots RAM ; démarrage, relecture et slot A vérifiés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Dialogue après envoi SMS et fluidité caméra encore à traiter. Sources communes mises à jour, sans nouvel APK.
 
 <a id="development-2026-09-30-sms-camera"></a>
 
 ## En développement — SMS et Photo · 30 septembre 2026
 
-### PC / Tundra
-
-- SMS : conserver le message et sa conversation après un refus du modem; transmettre les événements Gaia « envoi », « échec » et « envoyé ».
-- SMS : distinguer mise en file oFono et confirmation d'envoi, avec suivi persistant des états terminaux. La confirmation modem n'est pas un accusé de réception du destinataire.
-- PC : tests de l'échec d'envoi visible dans la liste des conversations; Photo et Galerie testées avec capture tactile, ouverture, fermeture et reprise de la caméra.
-
-### Tundra / Sargo
-
-- Photo : raccorder les zones de focus tactile, le zoom numérique et la capture JPEG du capteur à l'interface Gaia originale. Aperçu conservé en 640 × 480; JPEG arrière 4032 × 3024 (12,19 Mpx) et avant 3264 × 2448 (7,99 Mpx) mesurés directement. Focus fixe à l'avant.
-- Protocole caméra : séparer les traces du HAL des données binaires, borner les réponses et relancer l'aperçu après une capture. Une erreur de focus ne doit plus fermer la session.
-- SMS : refuser explicitement l'envoi si le modem n'est pas enregistré; conserver les états sent/failed même après disparition de l'objet oFono. La réception a produit des notifications opérateur sur v49 après retour du réseau LTE.
-- Qualification : deux démarrages v54 en RAM puis démarrage depuis boot_a validés; image installée sur le Pixel et slot marqué réussi après relecture. Persistance, interface Gaia et tests caméra passants. L'enregistrement réseau reste instable : essais SMS arrêtés avant émission, aucune livraison de bout en bout confirmée.
-
-### Android · APK
-
-- Aucun nouvel APK construit ou publié dans cette passe. La Preview 14 disponible reste inchangée.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) PC/Tundra : conservation des SMS après refus du modem et transmission des états envoi, échec et envoyé à Gaia.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : états SMS persistants après disparition de l’objet oFono ; envoi refusé si le modem n’est pas enregistré.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : focus tactile, zoom numérique et capture JPEG du capteur dans Photo Gaia.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Photos mesurées : 4032 × 3024 à l’arrière, 3264 × 2448 à l’avant. Aperçu 640 × 480 ; focus avant fixe.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Caméra native : données binaires séparées des traces HAL, réponses bornées et reprise de l’aperçu après capture ou erreur de focus.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : échec d’envoi visible et parcours Photo/Galerie vérifiés. Sargo v54 : deux boots RAM puis installation, persistance et caméra validées.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Réseau instable ; aucune livraison SMS de bout en bout confirmée dans cette passe. Confirmation modem distincte de l’accusé de réception. APK public inchangé (Preview14).
 
 <a id="2.7-preview.14"></a>
 
 ## 2.7-preview.14 — APK publié · 30 septembre 2026
 
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Informations système : alignement des versions et polices Fira dans les composants Shadow DOM.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) PC/Tundra : taille des touches en portrait, curseur dans le champ actif et réponses de saisie obsolètes.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) PC/Tundra : pont clavier Gaia et pavé numérique pour les destinataires SMS. Clavier Android inchangé.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Verrouillage : redimensionnement sans fenêtre clavier. Notifications silencieuses respectées, y compris après restauration.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : notifications persistantes dans le volet et sur le verrouillage, avec ouverture de l’application concernée.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : vibrations annulables, limitées à dix secondes ; profils Wi-Fi privés persistants, reconnexion automatique et oubli du réseau.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : stockage des SMS entrants avant acquittement, dédoublonnage et création du dossier d’état.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : commandes écouteur/haut-parleur, micro muet et volume d’appel. Bascule, sourdine et volume testés hors appel.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Installation : flash des images de diagnostic avec débogueur refusé. Sargo v48 installé après deux boots RAM ; persistance, relecture et slot A vérifiés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : Calendrier et clavier vérifiés. Sargo : clavier, notifications et reconnexion Wi-Fi vérifiés ; son des notifications et téléphonie réelle à valider.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) APK Preview14 signé et publié. Démarrage, versions et polices vérifiés sur émulateur Android 16. Aucune image Sargo publiée.
+
 [Release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-preview.14)
-
-L’APK Preview 14 est publié. La version PC est à jour et le build privé Sargo v48 est installé et testé ; aucune image téléphone n’est publiée avec cette release.
-
-### Commun · PC / APK / Gaia
-
-- Informations : suppression du retrait supplémentaire des lignes de version avant « Dernière mise à jour » ; alignement contrôlé sur PC et Android.
-- Polices : normalisation des noms de fontes dans les feuilles des composants Shadow DOM, y compris les styles ajoutés après leur création. Les polices d’icônes restent distinctes.
-- Calendrier : ouverture du mois et absence d’erreur JavaScript vérifiées sur PC.
-
-### PC / Tundra
-
-- Clavier : calculer le mode portrait depuis l’écran, et non depuis la petite fenêtre du clavier. Touches de 60 px CSS environ sur Pixel ; rotation et retour au portrait testés sur PC à densité 3.
-- SMS : replacer le curseur dans le champ actif lorsque Gecko conserve la sélection du destinataire ; conserver les sélections valides pour l’édition.
-- Notifications Gaia : respecter les indicateurs silencieux, sans son et sans vibration, y compris à la restauration.
-
-- Clavier Gaia : pont de saisie natif, pavé numérique pour les destinataires SMS, événements de sélection corrigés et protection contre les réponses d’un champ devenu inactif. Saisie destinataire et message testée sur PC et Pixel ; l’envoi opérateur reste à qualifier.
-- Verrouillage : accepter l’absence de fenêtre clavier lors d’un redimensionnement.
-- Notifications natives : stockage, propriété par application et ouverture du point d’entrée Téléphone déclaré par Gaia. Présentation et suppression dans le volet et sur le verrouillage validées sur Sargo ; écoute du son à qualifier.
-
-### Tundra / Sargo — build v48 installé
-
-- Vibrations : pont vers le moteur Sargo, motifs bornés à dix secondes, séquencement sans bloquer les boutons physiques et annulation. Activation et arrêt mesurés sur le pilote.
-
-- Wi-Fi : profils privés conservés avec reconnexion automatique et commande d’oubli ; tests du stockage et de la restauration en cas d’échec. Connexion et reconnexion après redémarrage RAM vérifiées sur Sargo ; fichiers de profil privés (0600).
-- SMS entrants : stockage persistant avant acquittement, dédoublonnage des reprises et services créant leur dossier d’état au démarrage. Défaut de montage du dossier corrigé après reproduction sur Sargo.
-- Audio : commandes écouteur/haut-parleur, micro et volume d’appel ajoutées au pont ; bascule écouteur/haut-parleur, sourdine et volume vérifiés sans appel. Conversation dans les deux sens encore à vérifier.
-- Images de diagnostic avec débogueur local interdites au flash par l’outil d’installation. v48/preview.14 écrite sur boot_a après deux démarrages RAM et contrôle de persistance ; démarrage installé validé, image relue conforme et slot A marqué réussi. v43 à v48 n’activent pas de débogueur.
-
-### Android · APK
-
-- APK preview.14 construit, signé et publié sur Forgejo. Démarrage, informations de version, alignement et sélection des fontes des composants contrôlés sur Android 16 émulé. Le clavier Android reste celui du système.
 
 <a id="2.7-preview.13"></a>
 
 ## 2.7-preview.13 — parcours dans les applications · 27 septembre 2026
 
-### Commun · Gaia / PC
-
-- Calendrier : une alarme planifiée avec succès ne provoque plus un rejet lors de la sauvegarde de l’événement; les erreurs de planification sont transmises au demandeur.
-- Rappels : ignorer ceux d’événements supprimés; ne plus marquer une notification refusée comme livrée. La prise en charge des notifications natives Tundra reste à terminer.
-- Notifications : accepter un texte brut vide sans chercher une traduction « undefined ».
-- Galerie : vignettes de taille positive même au démarrage masqué; annulation des mises à jour d’aperçu après fermeture de l’éditeur.
-- SMS : appliquer les filtres correspondant, lu/non lu, période et livraison; tests de lecture et suppression des conversations.
-- Revue approfondie : lecture, déplacement et suppression d’une vidéo WebM; édition noir et blanc et copie d’une photo; création et suppression d’un événement. Interfaces Gaia originales conservées.
-
-- Qualification depuis une copie isolée : démarrage, tests bureau, persistance et empaquetage Android réussis sans réécriture des sources.
-
-### Android · APK
-
-- APK preview.13 construit et signé; Photo/Galerie, Calendrier, dix retours d’arrière-plan et récupération du rendu validés sur Android 16 émulé.
-
-### Tundra · Sargo
-
-- Build v40/preview.13 installé après deux démarrages RAM : Gaia, caméra, Wi-Fi, luminosité et commandes contrôlés; relecture de boot_a conforme et slot validé. Limites restantes dans `docs/APPLICATION-REVIEW.md`.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Calendrier : sauvegarde des événements avec alarme, remontée des erreurs et exclusion des rappels d’événements supprimés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Notifications : texte vide accepté ; notification refusée non marquée comme livrée. Support natif Tundra encore incomplet.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Galerie : taille des vignettes au démarrage masqué et arrêt des mises à jour après fermeture de l’éditeur.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) SMS : filtres par correspondant, lecture, période et livraison appliqués.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : vidéo WebM, édition et copie de photo, calendrier, lecture et suppression des conversations vérifiés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Copie isolée : démarrage, tests PC, persistance et empaquetage Android réussis.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) APK Preview13 construit et signé. Photo/Galerie, Calendrier, dix reprises d’arrière-plan et récupération du rendu validés sur Android 16 émulé.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v40 installé après deux boots RAM ; Gaia, caméra, Wi-Fi, luminosité, commandes et relecture de boot_a vérifiés.
 
 <a id="2.7-preview.12"></a>
 
 ## 2.7-preview.12 — revue des applications · 27 septembre 2026
 
-### Commun · Gaia / PC
-
-- Icônes internes : variantes raster Gaia originales de 1× à 2,25× rétablies dans
-  1 047 références CSS. Les icônes vectorielles et les polices restent originales.
-- Photo : bouton de changement de capteur réactivé après découverte des caméras;
-  flash indisponible visible et grisé; le pincement ne zoome plus le document Gaia.
-- Accueil : gestes natifs réservés au bouton pendant l’appui long; menu contextuel
-  désactivé sur ce bouton. Le gestionnaire des tâches Gaia reste utilisé.
-- Transmission des gestes entre System et les applications restaurée avec des
-  événements DOM non privilégiés, sans autoriser de faux gestes sur les sites Web.
-- Navigateur : intégration de la page `browser-welcome` fournie, locale, bilingue,
-  sans suivi; recherches et liens transmis au véritable navigateur.
-- Page d’accueil : suit automatiquement la langue Gaia, `fr`/`fr-*` en français,
-  les autres en anglais; changement appliqué sans redémarrage.
-- SMS : identifiants compatibles avec le registre numérique Gaia, migration des
-  anciens messages, dates de l’API et événement d’envoi corrigés; écritures sérialisées.
-- Calendrier : libellé d’accessibilité du jour courant retrouvé dans 37 langues.
-- Revue de 14 applications; 26 contrôles fonctionnels Galerie/Musique/Horloge/UI,
-  tests Contacts et SMS, et navigation Web isolée. Voir `docs/APPLICATION-REVIEW.md`.
-
-### Android · APK
-
-- APK `2.7-preview.12` : même interface, correctifs et page locale; reconstruction
-  et parité contrôlées. L’accès caméra reste celui d’Android via getUserMedia.
-- Aucun portage automatique des fonctions matérielles Tundra vers Android : chaque
-  plateforme conserve son adaptateur et annonce ses capacités réelles.
-
-### Tundra · Sargo
-
-- Aperçu Photo : conversion NV21 par shader, transport binaire au lieu de base64;
-  environ 23 images/s mesurées en RAM contre environ 8 dans l’essai intermédiaire.
-- Fermeture du worker attendue avant de rouvrir un autre capteur.
-- Luminosité manuelle : retrait des animations successives, environ 200 ms pour
-  atteindre la valeur demandée lors du test matériel; transitions veille/réveil conservées.
-- Wi-Fi : état radio réel et activation/désactivation raccordés aux réglages Gaia;
-  réseau mixte WPA2/WPA3 compatible avec le formulaire WPA-PSK.
-- Scan par Gaia, connexion et navigation HTTPS par wlan0 validés en RAM. Les
-  profils de connexion restent temporaires; leur persistance est encore à réaliser.
-- Image v38 installée : deux démarrages RAM, démarrage installé, relecture de
-  `boot_a`, préservation des autres partitions et validation du slot A réussis.
-- Flash photo, vidéo, capteur de luminosité/rotation, Bluetooth, comptage de données
-  et fonctions avancées d’appel restent incomplets. Un écran qui s’ouvre ne vaut
-  pas validation de tout son matériel.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Icônes Gaia : variantes de 1× à 2,25× restaurées dans 1 047 références CSS.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Photo : changement de capteur après détection et désactivation du zoom de l’interface au pincement. Flash indisponible grisé.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Accueil : appui long et transmission des gestes rétablis, sans privilèges supplémentaires pour les sites web.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Navigateur : page d’accueil locale bilingue, suivant la langue Gaia sans redémarrage.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) SMS : identifiants, migration, dates, événements d’envoi, requêtes multi-destinataires et écritures concurrentes corrigés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Calendrier : libellé d’accessibilité du jour courant rétabli dans 37 langues.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Revue de 14 applications ; 26 contrôles Galerie/Musique/Horloge/UI, tests Contacts/SMS et isolation web.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) APK Preview12 reconstruit avec les mêmes ressources ; parité vérifiée. Fonctions matérielles adaptées séparément sur Android et Tundra.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : aperçu caméra NV21 par shader et transport binaire, environ 23 i/s mesurées contre 8 dans l’essai intermédiaire.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : fermeture du worker caméra attendue avant changement de capteur ; luminosité manuelle réglée en environ 200 ms.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : activation Wi-Fi depuis Gaia et connexion WPA-PSK aux réseaux mixtes WPA2/WPA3.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : scan, connexion et HTTPS validés en RAM. v38 installé après deux boots RAM, relecture et slot A vérifiés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Sargo : profils Wi-Fi temporaires ; flash, vidéo, capteurs, Bluetooth, comptage de données et appels avancés incomplets.
 
 <a id="development-2026-09-27-4"></a>
 
 ## En développement — retours Sargo et interface · 27 septembre 2026
 
-### Commun · Gaia / PC
-
-- Animation d’arrêt : trois nuances bleues remplacent les ronds orange; dimensions,
-  séquence et durées de l’animation Gaia sont conservées.
-
-- Téléphone : empêcher le défilement du document lors du changement d’onglet;
-  les en-têtes Journal et Contacts restent en place. Les icônes du journal utilisent
-  les images Gaia originales en plusieurs densités, jusqu’à 2,25×.
-- Menus déroulants : retrait du décalage prévu pour les anciens moteurs, qui coupait
-  les jambages de Fira. Vidéo : texte de présentation contenu dans la fenêtre.
-- Luminosité : le curseur enregistre un nombre et répond aux événements input/change;
-  les anciennes valeurs textuelles sont converties avant la transition Gaia. La file
-  matérielle regroupe les pas obsolètes de luminosité sans réordonner veille/réveil.
-- Accueil : le fond d’écran continue sous le dégradé transparent. L’espace de navigation
-  reste réservé dans les applications; en paysage, le bouton se place à droite.
-- Navigateur : page locale éditable dans `overrides/search.gaiamobile.org/home/index.html`.
-  Les branchements de Gaia et le mode privé restent en place.
-- Wi-Fi : un échec affiche une explication et le bouton de reprise au lieu de relancer
-  indéfiniment le scanner. La recherche et l’affichage dans le panneau Gaia ont
-  maintenant été vérifiés sur Sargo en RAM.
-- Suivi consolidé : `docs/CHANTIER.md`, avec anciens et nouveaux retours, preuves et limites.
-
-### Android · APK
-
-- APK `2.7-preview.11` construit et signé avec la même base Gaia; parité vérifiée.
-  Barre Accueil à droite en paysage et correction du fond en mode Accueil.
-  Rotation et absence de recouvrement vérifiées sur émulateur Android 16.
-
-### Tundra · Sargo
-
-- Caméra : aperçu matériel dans Photo Gaia, JPEG et bascule arrière/avant validés
-  en RAM sur Sargo; les capteurs se ferment au retour à l’accueil. Capture initiale
-  limitée à 640 × 480 (480 × 640 en portrait); vidéo et flash non disponibles.
-  L’interface reste commune au PC et à l’APK, qui conservent getUserMedia.
-
-- v33 (`2.7-preview.11`) installé après deux démarrages RAM réussis. Démarrage installé, relecture de
-  `boot_a`, conservation des données et finalisation du slot A vérifiés.
-- Luminosité mesurée depuis Gaia : 35 % → 89/255, 80 % → 204/255. Résultats Wi-Fi
-  visibles dans le panneau original. Animation d’arrêt bleue incluse.
-- Routage audio : prise en charge du format de PulseAudio 14; suppression du double
-  chargement des modules audio. Passage au profil téléphonique et à l’écouteur, puis
-  restauration du profil média, vérifiés sur Sargo. Conversation réelle encore à valider.
-- Restent ouverts : conversation audible dans les deux sens, capture pleine résolution/vidéo et
-  raccordement des capteurs pour la rotation automatique. Voir la liste de suivi.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Animation d’arrêt Gaia recolorée en bleu.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Téléphone : en-têtes fixes au changement d’onglet et icônes du journal adaptées aux densités jusqu’à 2,25×.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Texte coupé dans les menus déroulants et débordement du texte d’accueil Vidéo.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Luminosité : valeurs numériques et regroupement des commandes obsolètes, avec ordre veille/réveil préservé.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Accueil : fond sous le dégradé et bouton à droite en paysage, sans recouvrir les applications.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Navigateur : page d’accueil locale modifiable, avec mode privé conservé.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Wi-Fi : message d’erreur et bouton Réessayer à la place des relances sans fin.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) APK Preview11 construit et signé ; rotation et position du bouton Accueil vérifiées sur Android 16 émulé.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : aperçu, JPEG et bascules caméra validés en RAM. Capture limitée à 640 × 480 ; flash et vidéo indisponibles.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v33 installé après deux boots RAM ; démarrage, données, relecture et slot A vérifiés. Luminosité et résultats Wi-Fi contrôlés dans Gaia.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : compatibilité PulseAudio 14 et suppression du double chargement des modules audio. Profils appel/média et écouteur testés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Sargo : conversation audio, capture pleine résolution, vidéo et rotation automatique à valider.
 
 <a id="development-2026-09-27-3"></a>
 
 ## En développement — stabilité Wi-Fi native · 27 septembre 2026
 
-### Commun · Gaia / PC
-
-- Correction de la boucle Wi-Fi sans délai : recherche toutes les 20 secondes,
-  conformément à l’intervalle prévu par Gaia. Regroupement des scans simultanés.
-- Version de développement commune : `2.7-preview.9`, Gaia `2.7.0`; versions
-  réelles de Gecko inchangées. Tests de rafales, erreurs et temporisation ajoutés.
-
-### Android · APK
-
-- Nouveau paquet `2.7-preview.9` pour conserver la même base Gaia. Le Wi-Fi Android
-  reste géré par Android; ce correctif ne prétend pas ajouter un pilote à l’APK.
-
-### Tundra · Sargo
-
-- Cause du blocage v21/v22 identifiée : multiplication des clients Python de
-  recherche Wi-Fi, épuisement mémoire et arrêt de Gecko par le lowmemorykiller.
-  Le SIGSEGV de phoc survient ensuite pendant sa fermeture.
-- Un seul scan matériel en cours, cache court des résultats et des erreurs,
-  invalidation après connexion/déconnexion. Aucun affaiblissement de l’isolation
-  des applications, ni désactivation du mécanisme de protection mémoire.
-- Candidat v25 qualifié sur deux démarrages RAM, puis installé et vérifié sur le
-  Pixel : 11 contrôles Gaia et 10 contrôles système passent, sans destruction de
-  processus par manque de mémoire. Verrouillage Gaia, Fira, batterie, date et
-  panneau Wi-Fi contrôlés; veille/réveil et volume testés par événements injectés.
-- Relecture de `boot_a` conforme, autres partitions de démarrage inchangées,
-  données conservées et slot A marqué comme démarré avec succès. La caméra native
-  et la validation complète des appels restent à terminer.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Wi-Fi : intervalle de recherche rétabli à 20 secondes et regroupement des scans simultanés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : un seul scan matériel à la fois, avec cache court et invalidation à la connexion/déconnexion. Corrige l’épuisement mémoire des builds v21/v22.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Tests de rafales, erreurs et temporisation Wi-Fi.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Version commune Preview9, Gaia 2.7.0 ; nouvel APK avec les mêmes sources. Wi-Fi Android toujours géré par Android.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v25 : deux boots RAM puis installation, 11 contrôles Gaia et 10 système réussis, sans arrêt de processus par manque de mémoire.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Verrouillage, polices, batterie, date et Wi-Fi vérifiés ; veille/réveil et volume testés par événements injectés. Données, relecture et slot A contrôlés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Caméra native et validation complète des appels encore à terminer.
 
 <a id="development-2026-09-27-2"></a>
 
 ## En développement — restauration Gaia · 27 septembre 2026
 
-### Commun · Gaia / PC
-
-- Restauration des panneaux Gaia et suppression des fenêtres/boutons provisoires :
-  Paramètres, Suivi conso, FM et import de contacts/médias. Les fonctions sans API
-  restent visibles avec commandes désactivées, sans valeurs matérielles inventées.
-- Correction de la portée des anciens styles : les sélecteurs `div` ne sont plus
-  transformés en racines de composants. Retour des icônes du verrouillage,
-  conservation de Fira et glyphes Gaia vectoriels pour les onglets Téléphone.
-- Accueil dispose de 44 pixels CSS réservés et ne recouvre plus Décrocher/Raccrocher.
-  La date utilise le composant historique; la batterie est actualisée dans Paramètres
-  et ses libellés n’affichent plus `{{ level }}`.
-- Écran de verrouillage Gaia réactivé; splash provisoire avec le logo fourni,
-  dimensions stables et animation douce. Nom localisé : Navigateur / Browser.
-  Remerciements dans Informations légales, avis de licences conservés.
-- Tests PC : 26 contrôles applicatifs passent (Galerie, Musique, Horloge, tâches),
-  panneaux, imports, batterie, date et navigation; appels simulés,
-  journal, veille/réveil, menu Power et volume. Voir `docs/GAIA-RESTORATION.md`.
-
-### Android · APK
-
-- APK `2.7-preview.8` construit et installé sur l’émulateur Android 16, avec la même base Gaia; batterie lue depuis Android,
-  Paramètres Android en bas de liste et mode Accueil Android optionnel. Le catalogue
-  des applications Android dans Gaia reste à raccorder.
-- Validation Android : dix reprises après changement d’application et récupération
-  après destruction du renderer. Parité du contenu partagé vérifiée; pas de test
-  physique Android dans cette passe.
-- Les imports utilisent les composants Gaia; le bouton SMS ouvre la confirmation
-  Android. Le verrouillage interne ne remplace pas la sécurité Android.
-
-### Tundra · Sargo
-
-- Candidats v21/v22 construits avec tous les correctifs `overrides/` dans le paquet de boot;
-  raccordement scan/association Wi-Fi au panneau Gaia via NetworkManager.
-- Essais RAM bloqués : service graphique arrêté avec le code 139 avant qualification.
-  Aucun nouveau flash. Retour sur v20 installé validé (11 contrôles Gaia, 9 système,
-  données conservées); verrouillage du profil natif remis à son état précédent.
-  Wi-Fi du candidat, caméra native, API SIM/Bluetooth et suspension CPU non qualifiés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Panneaux Gaia restaurés : Paramètres, Suivi conso, FM et imports. Interfaces provisoires retirées ; fonctions indisponibles désactivées.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Styles des anciens composants, icônes du verrouillage et glyphes Téléphone corrigés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Espace de 44 pixels réservé au bouton Accueil ; date et batterie rétablies, sans texte `{{ level }}`.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Verrouillage Gaia réactivé, splash stabilisé, nom Navigateur/Browser localisé et crédits ajoutés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : 26 contrôles applicatifs réussis, plus panneaux, imports, batterie, navigation et appels simulés.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) APK Preview8 installé sur Android 16 émulé : batterie Android, accès aux paramètres et mode HOME optionnel. Catalogue Android encore incomplet.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Android émulé : dix reprises d’arrière-plan, récupération du rendu et parité des ressources vérifiées. Verrouillage Gaia distinct de la sécurité Android.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo v21/v22 : scan et association Wi-Fi raccordés à Gaia via NetworkManager.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : essais RAM interrompus par l’arrêt du service graphique (code 139). Retour au v20 installé vérifié, sans nouveau flash.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Wi-Fi du candidat, caméra, API SIM/Bluetooth et suspension CPU non validés.
 
 <a id="development-2026-09-27-1"></a>
 
 ## En développement — 27 septembre 2026
 
-### Commun · Gaia / PC
-
-- Remplacement de l’écran d’appel provisoire par **Callscreen**, l’interface
-  originale de Gaia : appel entrant/sortant, réponse, raccrochage et fermeture.
-  L’adaptateur fournit les événements `mozTelephony` aux modules historiques.
-  Les contrôles audio/conférence non encore raccordés restent grisés.
-- Journal d’appels persistant côté hôte, puis import dans le vrai journal Gaia,
-  avec acquittement et détection des doublons après interruption.
-- Batterie : pont vers l’icône historique ; une batterie inconnue n’est pas
-  présentée comme vide. Correction de l’index de contacts Facebook absent ou
-  mal formé, qui bloquait aussi la recherche de numéro et l’historique local.
-- Polices : comparaison des glyphes réellement rendus. L’accueil utilisait
-  déjà Fira Sans des deux côtés, mais certains textes système utilisaient Noto
-  sur PC. Les règles de texte principales sélectionnent désormais la Fira de
-  Gaia ; les polices d’icônes sont conservées.
-- Test Gecko avec modem simulé : appels entrants/sortants, boutons Répondre et
-  Raccrocher, journal, veille/réveil, menu Power, volume et batterie.
-  Aucun nouvel APK compilé dans cette étape.
-
-- Étape v13 (remplacée par Callscreen ci-dessus) : écran d’appel géré par l’application système : numérotation, sonnerie,
-  communication et bouton Raccrocher. Les contrôles restent présents si le
-  service perd momentanément l’état de l’appel.
-- Tests sur le vrai Gecko bureau avec modem simulé, y compris échec puis nouvel
-  essai de raccrochage. Sources PC synchronisées ; aucun APK reconstruit.
-
-### Tundra · Sargo
-
-- Build privé v20 installé et relu dans `boot_a`, après deux démarrages RAM
-  et un démarrage depuis le stockage ; réglages conservés, slot marqué réussi.
-- Lecture des seules touches Power/Volume du Sargo et
-  transmission à `HardwareButtons`. Appui court : écran éteint/rallumé ; appui
-  long : menu Gaia. Le broker natif commande rétroéclairage, volume, arrêt et
-  redémarrage avec une liste d’opérations fixe.
-- Sérialisation des changements de luminosité et d’alimentation : deux
-  requêtes simultanées ne peuvent plus laisser le rétroéclairage éteint au réveil.
-- Volume natif : accès en lecture au socket PulseAudio de la session, sans
-  lequel l’indicateur Gaia changeait mais la sortie audio restait inchangée.
-- La veille écran ne suspend pas encore le noyau. Réception réelle des appels,
-  audio de conversation et commandes audio avancées restent à qualifier.
-
-- Étape précédente : build privé v13 installé dans `boot_a` après deux démarrages RAM ; démarrage
-  depuis le stockage, relecture et indicateur de réussite A/B vérifiés.
-- Transmission des appels et de leurs états depuis oFono ; commandes Répondre et
-  Raccrocher limitées aux chemins d’appel du modem.
-- Correction des réponses D-Bus sans contenu : un raccrochage réussi ne provoque
-  plus une fausse erreur de réponse invalide.
-- Un appel réel court atteint la sonnerie puis est raccroché automatiquement.
-  Cela ne qualifie pas encore l’audio en conversation ni les appels entrants.
-- Caméra : diagnostic corrigé, sans annoncer une initialisation à partir d’un
-  simple délai d’attente. Deux capteurs sont détectés via libhybris, mais le test
-  de flux reçoit zéro image. La caméra Gaia native reste indisponible ; voir la
-  [note technique](tundra/docs/CAMERA-SARGO.md).
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Callscreen Gaia pour les appels entrants/sortants, avec réponse et raccrochage. Remplace l’écran provisoire v13.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Journal d’appels persistant avec acquittement et dédoublonnage.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Batterie inconnue distincte d’une batterie vide ; index Contacts absent ou mal formé toléré.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Textes système affichés avec Fira Sans, sans modifier les polices d’icônes.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC avec modem simulé : appels, raccrochage en échec puis nouvel essai, journal, veille/réveil, menu Power, volume et batterie.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : boutons Power/Volume raccordés à Gaia et commandes natives d’écran, volume, arrêt et redémarrage.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : luminosité et alimentation sérialisées pour éviter l’écran noir au réveil ; accès PulseAudio corrigé pour le volume.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : un raccrochage réussi avec réponse D-Bus vide ne produit plus de fausse erreur.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v13 puis v20 installés après essais RAM ; démarrage, relecture, réglages et validation du slot contrôlés.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Appel sortant réel arrivé à la sonnerie puis raccroché. Appels entrants et audio de conversation non validés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Diagnostic caméra : un timeout n’est plus présenté comme une initialisation réussie. Deux capteurs détectés, sans trames reçues.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Caméra native indisponible, suspension CPU et commandes audio avancées incomplètes. Aucun nouvel APK.
 
 <a id="development-2026-09-26-1"></a>
 
 ## En développement — 26 septembre 2026
 
-### Commun · Gaia
-
-- Polices : Fira Sans OpenType du simulateur historique, avec les mêmes fichiers
-  pour les pages Gaia et le système Tundra. Correction du repli `sans-serif` natif
-  et vérification Fontconfig ajoutée ; les polices d’icônes restent distinctes.
-- Paramètres : retrait des boutons de diagnostic « Paramètres Tundra » et
-  « Tester une notification ». Le résumé des versions et les informations
-  techniques restent disponibles.
-- Panneau matériel : transmission des capacités de la plateforme au panneau.
-  Une variable absente provoquait une alerte Gecko au lieu d’afficher la batterie.
-
-### PC
-
-- Adaptateur local synchronisé avec les sources communes. Gecko reste en 156.0.1.
-
-### Android
-
-- Correctif du panneau présent dans les sources communes ; aucun nouvel APK construit.
-
-### Tundra / Sargo
-
-- Validation explicite du succès A/B après installation : sauvegarde et contrôle
-  des métadonnées GPT, outil Qualcomm vérifié, confirmation Fastboot.
-- Erreurs du modem distinguées des erreurs de transport ; boîte d’erreur intégrée
-  à Gaia. La caméra native indisponible ne suggère plus une autorisation inutile.
-- Diagnostic des polices réellement utilisées par Gecko et du réseau radio, sans
-  appel ni SMS automatique. Fira Sans confirmée sur l’accueil et la barre d’état.
-- Installation réelle du v9 polices dans `boot_a` sur le Sargo inventorié.
-  Contenu écrit relu et conforme ; cinq autres partitions de boot sauvegardées intactes.
-- Deux démarrages depuis le stockage : 10 contrôles Gaia et 9 contrôles système
-  réussis par boot, réglages conservés. Le PC n’est plus nécessaire pour démarrer.
-  Fichiers de secours Droidian conservés ; restauration réelle non testée.
-- Candidat persistant privé : image de données ext4 2 Gio, profils et réglages Gaia
-  conservés, identité/comptes système préservés et suppression du watchdog de dix minutes.
-- Deux démarrages successifs de la même image v8 : 9 contrôles Gaia et 9 contrôles
-  système réussis par boot. Diagnostic séparé : 15 contrôles avec la même interface.
-- Installation limitée à `boot_a` et restauration de l’original préparées et testées
-  localement ; aucun flash effectué. Les limites matérielles restent documentées.
-- Démarrage normal sans ouverture automatique de Paramètres/Horloge ni défilement
-  de l’accueil. Ces gestes appartiennent désormais au mode explicite `--diagnostics`.
-- Plein écran établi avant le chargement de Gaia ; décorations natives désactivées.
-  Sur le Pixel testé : 360 × 740 pixels CSS, facteur 3, dimensions stables et accueil
-  inchangé pendant les cinq relevés après démarrage.
-- v13 testé en RAM : huit contrôles de démarrage et neuf contrôles système réussis.
-  Les rapports distinguent cette vérification du démarrage des tests interactifs.
-- Diagnostic v14 séparé : treize contrôles interactifs réussis, dont le panneau
-  matériel ; ouverture et scan Wi-Fi vérifiés. Même interface que le v13 normal.
-- Les images de diagnostic interactif ne peuvent pas devenir la sélection normale
-  du lanceur. L’ancienne sélection v13 est conservée dans son historique.
-- Modem enregistré en UMTS pendant l’essai ; lecture audio réussie et signal du
-  microphone mesuré sans conserver d’enregistrement. Cela ne qualifie pas encore
-  l’audio en appel, la caméra ou la veille.
-- Construction du ramdisk indépendante de la langue du PC : analyse `readelf` en
-  locale C pour conserver le chargeur dynamique ARM64 et ses dépendances.
-
-Les six partitions boot/DTBO/vbmeta A/B sont inchangées. Le build reste un essai
-privé en RAM, **pas une ROM flashable**. Détails : [état de Tundra](tundra/docs/STATUS.md).
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Polices Fira Sans historiques utilisées dans Gaia et Tundra ; repli sans-serif et contrôle Fontconfig corrigés.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Boutons de diagnostic retirés des Paramètres.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Panneau matériel : capacités de la plateforme transmises correctement pour afficher la batterie.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : erreurs modem et transport distinguées ; message caméra indisponible corrigé.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : données persistantes sur ext4 2 Gio et validation du succès A/B après installation.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v8 : deux boots avec persistance, 9 contrôles Gaia et 9 système par boot. Outils d’installation et de secours testés localement.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v9 installé sur boot_a : deux démarrages avec 10 contrôles Gaia et 9 système chacun. Relecture conforme, cinq autres partitions préservées ; restauration réelle non testée.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Démarrage normal sans gestes de diagnostic automatiques ; plein écran établi avant Gaia, dimensions stables à 360 × 740 pixels CSS.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Mode `--diagnostics` séparé ; images de diagnostic exclues du lancement normal.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : v13 testé en RAM (8 contrôles de démarrage, 9 système), v14 en diagnostic (13 contrôles interactifs), Wi-Fi inclus.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Enregistrement UMTS, lecture audio et signal du micro vérifiés. Audio d’appel, caméra et veille non validés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Construction du ramdisk indépendante de la langue du PC grâce à readelf en locale C.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Essais privés, sans ROM publique. Sources PC synchronisées ; correctif commun disponible pour Android, sans nouvel APK.
 
 <a id="development-2026-09-25-1"></a>
 
 ## En développement — 25 septembre 2026
 
-### Commun · Gaia
-
-- **Navigation :** bouton Accueil rond ; dégradé noir vers transparent au-dessus du
-  fond d’écran, fond bleu uni dans les applications. L’appui modifie le cercle
-  plutôt que de laisser un rectangle bleu sur l’accueil.
-- **Défilement :** le dégradé disparaît au bas du panneau de l’accueil ; il revient
-  quand on remonte. Le changement de panneau Applications / Pages est pris en compte.
-- **Typographie :** polices Fira Sans embarquées, avec plusieurs graisses et italiques,
-  au lieu de dépendre des polices installées sur le système hôte.
-- **Informations :** affichage séparé de Vulpes, Gaia, du moteur réellement exécuté,
-  de la plateforme, du modèle et de l’adaptateur. Le panneau prévoit Tundra et
-  l’adaptation matérielle, maintenant raccordés au backend natif Tundra.
-- **Icônes :** reprise du chargement après une première mesure de taille nulle,
-  partagée entre PC, Android et Tundra. Le correctif était auparavant limité à Android.
-- **Maintenance :** ce journal centralise les évolutions des trois plateformes.
-
-### PC · Validé localement
-
-- Chargement d’une icône initialisée à taille nulle puis rendue visible : testé.
-- Navigation Accueil / Paramètres / retour Accueil, fond transparent en bas de page,
-  dégradé en haut et contrôle des permissions testés dans un profil isolé.
-- Panneau Informations testé en français et en anglais, sans anciennes lignes en double.
-- Le moteur demeure Gecko **156.0.1** ; ces changements d’interface ne recompilent pas Gecko.
-
-### Android · Sources adaptées, Java compilé
-
-- Même comportement de navigation prévu par le pont GeckoView / Android : barre
-  superposée sur l’accueil, place réservée dans les applications et le navigateur.
-- État de navigation conservé lors de la recréation de l’activité Android.
-- Compilation Java réussie. **Aucun nouvel APK livré pour ces changements** et
-  comportement visuel encore à retester sur Android.
-
-### Tundra / Sargo · Essais privés en RAM
-
-- Build réseau v6 devenu référence du lanceur après 13 contrôles Gaia et 9
-  contrôles système ; retour automatique et six partitions inchangées vérifiés.
-- Backend Tundra distinct du PC : modèle Pixel 3a, adaptation Sargo et version
-  native affichés sans annoncer une caméra ou une téléphonie non raccordées.
-- Batterie et charge lues sur le matériel ; panneau d’état bilingue dans Gaia.
-  13 contrôles Gaia réussis sur l’essai réseau, dont ce nouveau panneau.
-- Wi-Fi réel testé : scan, connexion, IPv4, DNS et page HTTPS sous Gecko.
-  Ajout de `pd-mapper`, désactivation d’IPA non initialisé et du sondage caméra
-  prématuré ; 9 contrôles système passent, sans Oops noyau. La sélection du réseau
-  dans Gaia reste à raccorder ; les identifiants du test restent en RAM.
-- Configuration des services embarquable dans le petit ramdisk : pas de nouvelle
-  copie des 3 Gio pour chaque ajustement de démarrage. Partitions modem protégées
-  en utilisant des copies NV en RAM pour les essais Qualcomm.
-
-- Nouvelle image système ext4 contenant le runtime ARM64, les HAL de référence,
-  Phoc, Gecko et Gaia. Le runtime n’est plus chargé depuis l’arborescence de travail
-  Droidian, ni le HAL depuis son ancien fichier `/var/lib/lxc/android/`.
-- Démarrage du second essai vérifié sur Pixel 3a : PID 1 Tundra, services HAL,
-  compositeur et Gaia ; **7 contrôles Gaia et 8 contrôles système réussis**.
-- Capture physique de l’accueil contrôlée : icônes présentes, Fira Sans chargée,
-  bouton rond et dégradé visibles. Gecko **156.0.1 ARM64**, WebRender matériel.
-- Petits changements d’interface embarqués dans le ramdisk d’essai : inutile de
-  retransférer les 3 Gio du système pour chaque correction CSS/JavaScript.
-- Copie des sources de construction conservée avec les nouvelles images, vérifiée
-  par empreintes, pour permettre de les retester après l’évolution du code courant.
-- Le dernier essai (`sargo-system-boot-20260925-v5`) valide **10 contrôles Gaia et
-  8 contrôles système**, dont icônes, police chargée, fond à l’appui, bas de page
-  et retour depuis une application. Capture physique contrôlée ; référence locale
-  du lanceur mise à jour. Aucun APK publié ni téléphone flashé.
-
-**Limites :** stockage installé encore utilisé comme support du fichier système ;
-modifications perdues à l’arrêt ; retour automatique au système conservé après dix
-minutes. Aucun flash ni remplacement de Droidian. Le redémarrage à chaud du
-compositeur a échoué lors d’un essai ; le démarrage à froid fonctionne. Réseau,
-modem, audio, caméra et veille restent à intégrer ou qualifier. Ce n’est pas une
-ROM publique installable ni un téléphone quotidien validé.
-
-Détails : [image système](tundra/docs/SYSTEM-IMAGE-SARGO.md),
-[état Tundra](tundra/docs/STATUS.md), [parité des plateformes](docs/PARITE-BUREAU-ANDROID.md).
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Bouton Accueil rond, dégradé transparent sur le fond d’écran et barre bleue dans les applications.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Dégradé masqué en bas de page et rétabli au défilement ; plus de rectangle bleu à l’appui sur Accueil.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Fira Sans embarquée avec graisses et italiques ; versions produit, Gaia, moteur et plateforme affichées séparément.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Reprise du chargement des icônes après une première mesure de taille nulle sur les trois plateformes.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) PC : icônes, navigation, permissions et panneau Informations FR/EN vérifiés avec Gecko 156.0.1.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Android : état de navigation conservé après recréation de l’activité. Compilation Java réussie ; rendu à retester, aucun nouvel APK livré.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Tundra : image ext4 avec runtime ARM64, HAL, Phoc, Gecko et Gaia ; petits correctifs embarqués dans le ramdisk.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : backend dédié, informations Pixel 3a et lecture matérielle de la batterie. Sources de construction archivées avec empreintes.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo : WebRender matériel, icônes et polices contrôlés sur capture physique. v5 : 10 contrôles Gaia et 8 système réussis.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Sargo : ajout de pd-mapper, désactivation d’IPA non initialisé et du sondage caméra prématuré. Données NV du modem copiées en RAM pour les essais.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Sargo v6 : scan Wi-Fi, connexion, IPv4, DNS et HTTPS vérifiés ; 13 contrôles Gaia et 9 système réussis. Sélection du réseau dans Gaia encore à raccorder.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Essais RAM sans flash, retour automatique après dix minutes et modifications perdues à l’arrêt. Démarrage à froid réussi ; redémarrage à chaud du compositeur en échec.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Pas de ROM publique ; modem, audio, caméra et veille encore à intégrer ou valider.
 
 <a id="2.7-preview.7"></a>
 
 ## 2.7-preview.7 — APK construit, référence locale
 
-### Commun / PC / Android
-
-- Correction de l’autorisation interne d’ouverture du capteur sur PC et de la
-  reprise après la première demande de permission CAMERA sur Android.
-- Messages Photo distincts pour un refus, un capteur absent ou un échec d’ouverture.
-- Version produit commune **2.7-preview.7**, Gaia **2.7.0** ; numéros du moteur séparés.
-- Gecko PC **156.0.1**, GeckoView Android **156.0** : l’écart réel de correctif est
-  affiché, sans renommer artificiellement l’un des moteurs.
-
-Détails : [Photo et Galerie](docs/CAMERA-GALERIE.md), [README Android](android/README.md).
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Permission caméra sur PC et reprise après la première autorisation Android.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Messages distincts pour une permission refusée, un capteur absent et un échec d’ouverture.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Versions produit et moteur séparées : Vulpes Preview7, Gaia 2.7.0, Gecko PC 156.0.1 et GeckoView Android 156.0.
 
 <a id="2.7-preview.6"></a>
 
 ## 2.7-preview.6 — APK construit
 
-### Commun / PC / Android
-
-- Portage de la véritable application Photo Gaia : aperçu et capture JPEG via
-  webcam sur PC ou capteur via GeckoView sur Android.
-- Photos enregistrées dans Galerie Gaia ; import de médias par le sélecteur du système.
-- Commandes non prises en charge désactivées : notamment flash et vidéo ; changement
-  de caméra selon les capteurs disponibles.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Photo Gaia sur PC et Android : aperçu et capture JPEG via webcam ou GeckoView.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Enregistrement dans Galerie et import par le sélecteur du système.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Flash et vidéo désactivés ; changement de caméra selon les capteurs disponibles.
 
 <a id="2.7-preview.5"></a>
 
 ## 2.7-preview.5 — APK construit
 
-### Commun
-
-- Versions centralisées dans `release.json`, séparation produit / Gaia / moteur.
-- Interface des fonctions natives partagée entre PC et Android ; contrôle du contenu
-  commun réellement embarqué dans l’APK avant distribution.
-
-### PC
-
-- Intégration des panneaux de réglages Linux disponibles, import de médias et vCard,
-  notifications du bureau et capture webcam de test.
-
-### Android
-
-- Même interface Gaia et commandes natives que le PC, adaptées aux capacités Android.
-- Tests de retour au premier plan et de récupération après arrêt du processus de rendu.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Versions centralisées dans `release.json` ; produit, Gaia et moteur séparés.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Interface native commune PC/Android et contrôle de parité des ressources de l’APK.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) PC : réglages Linux, imports médias/vCard, notifications et capture webcam de test.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Android : retour au premier plan et récupération après arrêt du processus de rendu.
 
 <a id="2.7-156.0.2"></a>
 
 ## 2.7-156.0.2 — APK historique construit (révision 4)
 
-Ce nom historique mélangeait révision du produit et version du moteur ; il ne
-signifie pas que l’APK utilisait Gecko 156.0.2. Le moteur Android était Gecko 156.0.
-
-### Android
-
-- Reprise de l’activité et des sessions pour limiter les écrans blancs au retour dans Vulpes.
-- Accès aux réglages Android, au volume et à la luminosité de la fenêtre.
-- Import de médias et contacts, notifications natives avec permissions.
-- Transfert au composeur, à SMS et à Horloge Android ; aucun envoi silencieux ni
-  remplacement des applications système Téléphone/SMS.
-- Capture initialement déléguée à l’application photo Android, avant le portage de Photo Gaia.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Android : reprise de l’activité et des sessions pour réduire les écrans blancs.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Accès aux réglages Android, volume et luminosité de la fenêtre.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Import de médias et contacts ; notifications natives avec permissions.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Transfert vers Téléphone, SMS, Horloge et Appareil photo Android. Aucun envoi silencieux ni remplacement des applications par défaut.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Numérotation historique : moteur Android Gecko 156.0, malgré le nom 2.7-156.0.2.
 
 <a id="2.7-156.0.1"></a>
 
 ## 2.7-156.0.1 — APK publié (révision 3)
 
-- Nom **Vulpes OS - Preview** et icône du projet.
-- Correctif du fond d’écran clignotant inclus.
-- Numérotation historique conservée ; ne pas en déduire le patch du moteur Android.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Nom « Vulpes OS - Preview » et icône du projet.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Clignotement du fond d’écran corrigé.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Numérotation historique, distincte de la version du moteur Android.
 
 [Release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-156.0.1)
 
@@ -830,7 +549,7 @@ signifie pas que l’APK utilisait Gecko 156.0.2. Le moteur Android était Gecko
 
 ## 2.7-preview.2 — APK publié
 
-- Correction du fond d’écran clignotant dans la Preview Android.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Clignotement du fond d’écran dans la Preview Android.
 
 [Release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-preview.2)
 
@@ -838,8 +557,8 @@ signifie pas que l’APK utilisait Gecko 156.0.2. Le moteur Android était Gecko
 
 ## 2.7-preview.1 — APK publié
 
-- Première Preview Android embarquant Gaia et GeckoView.
-- Version archivée ; clignotement du fond d’écran connu.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Première Preview Android avec Gaia et GeckoView.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Version archivée ; clignotement du fond d’écran connu.
 
 [Release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/android-2.7-preview.1)
 
@@ -847,26 +566,12 @@ signifie pas que l’APK utilisait Gecko 156.0.2. Le moteur Android était Gecko
 
 ## Étapes antérieures — rétrospective technique
 
-Ces étapes ne correspondent pas à de nouvelles releases publiques datées.
-
-### Gaia / PC
-
-- Constitution de Vulpes à partir de Gaia historique ; identité visuelle, fond
-  d’écran, traductions et travail sur les informations système.
-- Portage expérimental Gecko 45 → 52, puis séparation de Gaia, des services et du
-  moteur pour l’hôte Gecko récent.
-- Réimplémentation des API nécessaires : réglages, registre d’applications,
-  contacts locaux, messages, alarmes, stockage et communications entre applications.
-- Adaptation des composants visuels anciens, des interactions tactiles simulées,
-  du navigateur et des applications ; essais d’applications Firefox OS archivées.
-- Outillage de mise à jour Gecko avec vérifications, moteur candidat et retour
-  arrière explicite. Il détecte les incompatibilités, sans les réparer automatiquement.
-- Lancement et mise à jour de Gaia sans recompilation complète du moteur.
-
-### Tundra / Sargo
-
-- Inventaire du Pixel 3a, sauvegardes des partitions de boot et tests USB de diagnostic.
-- Tests QEMU, puis Gecko ARM64 dans Droidian et sous un compositeur dédié.
-- Racine distincte, services HAL sélectionnés et PID 1 Tundra ; essais graphiques
-  temporaires par Fastboot avec secours SSH et retour automatique.
-- Noyau de référence **4.9-124-google-sargo**, adaptation **Android 9 / API 28**.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Base Gaia historique avec identité Vulpes, fond d’écran, traductions et informations système.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Portage expérimental Gecko 45 vers 52, puis séparation de Gaia, des services et du moteur.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) API de réglages, applications, contacts, messages, alarmes, stockage et communications entre applications.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Adaptation des composants Gaia, gestes tactiles, navigateur et applications aux moteurs récents.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Mise à jour Gecko avec contrôles et retour arrière ; mise à jour Gaia sans recompilation du moteur.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Applications Firefox OS archivées, QEMU, puis Gecko ARM64 dans Droidian et sous compositeur dédié.
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Sargo : inventaire, sauvegardes de boot, racine distincte, services HAL et PID 1 Tundra.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Essais graphiques Fastboot temporaires avec secours SSH et retour automatique.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Noyau 4.9-124-google-sargo, adaptation Android 9/API 28. Étapes historiques, sans nouvelles releases datées.

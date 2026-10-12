@@ -550,12 +550,17 @@ public final class MainActivity extends Activity {
           "http".equals(origin.getScheme()) &&
           "camera.localhost".equals(origin.getHost()) &&
           origin.getPort() == 18765;
-        if (!camera || (audio != null && audio.length > 0) || video == null || video.length == 0) {
+        boolean hasVideo = video != null && video.length > 0;
+        boolean hasAudio = audio != null && audio.length > 0;
+        if (!camera || (!hasVideo && !hasAudio)) {
           callback.reject();
           return;
         }
-        permission(new String[] { android.Manifest.permission.CAMERA }, granted -> {
-          if (granted) callback.grant(video[0], null);
+        java.util.ArrayList<String> requested = new java.util.ArrayList<>();
+        if (hasVideo) requested.add(android.Manifest.permission.CAMERA);
+        if (hasAudio) requested.add(android.Manifest.permission.RECORD_AUDIO);
+        permission(requested.toArray(new String[0]), granted -> {
+          if (granted) callback.grant(hasVideo ? video[0] : null, hasAudio ? audio[0] : null);
           else callback.reject();
         });
       }

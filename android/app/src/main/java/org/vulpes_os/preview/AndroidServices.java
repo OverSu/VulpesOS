@@ -102,6 +102,18 @@ final class AndroidServices {
           );
           result.complete(null);
           break;
+        case "android.storage":
+          io.execute(() -> {
+            try {
+              File data = new File(app.getApplicationInfo().dataDir);
+              File mediaRoot = new File(app.getFilesDir(), "media");
+              JSONObject stats = new JSONObject().put("free", data.getUsableSpace())
+                .put("apps", storageBytes(data, mediaRoot)).put("sdcard", storageBytes(mediaRoot, null))
+                .put("scope", "vulpes-profile");
+              main.post(() -> result.complete(stats));
+            } catch (Exception e) { fail(result, e); }
+          });
+          break;
         case "android.media":
           JSONObject params = p;
           io.execute(() -> {
@@ -120,6 +132,15 @@ final class AndroidServices {
       fail(result, e);
     }
     return result;
+  }
+
+  private static long storageBytes(File file, File skip) throws IOException {
+    if (file.equals(skip) || !file.exists() || !file.getCanonicalFile().equals(file.getAbsoluteFile())) return 0;
+    if (file.isFile()) return file.length();
+    long size = 0;
+    File[] children = file.listFiles();
+    if (children != null) for (File child : children) size += storageBytes(child, skip);
+    return size;
   }
 
   private void fail(GeckoResult<Object> result, Exception e) {

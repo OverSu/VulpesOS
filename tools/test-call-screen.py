@@ -31,6 +31,7 @@ with Client(2857) as c:
  Runtime.platform.request=async (actor,app,op,params)=>{
   if(op==='capabilities')return {...await original(actor,app,op,params),callControl:true};
   if(op==='calls')return Runtime.testCalls;
+  if(op==='dial'){Runtime.testCommands.push({op,params});Runtime.testCalls=[{path:'/ril_0/voicecall02',number:params.number,state:'dialing'}];return {path:'/ril_0/voicecall02'};}
   if(op==='callAudio')return {muted:false,speaker:false,volume:1};
   if(op==='callHistory')return Runtime.testHistory;
   if(op==='ackCallHistory'){Runtime.testHistory=Runtime.testHistory.filter(i=>!params.ids.includes(i.id));return null;}
@@ -53,7 +54,10 @@ with Client(2857) as c:
  wait('system','return !document.querySelector(".callscreenWindow")?.classList.contains("active");')
  calls('incoming')
  wait('callscreen','return navigator.mozTelephony?.calls[0]?.state==="incoming" && document.body?.innerText.includes("0123456789");')
- assert c.execute("const w=Services.wm.getMostRecentWindow('vulpes:host');return w.document.getElementById('screen').getBoundingClientRect().bottom<=w.document.getElementById('home').getBoundingClientRect().top+1;"), 'Home overlaps incoming-call controls'
+ for _ in range(20):
+  if c.execute("const w=Services.wm.getMostRecentWindow('vulpes:host');return w.document.getElementById('screen').getBoundingClientRect().bottom<=w.document.getElementById('home').getBoundingClientRect().top+1;"):break
+  time.sleep(.1)
+ else:raise AssertionError('Home overlaps incoming-call controls')
  ev('callscreen','document.getElementById("callbar-answer").click();return true;')
  wait('callscreen','return navigator.mozTelephony?.calls[0]?.state==="connected";')
  calls(None)
@@ -72,6 +76,16 @@ with Client(2857) as c:
   time.sleep(.2)
  else:raise AssertionError('Call history was not acknowledged')
  print('PASS: original call log imports the completed call.',flush=True)
+ ev('communications','document.querySelector(".log-item").click();return true;')
+ wait('callscreen','return navigator.mozTelephony?.calls[0]?.state==="dialing";')
+ commands=c.execute("return ChromeUtils.importESModule('resource://vulpes/host/Runtime.sys.mjs').Runtime.testCommands.filter(c=>c.op==='dial');")
+ assert len(commands)==1 and commands[0]['params']['number']=='0123456789',commands
+ assert ev('communications','return navigator.mozTelephony.calls[0] instanceof TelephonyCall;')
+ calls('active')
+ wait('communications','return navigator.mozTelephony.calls[0]?.state==="connected";')
+ calls(None)
+ wait('communications','return navigator.mozTelephony.calls.length===0;')
+ print('PASS: call-log redial reaches the modem once and follows the call lifecycle.',flush=True)
  ev('system','dispatchEvent(new Event("home"));return true;')
  def key(edge):ev('system','dispatchEvent(new CustomEvent("vulpes-service-event",{detail:{type:"hardware-key",data:{type:'+json.dumps(edge)+'}}}));return true;')
  key('sleep-button-press');time.sleep(.15);key('sleep-button-release')
@@ -82,7 +96,7 @@ with Client(2857) as c:
  assert ev('system','return document.getElementById("sleep-menu").classList.contains("visible");')
  key('sleep-button-release');ev('system','dispatchEvent(new Event("home"));return true;')
  key('volume-up-button-press');time.sleep(.15);key('volume-up-button-release')
- assert ev('system','return document.getElementById("volume").classList.contains("visible");')
+ assert ev('system','const v=document.getElementById("volume"),r=v.getBoundingClientRect();return v.classList.contains("visible") && r.height>=30 && r.width>100 && v.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));'), 'Gaia volume HUD must be painted, not only marked visible'
  ev('system','navigator.battery.level=.73;navigator.battery.charging=true;navigator.battery.dispatchEvent(new Event("levelchange"));return true;')
  assert ev('system','const i=document.getElementById("statusbar-battery");return !i.hidden && i.dataset.level==="70" && i.dataset.charging==="true";')
  print('PASS: short Power press sleeps/wakes, long press shows Gaia menu, Gaia volume and battery icons.',flush=True)

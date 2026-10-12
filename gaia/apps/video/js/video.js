@@ -102,7 +102,7 @@ var currentLayoutMode;
 var pendingUpdateTitleText = false;
 
 // Videos recorded by our own camera have filenames of this form
-var FROMCAMERA = /DCIM\/\d{3}MZLLA\/VID_\d{4}\.3gp$/;
+var FROMCAMERA = /DCIM\/\d{3}MZLLA\/VID_\d{4}\.(?:3gp|mp4|webm)$/;
 
 // We have a single instance of the loading checker because it is used
 // across functions
@@ -664,7 +664,7 @@ function deleteFile(filename) {
       // If we're deleting a video file recorded by our camera,
       // we also need to delete the poster image associated with
       // that video.
-      var postername = filename.replace('.3gp', '.jpg');
+      var postername = filename.replace(/\.(?:3gp|mp4|webm)$/, '.jpg');
       navigator.getDeviceStorage('pictures'). delete(postername);
   }
 

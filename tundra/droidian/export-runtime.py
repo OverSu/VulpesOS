@@ -140,11 +140,12 @@ def main():
         ROOT_PACKAGES.extend(['network-manager', 'wpasupplicant'])
     if args.with_hardware:
         ROOT_PACKAGES.extend(['ofono', 'pulseaudio', 'pulseaudio-utils',
-                              'pulseaudio-modules-droid-jb2q', 'pulseaudio-modules-droid-hidl',
+                              'pulseaudio-modules-droid-jb2q', 'pulseaudio-modules-droid-hidl', 'audiosystem-passthrough',
                               'gstreamer1.0-droid', 'bluebinder', 'libgbinder-radio',
                               'libgbinder-tools',
                               'libofonobinderpluginext', 'ofono-binder-plugin',
                               'ofono-configs-binder-common', 'ofono-scripts', 'ofono2mm',
+                              'mobile-broadband-provider-info',
                               'pulseaudio-config-droid', 'droidian-camera',
                               'qt5-cameraplugin-aal', 'libhybris'])
     packages = closure(installed_packages(), ROOT_PACKAGES)

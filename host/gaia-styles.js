@@ -109,6 +109,14 @@
           // Only a custom element's type selector names the scope root. A div
           // scope still contains ordinary div descendants (notably Lockscreen).
           if (owner.localName.includes('-')) text = text.replace(tag, ':scope');
+          if (owner.id) {
+            const rootId = '#' + CSS.escape(owner.id);
+            const pattern = new RegExp(rootId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\w-])', 'g');
+            // Old scoped sheets could style their owner by ID. Modern @scope
+            // requires :scope for that element (for example the volume HUD).
+            text = text.replace(/([^{}]+)\{/g, (rule, selector) =>
+              selector.replace(pattern, ':scope') + '{');
+          }
           text = text.replace(/\.-(?:host|content)(?![\w-])/g, (match) => ':scope' + match);
           style.textContent = '@scope ([data-vulpes-scope="' + id + '"]) {' + text + '}';
           style.removeAttribute('scoped');

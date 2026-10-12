@@ -70,7 +70,8 @@ export async function run(win) {
     const prefix=app==='contacts'?'http://communications.localhost:8765/contacts/':
       app==='dialer'?'http://communications.localhost:8765/dialer/':`http://${app}.localhost:8765/`;
     function find(context) {
-      if(context.currentWindowGlobal?.documentURI.spec.startsWith(prefix)) return context;
+      const uri=context.currentWindowGlobal?.documentURI.spec;
+      if(uri?.startsWith(prefix) || (app==='homescreen' && uri?.startsWith('http://verticalhome.localhost:8765/'))) return context;
       for(const child of context.children) {const found=find(child); if(found) return found;}
       return null;
     }
@@ -82,22 +83,22 @@ export async function run(win) {
       sleep(30000).then(()=>{throw new Error('Content actor did not answer within 30 seconds');})
     ]);
   }
-  async function wait(app, code) {
+  async function wait(app, code, timeout=90000) {
     dump(`TUNDRA_DROIDIAN_PROBE waiting ${app}: ${code}\n`);
     let last;
-    const deadline=Date.now()+90000;
+    const deadline=Date.now()+timeout;
     while(Date.now()<deadline) {
       try {last=await evaluate(app,code); if(last) return last;} catch(e) {last=String(e);}
       await sleep(500);
     }
     throw new Error(`${app}: timeout: ${last}`);
   }
-  async function tap(app, selector) {
+  async function tap(app, selector, timeout=90000) {
     if(app==='keyboard') selector='.keyboard-type-container[data-active] '+selector;
     const point=await wait(app, `for(const e of document.querySelectorAll(${JSON.stringify(selector)})) {
       const r=e.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;
       if(x>0 && y>0 && x<innerWidth && y<innerHeight && e.contains(document.elementFromPoint(x,y)))return {x,y};
-    }return false;`);
+    }return false;`,timeout);
     await evaluate(app,point,'Tap');
     await sleep(350);
   }
@@ -111,7 +112,7 @@ export async function run(win) {
     report.checks.system=await wait('system',"return document.body?.getAttribute('ready-state')==='fullyLoaded';");
     report.checks.home=await wait('homescreen',"return document.readyState==='complete' && document.body.innerText.length>0;");
     report.checks.visible=await wait('system',"return document.visibilityState==='visible';");
-    report.checks.bootLogoHidden=await wait('system',"const logo=document.getElementById('os-logo');return !logo || getComputedStyle(logo).opacity==='0';");
+    report.checks.bootLogoHidden=await wait('system',"const logo=document.getElementById('os-logo');return !logo || !logo.checkVisibility({checkOpacity:true,checkVisibilityCSS:true});");
     if (Services.env.get('TUNDRA_PERSISTENT') === '1') {
       const token = Services.uuid.generateUUID().toString();
       report.persistence = await evaluate('system', `
@@ -340,6 +341,113 @@ export async function run(win) {
     }
     }
     async function requestedUiChecks() {
+    const appearanceMarker = `${root}/logs/test-appearance`;
+    if (await IOUtils.exists(appearanceMarker)) {
+      await IOUtils.remove(appearanceMarker);
+      const result={bootId:report.bootId,passed:false,checks:{}};
+      let previous;
+      try {
+        await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;');
+        win.document.getElementById('home').click();
+        await sleep(600);
+        await evaluate('system', 'await VulpesCompat.call("apps.launch",{manifestURL:"http://settings.localhost:8765/manifest.webapp"});return true;');
+        await wait('settings', 'return document.readyState==="complete";');
+        previous=await evaluate('settings', 'return await VulpesCompat.call("appearance.current",{});');
+        await evaluate('settings', 'const s=await new Promise(r=>require(["modules/settings_service"],r));s.navigate("display");return true;');
+        await wait('settings', 'return !!document.getElementById("vulpes-theme");');
+        await wait('system', 'return Service.query("AppWindowManager.getActiveApp")?.origin==="http://settings.localhost:8765";');
+        await sleep(800);
+        await evaluate('settings', 'document.getElementById("vulpes-theme").scrollIntoView({block:"center"});return true;');
+        await tap('settings','#vulpes-theme');
+        result.checks.selectorOpens=await wait('settings','return !!document.getElementById("vulpes-value-selector");',15000);
+        await tap('settings','#vulpes-value-selector [data-value="dark"]');
+        await tap('settings','#vulpes-value-selector [data-action="confirm"]',15000);
+        for(const app of ['settings','system','homescreen'])
+          result.checks[app]=await wait(app, 'return document.documentElement.dataset.vulpesTheme==="dark";');
+        result.checks.visibleSettings=await wait('system', 'return Service.query("AppWindowManager.getActiveApp")?.origin==="http://settings.localhost:8765";');
+        result.checks.header=await evaluate('settings', 'const h=document.querySelector("#display gaia-header");return getComputedStyle(h.shadowRoot.querySelector(".inner")).backgroundColor==="rgb(37, 52, 66)" && getComputedStyle(h.querySelector("h1")).color==="rgb(241, 245, 249)";');
+        result.checks.label=await evaluate('settings', 'const l=document.querySelector("#vulpes-theme-label").getBoundingClientRect(),s=document.querySelector("#vulpes-theme").getBoundingClientRect();return l.height>30 && l.bottom<=s.top;');
+        await sleep(1000);
+        const bitmap=await win.browsingContext.currentWindowGlobal.drawSnapshot(new win.DOMRect(0,0,win.innerWidth,win.innerHeight),1,'white');
+        const canvas=win.document.createElementNS('http://www.w3.org/1999/xhtml','canvas');
+        canvas.width=bitmap.width;canvas.height=bitmap.height;canvas.getContext('2d').drawImage(bitmap,0,0);bitmap.close();
+        const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+        await IOUtils.write(`${root}/logs/appearance-dark.png`,new Uint8Array(await blob.arrayBuffer()));
+        await evaluate('settings', 'await navigator.mozSettings.createLock().set({"vulpes.theme":"light"});return true;');
+        result.checks.returnLight=await wait('homescreen', 'return document.documentElement.dataset.vulpesTheme==="light";');
+        result.passed=Object.values(result.checks).every(value=>value===true);
+      } catch(error) {result.error=String(error);}
+      finally {
+        if(previous!==undefined) await evaluate('settings', `await navigator.mozSettings.createLock().set({"vulpes.theme":${JSON.stringify(previous)}});return true;`).catch(()=>{});
+      }
+      await IOUtils.writeJSON(`${root}/logs/appearance.json`,result);
+    }
+    const followupMarker=`${root}/logs/test-settings-followup`;
+    if(await IOUtils.exists(followupMarker)) {
+      await IOUtils.remove(followupMarker);
+      const {auditFollowup}=ChromeUtils.importESModule('resource://vulpes/host/SettingsFollowupAudit.sys.mjs');
+      const save=data=>IOUtils.writeJSON(`${root}/logs/settings-followup.json`,{bootId:report.bootId,...data});
+      const microphonePrincipal=Services.scriptSecurityManager.createContentPrincipal(Services.io.newURI('http://camera.localhost:8765'),{});
+      const microphonePermission=Services.perms.testExactPermissionFromPrincipal(microphonePrincipal,'microphone');
+      // This private marker explicitly requests a short camera/audio test.
+      Services.perms.addFromPrincipal(microphonePrincipal,'microphone',Ci.nsIPermissionManager.ALLOW_ACTION,Ci.nsIPermissionManager.EXPIRE_SESSION);
+      try {await auditFollowup({evaluate,wait,sleep,save,tap});}
+      catch(error){await save({passed:false,error:String(error)});}
+      finally {
+        if(microphonePermission===Ci.nsIPermissionManager.UNKNOWN_ACTION)Services.perms.removeFromPrincipal(microphonePrincipal,'microphone');
+        else Services.perms.addFromPrincipal(microphonePrincipal,'microphone',microphonePermission);
+      }
+    }
+    const auditMarker=`${root}/logs/test-settings-all`;
+    if(await IOUtils.exists(auditMarker)) {
+      await IOUtils.remove(auditMarker);
+      const {auditSettings}=ChromeUtils.importESModule('resource://vulpes/host/SettingsAudit.sys.mjs');
+      const save=data=>IOUtils.writeJSON(`${root}/logs/settings-all.json`,{bootId:report.bootId,...data});
+      try {await save(await auditSettings({evaluate,wait,sleep,save}));}
+      catch(error) {await IOUtils.writeJSON(`${root}/logs/settings-all-error.json`,{bootId:report.bootId,error:String(error)});}
+    }
+    const settingsMarker = `${root}/logs/test-settings-navigation`;
+    if (await IOUtils.exists(settingsMarker)) {
+      await IOUtils.remove(settingsMarker);
+      const result={bootId:report.bootId,checks:{},errors:[]};
+      try {
+        await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});await VulpesCompat.call("apps.launch",{manifestURL:"http://settings.localhost:8765/manifest.webapp"});return true;');
+        await wait('settings','return document.readyState==="complete";');
+        await evaluate('settings','window.__vulpesDiagnostics=[];return true;');
+        for(const [parent,id,selector] of [
+          ['root','sim-manager','#menuItem-simManager'],
+          ['root','call','#call-settings a'],
+          ['root','messaging','#menuItem-messagingSettings'],
+          ['wifi','wifi-manageNetworks','a[href="#wifi-manageNetworks"]'],
+          ['wifi','wifi-manageCertificates','a[href="#wifi-manageCertificates"]']]) {
+          try {
+            await evaluate('settings',`const s=await new Promise(r=>require(["modules/settings_service"],r));await s.navigate(${JSON.stringify(parent)});return true;`);
+            await sleep(700);
+            await evaluate('settings',`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({block:"center"});return true;`);
+            await sleep(200);
+            const start=Date.now();
+            await tap('settings',selector,15000);
+            await wait('settings',`return document.querySelector('section.current')?.id===${JSON.stringify(id)};`,15000);
+            await sleep(800);
+            result.checks[id]={opened:true,elapsedMs:Math.round(Date.now()-start),detail:await evaluate('settings',`const p=document.getElementById(${JSON.stringify(id)});return {textLength:p.innerText.length,simCards:p.querySelectorAll('.sim-card').length,explanation:!!p.querySelector('[data-vulpes-unavailable]')};`)};
+            if(id==='messaging') {
+              await wait('settings',`return document.querySelector('#messaging [name="ril.sms.requestStatusReport.enabled"]')?.dataset.vulpesSupported==="true";`,15000);
+              const old=await evaluate('settings','return (await VulpesCompat.call("platform.mobileSettings",{action:"messages"})).deliveryReports;');
+              try {
+                await tap('settings','#messaging [name="ril.sms.requestStatusReport.enabled"]',15000);
+                result.checks.smsDeliveryReports=await wait('settings',`return (await VulpesCompat.call("platform.mobileSettings",{action:"messages"})).deliveryReports===${!old};`,15000);
+              } finally {
+                await evaluate('settings',`await VulpesCompat.call("platform.mobileSettings",{action:"deliveryReports",enabled:${old}});await navigator.mozSettings.createLock().set({"ril.sms.requestStatusReport.enabled":${old}});return true;`);
+              }
+            }
+          } catch(error) {result.checks[id]={error:String(error)};}
+        }
+        result.errors=await evaluate('settings','return window.__vulpesDiagnostics;');
+        result.passed=Object.values(result.checks).every(v=>v===true || v.opened) && !result.errors.some(e=>e.kind==="error" || e.kind==="rejection");
+        await evaluate('settings','const s=await new Promise(r=>require(["modules/settings_service"],r));await s.navigate("display");return true;');
+      } catch(error) {result.error=String(error);result.passed=false;}
+      await IOUtils.writeJSON(`${root}/logs/settings-navigation.json`,result);
+    }
       await requestedControls();
     const marketplaceMarker = `${root}/logs/test-marketplace-views`;
     if (await IOUtils.exists(marketplaceMarker)) {
@@ -423,20 +531,50 @@ export async function run(win) {
       }
       await IOUtils.writeJSON(`${root}/logs/tickets-20261005.json`,result);
     }
+    const bluetoothMarker = `${root}/logs/test-bluetooth`;
+    if (await IOUtils.exists(bluetoothMarker)) {
+      await IOUtils.remove(bluetoothMarker);
+      const result={bootId:report.bootId,passed:false,checks:{}};
+      await IOUtils.writeJSON(`${root}/logs/bluetooth.json`,result);
+      let before;
+      try {
+        await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});return true;");
+        await evaluate('system', "await VulpesCompat.call('apps.launch',{manifestURL:'http://settings.localhost:8765/manifest.webapp'});return true;");
+        await wait('settings', "return !!navigator.mozBluetooth?.defaultAdapter;");
+        before=await evaluate('settings', "return navigator.mozBluetooth.defaultAdapter.state==='enabled';");
+        await evaluate('settings', "require(['modules/settings_service'],s=>s.navigate('bluetooth'));return true;");
+        result.checks.originalPanel=await wait('settings', "return !!document.querySelector('#bluetooth.current .bluetooth-status');");
+        await evaluate('settings', "require(['modules/bluetooth/bluetooth_context'],c=>{window.__btContext=c;c.setEnabled(true);});return true;");
+        result.checks.enabled=await wait('settings', "return navigator.mozBluetooth.defaultAdapter.state==='enabled';");
+        await evaluate('settings', "window.__btFound=new Set();window.__btScanPromise=navigator.mozBluetooth.defaultAdapter.startDiscovery().then(h=>h.ondevicefound=e=>__btFound.add(e.device.address));return true;");
+        result.checks.discovering=await wait('settings', "return navigator.mozBluetooth.defaultAdapter.discovering;");
+        await sleep(7000);
+        result.deviceCount=await evaluate('settings', "return __btFound.size;");
+        await evaluate('settings', "await navigator.mozBluetooth.defaultAdapter.stopDiscovery();return true;");
+        result.checks.stopped=await wait('settings', "return !navigator.mozBluetooth.defaultAdapter.discovering;");
+        result.passed=Object.values(result.checks).every(Boolean);
+      } catch(error) {result.error=String(error);}
+      finally {
+        if(before!==undefined)await evaluate('settings', `await navigator.mozBluetooth.defaultAdapter.${before?'enable':'disable'}();return true;`).catch(()=>{});
+        win.document.getElementById('home').click();
+      }
+      await IOUtils.writeJSON(`${root}/logs/bluetooth.json`,result);
+    }
     const cameraMarker = `${root}/logs/test-camera`;
     if (await IOUtils.exists(cameraMarker)) {
       await IOUtils.remove(cameraMarker);
       const cameraReport = {bootId:report.bootId, imagesRetained:false, passed:false};
+      await IOUtils.writeJSON(`${root}/logs/camera.json`,cameraReport);
       try {
         await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});return true;");
         await wait('system', "return !Service.query('locked');");
         await evaluate('system', "await VulpesCompat.call('apps.launch',{manifestURL:'http://camera.localhost:8765/manifest.webapp'});return true;");
-        await wait('camera', "return !!window.app?.camera?.mozCamera && document.querySelector('video')?.videoWidth>0;");
+        await wait('camera', "return !!window.app?.camera?.mozCamera && app.camera.mozCamera.vulpesPreviewCanvas?.isConnected;");
         // Gaia remembers the selected lens; establish a known starting state.
         await evaluate('camera', "if(app.settings.cameras.selected('key')!=='back')app.settings.cameras.next();return true;");
-        await wait('camera', "return app.settings.cameras.selected('key')==='back' && !!app.camera.mozCamera && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
+        await wait('camera', "return app.settings.cameras.selected('key')==='back' && !!app.camera.mozCamera && !app.camera.isBusy && app.camera.mozCamera.vulpesPreviewCanvas?.isConnected;");
         cameraReport.gaia = await evaluate('camera', `
-          const video=document.querySelector('video');
+          const video=app.camera.mozCamera.vulpesPreviewCanvas;
           const camera=app.camera.mozCamera;
           window.__cameraBeforeSwitch=camera;
           const capabilities=camera.capabilities;
@@ -456,42 +594,62 @@ export async function run(win) {
           const photo=await camera.takePicture();
           const bitmap=await createImageBitmap(photo);
           const picture={width:bitmap.width,height:bitmap.height};bitmap.close();
-          return {width:video.videoWidth,height:video.videoHeight,native:camera.vulpesNative===true,
+          return {width:video.width,height:video.height,native:camera.vulpesNative===true,
             picture,focus,focusError,zoom:testedZoom,focusAreas:capabilities.maxFocusAreas,
             jpegBytes:photo.size,jpegType:photo.type,errors:window.__vulpesDiagnostics};
         `);
         cameraReport.performance = await evaluate('camera', `
           const stream=app.camera.mozCamera, before=stream.vulpesTiming?.frames||0;
+          const video=app.camera.mozCamera.vulpesPreviewCanvas;
+          let decoded=0,frameCallback;const onVideoFrame=()=>{decoded++;frameCallback=requestAnimationFrame(onVideoFrame);};
+          frameCallback=requestAnimationFrame(onVideoFrame);
           const start=performance.now();await new Promise(r=>setTimeout(r,4000));
           const elapsed=performance.now()-start;
+          if(frameCallback!==undefined)cancelAnimationFrame(frameCallback);
           const hud=document.querySelector('.hud');
           const button=document.querySelector('.js-camera');
           return {fps:(stream.vulpesTiming.frames-before)*1000/elapsed,
             conversionMs:stream.vulpesTiming.conversionMs/stream.vulpesTiming.frames,
+            animationFps:decoded*1000/elapsed,
+            transferMs:stream.vulpesTiming.transferMs/stream.vulpesTiming.frames,
             switchVisible:getComputedStyle(button).opacity!=='0' && hud.getAttribute('camera-enabled')==='true',
             flashVisible:getComputedStyle(document.querySelector('.js-flash')).visibility==='visible'};
         `);
+        await IOUtils.writeJSON(`${root}/logs/camera.json`,cameraReport);
         await evaluate('camera', "document.querySelector('.js-camera').click();return true;");
-        await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__cameraBeforeSwitch && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
+        await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__cameraBeforeSwitch && !app.camera.isBusy && app.camera.mozCamera.vulpesPreviewCanvas?.isConnected;");
         cameraReport.switched = await evaluate('camera', `
           const photo=await app.camera.mozCamera.takePicture();
           window.__cameraBeforeHome=app.camera.mozCamera;
           return {camera:app.settings.cameras.selected('key'),jpegBytes:photo.size,
-            previousStopped:window.__cameraBeforeSwitch.getTracks().every(t=>t.readyState==='ended')};
+            previousStopped:window.__cameraBeforeSwitch.vulpesClosed===true};
         `);
         cameraReport.roundTrips = [];
-        for (let i=0; i<4; i++) {
+        for (let i=0; i<8; i++) {
           await evaluate('camera', "window.__switchFrom=app.camera.mozCamera;return true;");
           await tap('camera', '.js-camera');
-          await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__switchFrom && !app.camera.isBusy && document.querySelector('.viewfinder video')?.videoWidth>0;");
+          await wait('camera', "return !!app.camera.mozCamera && app.camera.mozCamera!==window.__switchFrom && !app.camera.isBusy && app.camera.mozCamera.vulpesPreviewCanvas?.isConnected;");
           cameraReport.roundTrips.push(await evaluate('camera', `
             const camera=app.camera.mozCamera, before=camera.vulpesTiming.frames;
-            await new Promise(r=>setTimeout(r,700));
+            const video=app.camera.mozCamera.vulpesPreviewCanvas;
+            let decoded=0,frameCallback;const onVideoFrame=()=>{decoded++;frameCallback=requestAnimationFrame(onVideoFrame);};
+          frameCallback=requestAnimationFrame(onVideoFrame);
+            await new Promise(r=>setTimeout(r,1500));
+            if(frameCallback!==undefined)cancelAnimationFrame(frameCallback);
+            const canvas=document.createElement('canvas');canvas.width=16;canvas.height=16;
+            const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,16,16);
+            const pixels=ctx.getImageData(0,0,16,16).data;
+            let light=0;for(let n=0;n<pixels.length;n+=4)light+=pixels[n]+pixels[n+1]+pixels[n+2];
             return {camera:app.settings.cameras.selected('key'),
               frames:camera.vulpesTiming.frames-before,
-              previousStopped:window.__switchFrom.getTracks().every(t=>t.readyState==='ended')};
+              animationFrames:decoded,
+              width:video.getBoundingClientRect().width,
+              meanLight:light/(16*16*3),
+              visible:getComputedStyle(document.querySelector('.viewfinder')).opacity!=='0',
+              previousStopped:window.__switchFrom.vulpesClosed===true};
           `));
         }
+        await IOUtils.writeJSON(`${root}/logs/camera.json`,cameraReport);
         await evaluate('camera', 'window.__cameraBeforeHome=app.camera.mozCamera;return true;');
         // Test Gaia's Home action, independent of a held pointer on the shell button.
         await evaluate('camera', "window.__cameraFilesBefore=new Set((await VulpesCompat.call('media.request',{type:'pictures',operation:'enumerate'})).map(f=>f.name));return true;");
@@ -511,8 +669,8 @@ export async function run(win) {
         await evaluate('system', "dispatchEvent(new CustomEvent('home'));return true;");
         cameraReport.afterHome = await evaluate('system', "await new Promise(r=>setTimeout(r,1000));return {active:Service.query('getTopMostWindow')?.origin, top:Service.query('getTopMostUI')?.name, locked:Service.query('locked'), screen:ScreenManager.screenEnabled};");
         cameraReport.hidden = await wait('camera', 'return document.hidden;');
-        cameraReport.stopped = await wait('camera', "return window.__cameraBeforeHome.getTracks().every(t=>t.readyState==='ended');");
-        cameraReport.passed=cameraReport.captureStored && cameraReport.galleryOpened && cameraReport.gaia.native && cameraReport.gaia.picture.width*cameraReport.gaia.picture.height>10000000 && cameraReport.gaia.focus && cameraReport.gaia.zoom>1 && cameraReport.gaia.jpegBytes>1000 && cameraReport.gaia.jpegType==='image/jpeg' && cameraReport.switched.jpegBytes>1000 && cameraReport.switched.previousStopped && cameraReport.stopped && cameraReport.roundTrips.every(r=>r.frames>0 && r.previousStopped);
+        cameraReport.stopped = await wait('camera', "return window.__cameraBeforeHome.vulpesClosed===true;");
+        cameraReport.passed=cameraReport.captureStored && cameraReport.galleryOpened && cameraReport.gaia.native && cameraReport.gaia.picture.width*cameraReport.gaia.picture.height>10000000 && cameraReport.gaia.focus && cameraReport.gaia.zoom>1 && cameraReport.gaia.jpegBytes>1000 && cameraReport.gaia.jpegType==='image/jpeg' && cameraReport.switched.jpegBytes>1000 && cameraReport.switched.previousStopped && cameraReport.stopped && cameraReport.roundTrips.length===8 && cameraReport.roundTrips.every(r=>r.frames>0 && r.animationFrames>0 && r.width>0 && r.visible && r.previousStopped);
       } catch(error) { cameraReport.error=String(error); }
       finally { win.document.getElementById('home')?.click(); }
       await IOUtils.writeJSON(`${root}/logs/camera.json`, cameraReport);
@@ -571,7 +729,7 @@ export async function run(win) {
       const smsReport = {bootId:report.bootId, passed:false, sent:false};
       try {
         await evaluate('system', "ScreenManager.turnScreenOn(true);if(Service.query('locked'))await Service.request('unlock',{forcibly:true});await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;");
-        await wait('sms', "return !!window.Navigation && !!window.MessageManager;");
+        await wait('sms', "return typeof window.Navigation?.toPanel === 'function' && !!window.MessageManager;");
         smsReport.threads = await evaluate('sms', `
           const threads=await new Promise((resolve,reject)=>{const rows=[];const c=navigator.mozMobileMessage.getThreads();c.onsuccess=()=>{if(c.done)resolve(rows);else{rows.push(c.result);c.continue();}};c.onerror=()=>reject(c.error);});
           window.__smsReviewThreads=threads.map(t=>t.id);
@@ -648,7 +806,7 @@ export async function run(win) {
         await evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;');
         await sleep(1000);
         await evaluate('system', `await VulpesCompat.call('apps.launch',{manifestURL:'http://sms.localhost:8765/manifest.webapp'});return true;`);
-        await wait('sms','return !!window.Navigation;');
+        await wait('sms',"return typeof window.Navigation?.toPanel === 'function';");
         await evaluate('sms','await Navigation.toPanel("thread-list");await Navigation.toPanel("composer");return true;');
         await evaluate('sms','if(ConversationView.recipients.length || document.querySelector(".recipient[contenteditable]").textContent.trim() || Compose.getText())throw Error("TEST_DRAFT_PRESENT");return true;');
         await tap('sms','.recipient[contenteditable]');
@@ -656,12 +814,27 @@ export async function run(win) {
         await evaluate('keyboard',`await navigator.mozInputMethod.inputcontext.replaceSurroundingText(${JSON.stringify(request.recipient)},0,0);return true;`);
         await tap('sms','#messages-input');
         await wait('keyboard','return navigator.mozInputMethod?.inputcontext?.inputType==="text";');
-        const body='Vulpes OS - test SMS '+new Date().toISOString();
+        const isMms=request.type==='mms';
+        const body='Vulpes OS - test '+(isMms?'MMS':'SMS')+' '+new Date().toISOString();
+        const filename='vulpes-test-'+Date.now()+'.png';
         await evaluate('keyboard',`await navigator.mozInputMethod.inputcontext.replaceSurroundingText(${JSON.stringify(body)},0,0);return true;`);
+        if(isMms) {
+          await evaluate('sms',`const c=document.createElement('canvas');c.width=c.height=64;
+            const ctx=c.getContext('2d');ctx.fillStyle='#197dd2';ctx.fillRect(0,0,64,64);
+            const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));
+            Compose.append(new Attachment(blob,{name:${JSON.stringify(filename)},isDraft:true}));return true;`);
+          await wait('sms',"return Compose.type==='mms';");
+        }
         await wait('sms','return !document.querySelector("#messages-send-button").disabled;');
-        result.preSend=await evaluate('sms',`return {composer:Navigation.isCurrentPanel('composer'),
-          recipientMatch:JSON.stringify(ConversationView.recipients.numbers.map(n=>navigator.mozPhoneNumberService.normalize(n)))===JSON.stringify([${JSON.stringify(request.recipient)}]),
-          recipientCount:ConversationView.recipients.numbers.length,
+        result.preSend=await evaluate('sms',`
+          // Gaia also accepts a number still being edited when Send is pressed.
+          const numbers=ConversationView.recipients.numbers.slice();
+          const pending=document.querySelector('.recipient[contenteditable]')?.textContent.trim();
+          const normalize=n=>navigator.mozPhoneNumberService.normalize(n);
+          if(pending && !numbers.some(n=>normalize(n)===normalize(pending)))numbers.push(pending);
+          return {composer:Navigation.isCurrentPanel('composer'),
+          recipientMatch:JSON.stringify(numbers.map(n=>navigator.mozPhoneNumberService.normalize(n)))===JSON.stringify([${JSON.stringify(request.recipient)}]),
+          recipientCount:numbers.length,
           bodyMatch:Compose.getText()===${JSON.stringify(body)},bodyLength:Compose.getText().length,
           expectedLength:${body.length}};`);
         if(!result.preSend.composer || !result.preSend.recipientMatch || !result.preSend.bodyMatch)
@@ -670,9 +843,14 @@ export async function run(win) {
         result.submitted=await wait('sms',`return await new Promise((resolve,reject)=>{
           const cursor=navigator.mozMobileMessage.getMessages(null,true);
           cursor.onsuccess=()=>{const m=cursor.result;if(!m){resolve(false);return;}
-            if(m.body===${JSON.stringify(body)}){if(m.delivery==='error'){reject(Error('MODEM_TRANSMISSION_FAILED'));return;}resolve(m.delivery==='sent');return;}cursor.continue();};
+            const match=${isMms} ? m.type==='mms' && m.attachments.some(a=>a.location===${JSON.stringify(filename)}) : m.body===${JSON.stringify(body)};
+            if(match){window.__sentTestId=m.id;if(m.delivery==='error'){reject(Error('MODEM_TRANSMISSION_FAILED'));return;}resolve(m.delivery==='sent');return;}cursor.continue();};
           cursor.onerror=()=>reject(cursor.error);
         });`);
+        if(isMms) {
+          result.operatorAccepted=result.submitted;
+          result.conversationVisible=await wait('sms',"return !!document.querySelector('#message-'+window.__sentTestId+' .attachment-container');");
+        }
       } catch(error) {result.error=String(error);}
       finally {win.document.getElementById('home').click();}
       await IOUtils.writeJSON(`${root}/logs/send-sms.json`,result);

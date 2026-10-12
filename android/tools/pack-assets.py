@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
-from project import build_info, validate_assets, release_info, application_manifest
+from project import SOURCE_OVERRIDES, build_info, validate_assets, release_info, application_manifest
 
 validate_assets()
 OUT = ROOT / "android/app/src/main/assets"
@@ -46,17 +46,8 @@ info = build_info()
 release = release_info()
 revision = info["revision"]
 commit_time = str(info["timestamp"])
-source_overrides = {
-    "system": [
-        "js/launcher.js",
-        "js/gaia_scheduler.js",
-        "js/keyboard_manager.js",
-        "js/core.js",
-        "js/rocketbar.js",
-    ]
-}
 textsuffix = {".html", ".js", ".css", ".json", ".webapp", ".properties", ".svg"}
-head = b'<head><script src="/_vulpes/platform-config.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><link rel="stylesheet" href="/_vulpes/desktop.css"><link rel="stylesheet" href="/_vulpes/android.css"><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-services.js"></script><script src="/_vulpes/gaia-styles.js"></script><script src="/_vulpes/android-ui.js"></script><script src="/_vulpes/gaia-restoration.js"></script><script src="/_vulpes/platform-ui.js"></script><script src="/_vulpes/gaia-camera.js"></script>'
+head = b'<head><script src="/_vulpes/platform-config.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><link rel="stylesheet" href="/_vulpes/desktop.css"><link rel="stylesheet" href="/_vulpes/android.css"><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-mobile-settings.js"></script><script src="/_vulpes/gaia-bluetooth.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script><script src="/_vulpes/gaia-styles.js"></script><link rel="stylesheet" href="/_vulpes/gaia-theme.css"><script src="/_vulpes/gaia-theme.js"></script><script src="/_vulpes/gaia-select.js"></script><script src="/_vulpes/android-ui.js"></script><script src="/_vulpes/gaia-restoration.js"></script><script src="/_vulpes/platform-ui.js"></script><script src="/_vulpes/gaia-camera.js"></script>'
 if "--bridge-only" not in sys.argv or not (OUT / "gaia.zip").exists():
     with zipfile.ZipFile(OUT / "gaia.zip", "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
         hashes = {}
@@ -82,7 +73,7 @@ if "--bridge-only" not in sys.argv or not (OUT / "gaia.zip").exists():
                         if p.is_file() and p.name != "manifest.webapp"
                     }
                 )
-            for name in source_overrides.get(app["id"], []):
+            for name in SOURCE_OVERRIDES.get(app["id"], []):
                 files[name] = ROOT / "gaia/apps" / app["id"] / name
             for name, p in files.items():
                 data = p.read_bytes()
@@ -120,7 +111,7 @@ if "--bridge-only" not in sys.argv or not (OUT / "gaia.zip").exists():
                     data = translate(data.decode("utf8")).encode()
                 put("_shared/" + p.relative_to(ROOT / "gaia/shared").as_posix(), data)
         put("_vulpes/platform-config.js", b'window.VulpesPlatform="android";')
-        for name in ["gaia-compat.js", "gaia-services.js", "gaia-styles.js", "gaia-restoration.js", "gaia-wifi.js", "desktop.css", "platform-ui.js", "gaia-camera.js"]:
+        for name in ["gaia-compat.js", "gaia-input.js", "gaia-services.js", "gaia-styles.js", "gaia-theme.js", "gaia-select.js", "gaia-mobile-settings.js", "gaia-theme.css", "gaia-restoration.js", "gaia-wifi.js", "gaia-bluetooth.js", "desktop.css", "platform-ui.js", "gaia-camera.js"]:
             text = (
                 (ROOT / "host" / name)
                 .read_text()
@@ -145,6 +136,7 @@ for name in ["Connections", "Contacts", "Messages"]:
     )
     (ext / f"{name}.mjs").write_text(text)
 shutil.copy2(ROOT / "host/Alarms.sys.mjs", ext / "Alarms.mjs")
+(ext / "input-editor.js").write_text((ROOT / "services/input-editor.mjs").read_text().replace('export class InputEditor', 'class InputEditor'))
 shutil.copy2(ROOT / "host/marketplace-page.js", ext / "marketplace-page.js")
 (ext / "release.json").write_text(json.dumps(release))
 (ext / "registry.json").write_text(json.dumps(registry, ensure_ascii=False))

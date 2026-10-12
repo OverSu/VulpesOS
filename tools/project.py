@@ -6,6 +6,13 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Editable Gaia files shared by desktop serving and Android packaging.
+SOURCE_OVERRIDES = {
+    "system": ["js/launcher.js", "js/gaia_scheduler.js", "js/keyboard_manager.js",
+               "js/core.js", "js/rocketbar.js"],
+    "communications": ["dialer/js/telephony_helper.js"],
+}
+
 
 def validate_assets():
     """Require the checked-in Gaia payload instead of a private profile copy."""

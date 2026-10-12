@@ -1,0 +1,105 @@
+/* Keep Gaia geometry, icons and media intact; change the surfaces and ink. */
+:root[data-vulpes-theme="dark"] {
+  color-scheme: dark;
+  --vulpes-surface: #18232e;
+  --vulpes-raised: #253442;
+  --vulpes-text: #f1f5f9;
+  --vulpes-muted: #b8c8d8;
+  --vulpes-line: #526272;
+  --link-color: #79ceff;
+  --header-background: var(--vulpes-raised);
+  --header-color: var(--vulpes-text);
+  --header-title-color: var(--vulpes-text);
+  --header-button-color: var(--vulpes-text);
+  --header-icon-color: var(--vulpes-text);
+  --header-action-button-color: #79ceff;
+  --header-disabled-button-color: var(--vulpes-muted);
+}
+:root[data-vulpes-theme="dark"]:is([data-vulpes-app="settings"],
+  [data-vulpes-app="communications"], [data-vulpes-app="sms"],
+  [data-vulpes-app="email"], [data-vulpes-app="calendar"],
+  [data-vulpes-app="ringtones"]) {
+  --background: var(--vulpes-surface);
+  --text-color: var(--vulpes-text);
+  --title-color: var(--vulpes-text);
+  --label-color: var(--vulpes-text);
+  background: var(--vulpes-surface) !important;
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-theme="dark"] gaia-header {
+  --header-background: var(--vulpes-raised) !important;
+  --header-title-color: var(--vulpes-text) !important;
+  --header-action-button-color: #79ceff !important;
+}
+#display #vulpes-theme-row {
+  display: block !important;
+  min-height: 10rem;
+  height: auto !important;
+  padding-bottom: 1rem;
+}
+#vulpes-theme-row > p {
+  height: auto;
+  line-height: 2.4rem;
+  padding: 1rem 1.5rem;
+  transform: none;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="settings"] h2 {
+  background-color: var(--vulpes-surface) !important;
+}
+:root[data-vulpes-theme="dark"]:is([data-vulpes-app="settings"],
+  [data-vulpes-app="communications"], [data-vulpes-app="sms"],
+  [data-vulpes-app="email"], [data-vulpes-app="calendar"],
+  [data-vulpes-app="ringtones"]) :is(body, section, [role="region"],
+  [data-type="list"], .view, .card, #main, #messages-container, #thread-list,
+  #contacts-list, #view-contacts-list, #no-contacts, #call-log-container, #messages-compose-form) {
+  background-color: var(--vulpes-surface) !important;
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-theme="dark"] :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable="true"]) {
+  background-color: var(--vulpes-raised) !important;
+  color: var(--vulpes-text) !important;
+  border-color: var(--vulpes-line) !important;
+  caret-color: #79ceff;
+}
+:root[data-vulpes-theme="dark"] :is(input, textarea)::placeholder { color: var(--vulpes-muted) !important; }
+:root[data-vulpes-theme="dark"][data-vulpes-app="settings"] :is(li, li > a, li > a > span, li > p, li > small, label, .explanation, h1, h2) {
+  color: var(--vulpes-text) !important;
+  border-color: var(--vulpes-line) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="settings"] :is(ul, header, .button, button:not(.danger)) {
+  background-color: var(--vulpes-raised) !important;
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="communications"] :is(.contact-item, .contact-item a, .contact-item p, #call-log-container li, #call-log-container a, #call-log-container p, .phone-number, #keypad-phone-number, .keypad-key) {
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="communications"] #phone-number-view-container {
+  background-color: var(--vulpes-raised) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="communications"] :is(.keypad-subicon, [role="tab"]) {
+  color: #79ceff !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="communications"] [role="tab"][aria-selected="true"] {
+  background-color: var(--vulpes-raised) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="communications"] #no-contacts :is(p, .info) {
+  color: var(--vulpes-muted) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="communications"] #no-contacts {
+  background-blend-mode: soft-light;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="sms"] :is(.threadlist-item, .threadlist-item a, .threadlist-item p, .time, .name, .body-text) {
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="sms"] .bubble {
+  background-color: var(--vulpes-raised) !important;
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-theme="dark"] :is([data-type="confirm"], [data-type="action"]) :is(section, menu, header, p) {
+  background-color: var(--vulpes-raised) !important;
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="system"] :is(#utility-tray, #notifications-container) {
+  background-color: var(--vulpes-surface) !important;
+  color: var(--vulpes-text) !important;
+}

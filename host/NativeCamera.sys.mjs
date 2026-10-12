@@ -17,8 +17,9 @@ export class NativeCamera {
       return await Promise.race([
         (async () => {
           const pipe=session.process.stdout;
-          const sequence=metadata ? null : await pipe.readUint32();
-          const length=await pipe.readUint32();
+          const header=new DataView(await pipe.read(metadata ? 4 : 8));
+          const sequence=metadata ? null : header.getUint32(0,true);
+          const length=header.getUint32(metadata ? 0 : 4,true);
           if(metadata) {
             if(length>65536) throw Error('CAMERA_INVALID_FORMAT');
             return pipe.readJSON(length);

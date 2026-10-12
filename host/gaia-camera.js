@@ -1,6 +1,8 @@
 // The Gaia camera UI consumes mozCameras. Only live MediaStream capabilities are exposed here.
 (() => {
   if (location.hostname !== 'camera.localhost') return;
+  const videoMime = typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus') ? 'video/webm;codecs=vp8,opus' : null;
+  window.VulpesVideoExtension = videoMime ? 'webm' : null;
   let cameras = ['back'],
     devices = new Map(),
     current = null,
@@ -8,11 +10,22 @@
   let cameraError = null;
   let opening = Promise.resolve(), closing = Promise.resolve();
   const releases = new WeakMap();
+  const nativeViews = new WeakMap();
   function releaseStream(stream, preview) {
     if (releases.has(stream)) return releases.get(stream);
     if (current === stream) current = null;
     const release = Promise.resolve().then(async () => {
+      await stream.vulpesFinishRecording?.();
+      emit(stream, 'previewstatechange', {newState:'stopped'});
+      // Stop the capture producer before detaching its consumers. Gecko can
+      // otherwise block in srcObject=null while a GPU-backed frame is in use.
+      stream.getTracks().forEach(track => track.stop());
       for (const video of document.querySelectorAll('video')) {
+        if (nativeViews.get(video) === stream) {
+          nativeViews.delete(video);
+          stream.vulpesPreviewCanvas.remove();
+          video.style.display = '';
+        }
         if (video.srcObject === stream) {
           video.pause(); video.srcObject = null;
           if ('vulpesCapture' in video.dataset) video.remove();
@@ -96,12 +109,33 @@
   Object.defineProperty(HTMLMediaElement.prototype, 'mozSrcObject', {
     configurable: true,
     get() {
-      return nativeSource.get.call(this);
+      return nativeViews.get(this) || nativeSource.get.call(this);
     },
     set(stream) {
-      nativeSource.set.call(this, stream);
+      const old = nativeViews.get(this);
+      if (old) {
+        old.vulpesPreviewCanvas.remove();
+        nativeViews.delete(this);
+        this.style.display = '';
+      }
+      if (stream?.vulpesPreviewCanvas) {
+        // The HAL already delivers NV21 frames. Render them directly in Gaia's
+        // viewfinder instead of capturing the WebGL canvas into a second GPU
+        // video pipeline, which stalls on repeated switches on Sargo.
+        nativeViews.set(this, stream);
+        const canvas = stream.vulpesPreviewCanvas;
+        canvas.className = this.className;
+        canvas.dataset.vulpesNativePreview = '';
+        canvas.style.cssText = 'display:block;width:100%;height:100%;pointer-events:none';
+        this.style.display = 'none';
+        this.parentNode.append(canvas);
+      } else nativeSource.set.call(this, stream);
     },
   });
+  const playVideo = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function() {
+    return nativeViews.has(this) ? Promise.resolve() : playVideo.call(this);
+  };
   function emit(target, type, detail = {}) {
     const event = new Event(type);
     Object.assign(event, detail);
@@ -136,15 +170,20 @@
     if (second) devices.set('front', second.deviceId);
     cameras = devices.size ? [...devices.keys()] : ['back'];
   }
+  // Keep one graphics context per app. Losing/recreating it at every lens switch
+  // can exhaust the mobile driver while captured video frames are still in use.
+  let nativeCanvas = null;
   async function nativeStream(name) {
     let session;
     const call = (params) => VulpesCompat.call('platform.cameraPreview', {...params, session});
     const meta = await call({action:'start', camera:name === 'front' ? 'front' : 'back'});
     session = meta.session;
-    const canvas = document.createElement('canvas');
+    const canvas = nativeCanvas || (nativeCanvas = document.createElement('canvas'));
     const sideways = meta.orientation % 180 !== 0;
-    canvas.width = sideways ? meta.height : meta.width;
-    canvas.height = sideways ? meta.width : meta.height;
+    const width = sideways ? meta.height : meta.width;
+    const height = sideways ? meta.width : meta.height;
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
     // Convert NV21 in a shader instead of blocking Gaia's UI with one JS loop
     // per pixel. The two textures contain Y and interleaved V/U respectively.
     const gl = canvas.getContext('webgl', {alpha:false, antialias:false, preserveDrawingBuffer:true});
@@ -152,18 +191,21 @@
       await call({action:'stop'});
       throw new DOMException('Camera preview requires WebGL', 'NotSupportedError');
     }
-    const timing = {frames:0, startedAt:performance.now(), conversionMs:0};
-    let stopped = false, timer, stream, sequence = -1, closing, program, buffer;
+    const timing = {frames:0, startedAt:performance.now(), conversionMs:0, transferMs:0, sensorFrames:0};
+    let stopped = false, timer, stream, wakeLock, sequence = -1, closing, program, buffer;
     const textures = [], shaders = [];
     const stop = () => {
       if (closing) return closing;
       stopped = true; clearTimeout(timer);
+      wakeLock?.unlock(); wakeLock = null;
       closing = call({action:'stop'}).finally(() => {
+        if (stream) stream.vulpesClosed = true;
         textures.forEach(texture => gl.deleteTexture(texture));
         shaders.forEach(value => gl.deleteShader(value));
         if (buffer) gl.deleteBuffer(buffer);
         if (program) gl.deleteProgram(program);
-        gl.getExtension('WEBGL_lose_context')?.loseContext();
+        // The next lens reuses this context after its old stream has stopped.
+        gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
       });
       return closing;
     };
@@ -210,17 +252,25 @@
         gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
         gl.uniform1i(gl.getUniformLocation(program,name),index);
       });
+      gl.viewport(0,0,canvas.width,canvas.height);
+      const pixels = meta.width * meta.height;
+      gl.activeTexture(gl.TEXTURE0);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,meta.width,meta.height,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,null);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE_ALPHA,meta.width/2,meta.height/2,0,gl.LUMINANCE_ALPHA,gl.UNSIGNED_BYTE,null);
       const draw = async () => {
+        const requested = performance.now();
         const frame = await call({action:'frame'});
+        timing.transferMs += performance.now()-requested;
         if (stopped || !frame.data || frame.sequence === sequence) return false;
         const data = new Uint8Array(frame.data), w = meta.width, h = meta.height;
         if (data.length !== w * h * 3 / 2) throw Error('Invalid native camera frame');
-        sequence = frame.sequence;
+        sequence = frame.sequence; timing.sensorFrames = sequence;
         const start=performance.now();
         gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,textures[0]);
-        gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,w,h,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,data.subarray(0,w*h));
+        gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,w,h,gl.LUMINANCE,gl.UNSIGNED_BYTE,data.subarray(0,pixels));
         gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,textures[1]);
-        gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE_ALPHA,w/2,h/2,0,gl.LUMINANCE_ALPHA,gl.UNSIGNED_BYTE,data.subarray(w*h));
+        gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,w/2,h/2,gl.LUMINANCE_ALPHA,gl.UNSIGNED_BYTE,data.subarray(pixels));
         gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
         timing.frames++;timing.conversionMs+=performance.now()-start;
         return true;
@@ -230,7 +280,11 @@
         if (Date.now() > deadline) throw new DOMException('No camera frames', 'NotReadableError');
         await new Promise(resolve => setTimeout(resolve, 50));
       }
-      stream = canvas.captureStream(24);
+      stream = new MediaStream();
+      stream.vulpesPreviewCanvas = canvas;
+      stream.vulpesClosed = false;
+      // A canvas has no video element's implicit screen wake lock.
+      wakeLock = navigator.requestWakeLock?.('screen');
       stream.vulpesTiming = timing;
       stream.vulpesNative = true;
       stream.vulpesCameraMetadata = meta;
@@ -245,14 +299,27 @@
         const started = performance.now();
         try { await draw(); }
         catch (error) {
-          if (!stopped) { recordError(error); stream.getTracks().forEach(track => track.stop()); }
+          if (!stopped) { recordError(error); await stop().catch(recordError); }
           return;
         }
-        if (!stopped) timer = setTimeout(next, Math.max(0, 1000/24-(performance.now()-started)));
+        if (!stopped) timer = setTimeout(next, Math.max(0, 1000/30-(performance.now()-started)));
       };
-      timer = setTimeout(next, 1000/24);
+      timer = setTimeout(next, 1000/30);
       return stream;
     } catch (error) { await stop().catch(() => {}); throw error; }
+  }
+  async function captureVideo(constraints, ticket, platform) {
+    // track.stop() returns before some Android camera drivers finish closing.
+    // Retry the same sensor, never replace a refused/missing camera silently.
+    for (let attempt = 0; ; attempt++) {
+      if (document.hidden || ticket !== generation)
+        throw new DOMException('Camera request superseded or hidden', 'AbortError');
+      try { return await navigator.mediaDevices.getUserMedia(constraints); }
+      catch (error) {
+        if (platform !== 'android' || error.name !== 'NotReadableError' || attempt >= 2) throw error;
+        await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)));
+      }
+    }
   }
   function getCamera(name, config = {}) {
     const ticket = ++generation;
@@ -275,7 +342,7 @@
       const platform = await VulpesCompat.call('platform.capabilities', {});
       if (platform.platform === 'tundra' && !platform.camera)
         throw new DOMException('Native camera adapter unavailable', 'NotSupportedError');
-      stream = platform.platform === 'tundra' ? await nativeStream(name) : await navigator.mediaDevices.getUserMedia({
+      stream = platform.platform === 'tundra' ? await nativeStream(name) : await captureVideo({
         audio: false,
         video: {
           ...(selected
@@ -284,7 +351,7 @@
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
-      });
+      }, ticket, platform.platform);
     } catch (error) {
       recordError(error);
       throw error;
@@ -304,44 +371,55 @@
         throw new DOMException('Camera hidden', 'AbortError');
 
       const track = stream.getVideoTracks()[0];
-      const settings = track.getSettings();
-      const size = { width: settings.width, height: settings.height };
-      preview = document.createElement('video');
-      preview.muted = true;
-      preview.playsInline = true;
-      preview.srcObject = stream;
-      preview.dataset.vulpesCapture = '';
-      preview.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none';
-      document.body.append(preview);
-      let previewTimeout;
-      await Promise.race([
-        preview.play(),
-        new Promise((_, reject) => {
-          previewTimeout = setTimeout(
-            () => reject(new DOMException('Camera preview timed out', 'NotReadableError')),
-            10000,
-          );
-        }),
-      ]).finally(() => clearTimeout(previewTimeout));
+      const native = stream.vulpesCameraMetadata;
+      let size;
+      if (native) {
+        // Preview dimensions and still photos come directly from the HAL.
+        // The native canvas needs no hidden capture video.
+        const sideways = native.orientation % 180 !== 0;
+        size = {width:sideways ? native.height : native.width,
+                height:sideways ? native.width : native.height};
+      } else {
+        preview = document.createElement('video');
+        preview.muted = true;
+        preview.playsInline = true;
+        preview.srcObject = stream;
+        preview.dataset.vulpesCapture = '';
+        preview.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none';
+        document.body.append(preview);
+        let previewTimeout;
+        await Promise.race([
+          preview.play(),
+          new Promise((_, reject) => {
+            previewTimeout = setTimeout(
+              () => reject(new DOMException('Camera preview timed out', 'NotReadableError')),
+              10000,
+            );
+          }),
+        ]).finally(() => clearTimeout(previewTimeout));
+        const settings = stream.getVideoTracks()[0].getSettings();
+        size = {width:preview.videoWidth || settings.width,
+                height:preview.videoHeight || settings.height};
+      }
       if (document.hidden || ticket !== generation)
         throw new DOMException('Camera hidden', 'AbortError');
 
-      const native = stream.vulpesCameraMetadata;
       const pictureSizes = native?.pictureSizes || [size];
       let pictureSize = pictureSizes.reduce((a,b)=>a.width*a.height>b.width*b.height?a:b);
-      let focusArea = null, zoom = 1;
+      let focusArea = null, zoom = 1, mode = 'picture', recording, startingRecording = false;
+      const profile = {containerFormat:'webm',video:{width:size.width,height:size.height,codec:'vp8',bitrate:1500000,framerate:30},audio:{codec:'opus',samplerate:48000,channels:1,bitrate:64000}};
       const configuration = () => ({
-        mode: 'picture',
+        mode,
         previewSize: size,
         pictureSize,
-        recorderProfile: null,
+        recorderProfile: videoMime ? 'webm' : null,
       });
       Object.assign(stream, {
         capabilities: {
           pictureSizes,
           previewSizes: [size],
           thumbnailSizes: [],
-          recorderProfiles: {},
+          recorderProfiles: videoMime ? {webm:profile} : {},
           flashModes: ['off'],
           focusModes: native ? (native.focusModes.includes('auto') ? ['auto','infinity'] : ['fixed']) : ['fixed'],
           sceneModes: ['auto'],
@@ -359,8 +437,9 @@
         zoom: 1,
         async setConfiguration(value) {
           if (value.pictureSize) stream.setPictureSize(value.pictureSize);
-          if (value.mode && value.mode !== 'picture')
+          if (value.mode && !['picture',...(videoMime ? ['video'] : [])].includes(value.mode))
             throw new DOMException('Video unavailable', 'NotSupportedError');
+          if(value.mode)mode=value.mode;
           queueMicrotask(() => emit(stream, 'previewstatechange', { newState: 'started' }));
           return configuration();
         },
@@ -415,10 +494,66 @@
         release() {
           return releaseStream(stream, preview);
         },
-        async startRecording() {
-          throw new DOMException('Video unavailable', 'NotSupportedError');
+        async startRecording(options, storage, filepath) {
+          if(!videoMime)throw new DOMException('Video unavailable','NotSupportedError');
+          if(recording || startingRecording)throw new DOMException('Recording in progress','InvalidStateError');
+          startingRecording=true;
+          let audio, captured;
+          try {
+            audio=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+            if(current!==stream || document.hidden)throw new DOMException('Camera closed','AbortError');
+            // Only recording captures the native canvas. The preview keeps its
+            // direct WebGL surface and the capture track is stopped before a switch.
+            captured=native ? stream.vulpesPreviewCanvas.captureStream(30) : new MediaStream(stream.getVideoTracks().map(t=>t.clone()));
+            for(const track of audio.getAudioTracks())captured.addTrack(track);
+            const recorder=new MediaRecorder(captured,{mimeType:videoMime,videoBitsPerSecond:1500000,audioBitsPerSecond:64000});
+            const chunks=[];let bytes=0,failed=false,finish;
+            const done=new Promise(resolve=>{finish=resolve;});
+            const cap=Math.min(options.maxFileSizeBytes || Infinity,32*1024*1024);
+            recorder.ondataavailable=event=>{
+              if(event.data.size) {chunks.push(event.data);bytes+=event.data.size;}
+              if(bytes>=cap && recorder.state==='recording') {
+                emit(stream,'recorderstatechange',{newState:'FileSizeLimitReached'});
+                recorder.stop();
+              }
+            };
+            recorder.onerror=()=>{failed=true;emit(stream,'recorderstatechange',{newState:'MediaRecorderFailed'});};
+            recorder.onstop=async()=>{
+              try {
+                if(failed || !bytes)throw Error('Empty or failed recording');
+                const blob=new Blob(chunks,{type:'video/webm'});
+                await storage.addNamed(blob,filepath);
+                const canvas=document.createElement('canvas');
+                const source=native ? stream.vulpesPreviewCanvas : preview;
+                canvas.width=native ? source.width : preview.videoWidth;
+                canvas.height=native ? source.height : preview.videoHeight;
+                canvas.getContext('2d').drawImage(source,0,0,canvas.width,canvas.height);
+                const poster=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.9));
+                if(!poster)throw Error('Video poster failed');
+                emit(stream,'poster',{data:poster});
+              } catch(error) {
+                recordError(error);emit(stream,'recorderstatechange',{newState:'MediaRecorderFailed'});
+              } finally {
+                captured.getTracks().forEach(t=>t.stop());
+                chunks.length=0;recording=null;finish();
+                emit(stream,'recorderstatechange',{newState:'Stopped'});
+              }
+            };
+            recording={recorder,done};
+            recorder.start(500);
+            emit(stream,'recorderstatechange',{newState:'Started'});
+          } catch(error) {
+            captured?.getTracks().forEach(t=>t.stop());audio?.getTracks().forEach(t=>t.stop());
+            recording=null;throw error;
+          } finally {startingRecording=false;}
         },
-        stopRecording() {},
+        stopRecording() {
+          if(recording?.recorder.state==='recording')recording.recorder.stop();
+        },
+        async vulpesFinishRecording() {
+          if(!recording)return;
+          const done=recording.done;stream.stopRecording();await done;
+        },
       });
       if (native) Object.defineProperty(stream,'zoom',{
         configurable:true, get:()=>zoom,
@@ -433,7 +568,7 @@
       });
       dispatchEvent(
         new CustomEvent('vulpes-camera-capabilities', {
-          detail: { cameras: [...cameras], flash: false, video: false },
+          detail: { cameras: [...cameras], flash: false, video: !!videoMime },
         }),
       );
       return { camera: stream, configuration: configuration() };
@@ -479,7 +614,7 @@
         'Only one camera available',
         'toggle-camera-rear',
       ],
-      ['.mode-switch', true, 'Vidéo pas encore disponible', 'Video is not available yet', null],
+      ['.mode-switch', !videoMime, 'Vidéo pas encore disponible', 'Video is not available yet', null],
     ];
     const fr = (document.documentElement.lang || navigator.language).startsWith('fr');
     for (const [selector, disabled, french, english, icon] of controls) {
@@ -489,7 +624,7 @@
       e.setAttribute('aria-disabled', String(disabled));
       if (!disabled) {
         e.removeAttribute('title');
-        e.setAttribute('aria-label', fr ? 'Changer de caméra' : 'Switch camera');
+        if(selector==='.js-camera')e.setAttribute('aria-label', fr ? 'Changer de caméra' : 'Switch camera');
       }
       if (disabled) {
         e.removeAttribute('data-l10n-id');

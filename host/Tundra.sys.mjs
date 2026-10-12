@@ -42,6 +42,7 @@ export function tundraCapabilities(release) {
     dial: radio,
     callControl: radio,
     sms: radio,
+    mms: radio,
     alarms: false,
     hardwareStatus: true,
     wifiControl: Services.env?.get('VULPES_TUNDRA_WIFI') === '1',
@@ -50,7 +51,7 @@ export function tundraCapabilities(release) {
 
 export async function tundraRadio(operation, params = {}) {
   if (Services.env.get('VULPES_TUNDRA_RADIO') !== '1') throw Error('RADIO_UNAVAILABLE');
-  if (!['status', 'calls', 'dial', 'hangup', 'answer', 'sms', 'incomingMessages', 'ackMessages', 'messageState'].includes(operation)) throw Error('RADIO_INVALID_REQUEST');
+  if (!['deviceSettings', 'mobileSettings', 'status', 'calls', 'dial', 'hangup', 'answer', 'sms', 'incomingMessages', 'ackMessages', 'messageState'].includes(operation)) throw Error('RADIO_INVALID_REQUEST');
   const { Subprocess } = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
   const process = await Subprocess.call({
     command: '/usr/bin/python3',
@@ -78,8 +79,8 @@ export async function tundraRadio(operation, params = {}) {
     throw Error('RADIO_INVALID_REPLY');
   }
   if (reply?.ok === false) {
-    const errors = ['RADIO_NOT_REGISTERED', 'RADIO_BUSY', 'RADIO_NOT_READY',
-      'RADIO_REQUEST_FAILED', 'INVALID_NUMBER', 'INVALID_SMS', 'INVALID_CALL'];
+    const errors = ['RADIO_NOT_REGISTERED', 'RADIO_BUSY', 'RADIO_NOT_READY', 'RADIO_TIMEOUT',
+      'RADIO_REQUEST_FAILED', 'RADIO_READBACK_FAILED', 'INVALID_REQUEST', 'APN_IN_USE', 'APN_NOT_FOUND', 'APN_WRITE_FAILED', 'APN_ROLLBACK_FAILED', 'CLOCK_REQUEST_FAILED', 'CLOCK_UNAVAILABLE', 'INVALID_NUMBER', 'INVALID_SMS', 'INVALID_CALL'];
     throw Error(errors.includes(reply.error) ? reply.error : 'RADIO_REQUEST_FAILED');
   }
   if (reply?.ok !== true) throw Error('RADIO_INVALID_REPLY');
@@ -92,11 +93,11 @@ const WIFI_SCAN_CACHE_MS = 5000;
 
 export async function tundraWifi(params) {
   if (Services.env.get('VULPES_TUNDRA_WIFI') !== '1') throw Error('NOT_SUPPORTED');
-  if (!['scan', 'connect', 'disconnect', 'status', 'setEnabled', 'known', 'forget'].includes(params.operation))
+  if (!['scan', 'connect', 'connectHidden', 'disconnect', 'status', 'setEnabled', 'known', 'forget','hotspotStatus','hotspotSave','hotspotPower'].includes(params.operation))
     throw Error('WIFI_INVALID_REQUEST');
   if (params.operation !== 'scan') {
     try { return await wifiCommand(params); }
-    finally { wifiScanCache = null; }
+    finally { if (['connect','connectHidden','disconnect','forget','setEnabled','hotspotPower'].includes(params.operation)) wifiScanCache = null; }
   }
   // System and Settings share a broker: at most one Python scan client exists.
   if (wifiScanPending) return wifiScanPending;
@@ -174,5 +175,35 @@ export async function tundraCallAudio(params) {
   if (exitCode) throw Error('CALL_AUDIO_UNAVAILABLE');
   const reply = JSON.parse(text);
   if (reply.error) throw Error(reply.error);
+  return reply.result;
+}
+
+
+// Separate socket and bounded payload so MMS traffic cannot block call control.
+export async function tundraMms(operation, params={}) {
+  if(Services.env.get('VULPES_TUNDRA_RADIO')!=='1') throw Error('NotSupportedError');
+  if(!['send','state','incoming','ack'].includes(operation)) throw Error('INVALID_REQUEST');
+  const {Subprocess}=ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
+  const process=await Subprocess.call({command:'/usr/bin/python3',arguments:['/etc/tundra/mms-control.py','--client'],stderr:'ignore'});
+  await process.stdin.write(JSON.stringify({version:1,operation,...params}));await process.stdin.close();
+  let output='';for(;;){const chunk=await process.stdout.readString();if(!chunk)break;output+=chunk;if(output.length>1228800){process.kill();throw Error('MMS_TOO_LARGE');}}
+  const {exitCode}=await process.wait();if(exitCode)throw Error('MMS_UNAVAILABLE');
+  const reply=JSON.parse(output);if(reply.ok!==true)throw Error(reply.error || 'MMS_UNAVAILABLE');return reply.result;
+}
+
+// A persistent daemon owns BlueZ discovery and pending pairing requests.
+export async function tundraBluetooth(params) {
+  if (Services.env.get('VULPES_TUNDRA') !== '1') throw Error('NotSupportedError');
+  const {Subprocess}=ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
+  const process=await Subprocess.call({command:'/usr/bin/python3',
+    arguments:['/etc/tundra/bluetooth-control.py','--client'],stderr:'ignore'});
+  await process.stdin.write(JSON.stringify({...params,version:1}));await process.stdin.close();
+  let output='';
+  for (;;) {
+    const chunk=await process.stdout.readString();if(!chunk)break;
+    output+=chunk;if(output.length>65536){process.kill();throw Error('BLUETOOTH_INVALID_REPLY');}
+  }
+  const {exitCode}=await process.wait();if(exitCode)throw Error('BLUETOOTH_UNAVAILABLE');
+  const reply=JSON.parse(output);if(reply.error)throw Error(reply.error);
   return reply.result;
 }

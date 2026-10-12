@@ -25,6 +25,19 @@ var TelephonyHelper = (function() {
       return Promise.reject();
     }
 
+    // The platform adapter owns network checks on Tundra and Android.
+    if (window.VulpesPlatformDial) {
+      return window.VulpesPlatformDial(sanitizedNumber.split(',')[0]).then(function(obj) {
+        if (window.TelephonyCall && obj instanceof TelephonyCall) {
+          installHandlers(obj, sanitizedNumber, false, cardIndex,
+                          oncall, onconnected, ondisconnected);
+        } else if (oncall) {
+          oncall();
+        }
+        return obj;
+      });
+    }
+
     var conn = navigator.mozMobileConnections &&
       navigator.mozMobileConnections[cardIndex];
 
@@ -170,11 +183,13 @@ var TelephonyHelper = (function() {
     call.addEventListener('connected', onconnected);
 
     call.addEventListener('disconnected', function handleDisconnect(evt) {
-      loadTelephonyMessages(function() {
-        TelephonyMessages.handleDisconnect(
-          evt.call.disconnectedReason, number, emergencyOnly
-        );
-      });
+      if (evt.call.disconnectedReason) {
+        loadTelephonyMessages(function() {
+          TelephonyMessages.handleDisconnect(
+            evt.call.disconnectedReason, number, emergencyOnly
+          );
+        });
+      }
       ondisconnected && ondisconnected();
     });
   }

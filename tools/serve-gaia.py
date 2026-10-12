@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=8765)
 parser.add_argument("--legacy-apps", action="store_true")
 args = parser.parse_args()
-from project import build_info, validate_assets, release_info, application_manifest
+from project import SOURCE_OVERRIDES, build_info, validate_assets, release_info, application_manifest
 from installed_apps import InstalledApps
 INSTALLED = InstalledApps(ROOT / "profiles/installed-apps", args.port)
 
@@ -133,7 +133,7 @@ class Handler(BaseHTTPRequestHandler):
         # Only this non-privileged compatibility layer is exposed, never host modules.
         if path in [
             "/_vulpes/" + name
-            for name in ["settings-codec.js", "gaia-compat.js", "gaia-input.js", "gaia-services.js", "gaia-styles.js", "gaia-restoration.js", "gaia-wifi.js", "desktop.css", "platform-ui.js", "gaia-camera.js"]
+            for name in ["settings-codec.js", "gaia-compat.js", "gaia-input.js", "gaia-services.js", "gaia-styles.js", "gaia-theme.js", "gaia-select.js", "gaia-mobile-settings.js", "gaia-theme.css", "gaia-restoration.js", "gaia-wifi.js", "gaia-bluetooth.js", "desktop.css", "platform-ui.js", "gaia-camera.js"]
         ]:
             file = ROOT / "host" / path.rsplit("/", 1)[1]
         else:
@@ -143,16 +143,7 @@ class Handler(BaseHTTPRequestHandler):
             if not file.is_relative_to(root):
                 self.send_error(403)
                 return
-            overrides = {
-                "system.gaiamobile.org": [
-                    "js/launcher.js",
-                    "js/gaia_scheduler.js",
-                    "js/keyboard_manager.js",
-                    "js/core.js",
-                    "js/rocketbar.js",
-                ]
-            }
-            if path.lstrip("/") in overrides.get(root.name, []):
+            if path.lstrip("/") in SOURCE_OVERRIDES.get(root.name.removesuffix(".gaiamobile.org"), []):
                 file = (
                     ROOT
                     / "gaia/apps"
@@ -197,13 +188,13 @@ class Handler(BaseHTTPRequestHandler):
         if file.suffix == ".html" and root in LEGACY_ROOTS:
             data = data.replace(
                 b"<head>",
-                b'<head><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script>',
+                b'<head><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-mobile-settings.js"></script><script src="/_vulpes/gaia-bluetooth.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script>',
                 1,
             )
         elif file.suffix == ".html" and not (root.name == "search.gaiamobile.org" and path.startswith("/home/")):
             data = data.replace(
                 b"<head>",
-                b'<head><script src="/_vulpes/platform-config.js"></script><link rel="stylesheet" href="/_vulpes/desktop.css"><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script><script src="/_vulpes/gaia-styles.js"></script><script src="/_vulpes/gaia-restoration.js"></script><script src="/_vulpes/platform-ui.js"></script><script src="/_vulpes/gaia-camera.js"></script>',
+                b'<head><script src="/_vulpes/platform-config.js"></script><link rel="stylesheet" href="/_vulpes/desktop.css"><script src="/_vulpes/settings-codec.js"></script><script src="/_vulpes/gaia-compat.js"></script><script src="/_vulpes/gaia-wifi.js"></script><script src="/_vulpes/gaia-mobile-settings.js"></script><script src="/_vulpes/gaia-bluetooth.js"></script><script src="/_vulpes/gaia-input.js"></script><script src="/_vulpes/gaia-services.js"></script><script src="/_vulpes/gaia-styles.js"></script><link rel="stylesheet" href="/_vulpes/gaia-theme.css"><script src="/_vulpes/gaia-theme.js"></script><script src="/_vulpes/gaia-select.js"></script><script src="/_vulpes/gaia-restoration.js"></script><script src="/_vulpes/platform-ui.js"></script><script src="/_vulpes/gaia-camera.js"></script>',
                 1,
             )
         if (

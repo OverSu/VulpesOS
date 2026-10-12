@@ -1,3 +1,4 @@
+import {mmsPayload} from 'resource://vulpes/services/mms.mjs';
 import { setInterval, setTimeout, clearTimeout } from 'resource://gre/modules/Timer.sys.mjs';
 import {Input} from 'resource://vulpes/host/Input.sys.mjs';
 import { ScreenPower } from 'resource://vulpes/services/screen-power.mjs';
@@ -13,7 +14,7 @@ import { Messages } from 'resource://vulpes/host/Messages.sys.mjs';
 import { Alarms } from 'resource://vulpes/host/Alarms.sys.mjs';
 import { Platform } from 'resource://vulpes/host/Platform.sys.mjs';
 import { Media } from 'resource://vulpes/host/Media.sys.mjs';
-import { tundraCallAudio, tundraHardware, tundraRadio } from 'resource://vulpes/host/Tundra.sys.mjs';
+import { tundraCallAudio, tundraHardware, tundraRadio, tundraMms } from 'resource://vulpes/host/Tundra.sys.mjs';
 Cu.importGlobalProperties(['indexedDB']);
 
 // This is the only privileged owner of application identity and settings data.
@@ -111,6 +112,7 @@ export const Runtime = {
     }
     Services.prefs.setStringPref('intl.accept_languages', this.values['language.current']);
     this.activities = new Activities({identity:actor=>this.identity(actor),apps:()=>this.apps,
+      choose:data=>this.broadcast('activity-choice',data,'system'),
       uuid:()=>Services.uuid.generateUUID().toString(),
       notify:(actor,type,data)=>actor.sendAsyncMessage('Vulpes:Event',{type,data}),
       launch:(target,path,{reload=false,entryPoint}={})=>this.broadcast(reload?'activity-launch':'launch',{manifestURL:target.manifestURL,origin:target.origin,
@@ -123,6 +125,19 @@ export const Runtime = {
           const values = { ...this.values, ...Object.fromEntries(entries) };
           await IOUtils.writeJSON(path, values, { tmpPath: path + '.tmp' });
           this.values = values;
+          const prefMap={
+            'ui.click_hold_context_menus.delay':'ui.click_hold_context_menus.delay',
+            'accessibility.monoaudio.enable':'accessibility.monoaudio.enable',
+            'geolocation.enabled':'geo.enabled',
+            'privacy.donottrackheader.enabled':'privacy.donottrackheader.enabled',
+            'debug.paint-flashing.enabled':'nglayout.debug.paint_flashing',
+            'apz.overscroll.enabled':'apz.overscroll.enabled'
+          };
+          for(const [key,value] of entries) {
+            const pref=prefMap[key];if(!pref)continue;
+            if(typeof value==='boolean')Services.prefs.setBoolPref(pref,value);
+            else if(key==='ui.click_hold_context_menus.delay' && [400,800,1600].includes(value))Services.prefs.setIntPref(pref,value);
+          }
           if (entries.some(([key]) => key === 'language.current'))
             Services.prefs.setStringPref('intl.accept_languages', values['language.current']);
           if (Services.env.get('VULPES_TUNDRA') === '1') {
@@ -156,6 +171,8 @@ export const Runtime = {
         : null,
       (type, message) => this.broadcast('sms-' + type, message, 'sms'),
       path => tundraRadio('messageState', {path}),
+      Services.env.get('VULPES_TUNDRA_RADIO') === '1' ? {validate:mmsPayload,
+        send:message=>tundraMms('send',mmsPayload(message)), status:path=>tundraMms('state',{path})} : null,
     );
     this.media = new Media((data) => this.broadcast('mediachange', data));
     this.platform = new Platform(this);
@@ -301,9 +318,10 @@ export const Runtime = {
       }
     }
     if (typeof method !== 'string') return { error: { code: 'INVALID_REQUEST' } };
-    if (['activities.subscribe','activities.finish','activities.cancel'].includes(method) || (method === 'activities.start' && isGaiaActivity(params))) {
+    if (['activities.subscribe','activities.finish','activities.cancel','activities.select'].includes(method) || (method === 'activities.start' && isGaiaActivity(params))) {
       try {
-        const result = method === 'activities.cancel' ? this.activities.cancel(actor)
+        const result = method === 'activities.select' ? this.activities.select(actor,params)
+          : method === 'activities.cancel' ? this.activities.cancel(actor)
           : method === 'activities.subscribe' ? this.activities.subscribe(actor)
           : method === 'activities.finish' ? this.activities.finish(actor,params)
           : await this.activities.start(actor,params);
@@ -359,11 +377,28 @@ export const Runtime = {
         return { error: { code: error.message || 'VIEW_ERROR' } };
       }
     }
+    if (method === 'storage.stats') {
+      try {const {storageStats}=ChromeUtils.importESModule('resource://vulpes/host/StorageStats.sys.mjs');return {result:await storageStats(app)};}
+      catch(error) {return {error:{code:error.message || 'STORAGE_ERROR'}};}
+    }
+    if (method === 'downloads.request') {
+      try {
+        const {GaiaDownloads}=ChromeUtils.importESModule('resource://vulpes/host/Downloads.sys.mjs');
+        this.downloads ||= new GaiaDownloads();
+        return {result:await this.downloads.request(app,params)};
+      } catch(error) {return {error:{code:error.message || 'DOWNLOAD_ERROR'}};}
+    }
+    if (method === 'appearance.current') return { result: this.values['vulpes.theme'] || 'light' };
     if (method === 'locale.current') return { result: this.values['language.current'] || 'en-US' };
     if (method === 'settings.snapshot')
       return this.grants(app).includes('settings.read')
         ? { result: { ...this.values } }
         : { error: { code: 'PERMISSION_DENIED' } };
+    if (method === 'settings.clockChanged') {
+      if(app.id !== 'settings' || Services.env.get('VULPES_TUNDRA') !== '1') return {error:{code:'PERMISSION_DENIED'}};
+      Services.obs.notifyObservers(null, 'system-timezone-changed');
+      return {result:true};
+    }
     if (method.startsWith('settings.'))
       return this.settings.bindSession(app.id, this.grants(app))(request);
     if (method === 'desktop.idle') {
@@ -517,7 +552,7 @@ export const Runtime = {
       try {
         const app = this.identity(actor);
         if (!app || (target && app.id !== target)) continue;
-        if (type === 'settingchange' && data.key !== 'language.current' && !this.grants(app).includes('settings.read')) continue;
+        if (type === 'settingchange' && !['language.current', 'vulpes.theme'].includes(data.key) && !this.grants(app).includes('settings.read')) continue;
         if (
           type === 'mediachange' &&
           !app.manifest.permissions?.['device-storage:' + data.type]?.access?.includes('read')

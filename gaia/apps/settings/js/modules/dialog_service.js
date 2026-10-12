@@ -190,29 +190,30 @@ define(function(require) {
         if ('#' + panelId === currentPanel) {
           defer.reject('You are showing the same panel #' + panelId);
         } else {
-          options.onWrapSubmit = function() {
-            DialogManager.close(dialog, 'submit', options)
-            .then(function(result) {
-              defer.resolve({
-                type: 'submit',
-                value: result
-              });
+          var opening;
+          var closing = false;
+          function close(type) {
+            if (closing) return;
+            closing = true;
+            // A tap during the opening animation must not run hide/show
+            // concurrently, or a queued dialog can inherit stale form values.
+            Promise.resolve(opening).then(function() {
+              return DialogManager.close(dialog, type, options);
+            }).then(function(result) {
               self._navigating = false;
+              defer.resolve({type: type, value: result});
               self._execPendingRequest();
+            }, function(error) {
+              // Panel validation rejects to keep the form open. Allow a
+              // correction or cancellation without rejecting the show promise.
+              closing = false;
+              dialogDOM.dispatchEvent(new CustomEvent('dialogvalidationfailed', {
+                detail: error
+              }));
             });
-          };
-
-          options.onWrapCancel = function() {
-            DialogManager.close(dialog, 'cancel', options)
-            .then(function(result) {
-              defer.resolve({
-                type: 'cancel',
-                value: result
-              });
-              self._navigating = false;
-              self._execPendingRequest();
-            });
-          };
+          }
+          options.onWrapSubmit = function() { close('submit'); };
+          options.onWrapCancel = function() { close('cancel'); };
 
           switch (options.type) {
             case 'alert':
@@ -229,7 +230,17 @@ define(function(require) {
               break;
           }
           this._navigating = true;
-          DialogManager.open(dialog, options);
+          opening = DialogManager.open(dialog, options);
+          opening.catch(function(error) {
+            // A missing host API must not lock every later Settings dialog.
+            dialogDOM.classList.remove('current');
+            dialogDOM.hidden = true;
+            var overlay = document.querySelector('.settings-dialog-overlay');
+            if (overlay) overlay.hidden = true;
+            self._navigating = false;
+            defer.reject(error);
+            self._execPendingRequest();
+          });
         }
       }
 

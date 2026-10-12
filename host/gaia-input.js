@@ -1,6 +1,10 @@
 // Keep Gaia's keyboard and layouts; replace its retired Gecko input-method API.
 (() => {
-  if (!window.VulpesNativeInput) return;
+  function start() {
+  // Android emits focus only when enabled. Install the keyboard API before Gaia's
+  // startup scripts, without waiting for the asynchronous preference handshake.
+  if ((!window.VulpesNativeInput && window.VulpesPlatform !== 'android') || window.__vulpesInputInstalled) return;
+  window.__vulpesInputInstalled=true;
   const app=location.hostname.split('.')[0], {call}=VulpesCompat;
   if (app==='keyboard') {
     let viewport, pendingState;
@@ -16,13 +20,14 @@
       dispatchEvent(new Event('resize'));
       if(pendingState!==undefined) {setState(pendingState);pendingState=undefined;}
     });
-    addEventListener('DOMContentLoaded', () => {
+    const ready = () => {
       ViewManager.prototype.screenInPortraitMode = function() {
         return viewport ? viewport.width<=viewport.height :
           this.cachedWindowWidth<=this.cachedWindowHeight;
       };
       parent.postMessage({type:'vulpes-keyboard-ready'},'http://system.localhost:8765');
-    }, {once:true});
+    };
+    if(document.readyState==='loading')addEventListener('DOMContentLoaded',ready,{once:true});else ready();
     const ime=Object.assign(new EventTarget(),{inputcontext:null,mgmt:{
       supportsSwitching:()=>false,
       hide:()=>call('input.request',{operation:'hide'}),
@@ -93,4 +98,7 @@
     for(const type of ['home','lockscreen-appopened','appwillclose'])
       addEventListener(type,()=>call('input.request',{operation:'hide'}).catch(console.error));
   }
+  }
+  addEventListener('vulpes-input-configured',start);
+  start();
 })();

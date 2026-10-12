@@ -1,10 +1,11 @@
 // Desktop message store. Radio operations fail explicitly; no synthetic SMS.
 export class Messages {
-  constructor(storage, radio = null, notify = () => {}, radioStatus = null) {
+  constructor(storage, radio = null, notify = () => {}, radioStatus = null, mms = null) {
     this.storage = storage;
     this.radio = radio;
     this.notify = notify;
     this.radioStatus = radioStatus;
+    this.mms = mms;
     this.queue = Promise.resolve();
   }
   receive(incoming) {
@@ -14,7 +15,8 @@ export class Messages {
       if (existing) return existing;
       const id=Math.max(Date.now(),...records.map(m=>Number(m.id)+1 || 0));
       const record={id,threadId:records.find(m=>(m.sender||m.receiver)===incoming.sender)?.threadId || id+1,
-        receipt:incoming.receipt,type:'sms',sender:incoming.sender,receiver:null,
+        receipt:incoming.receipt,type:incoming.type || 'sms',sender:incoming.sender,receiver:null,
+        ...(incoming.type==='mms' ? {receivers:incoming.receivers || [],subject:incoming.subject || '',smil:incoming.smil || '',attachments:incoming.attachments || [],deliveryInfo:[]} : {}),
         body:incoming.body,timestamp:incoming.timestamp,delivery:'received',read:false};
       records.push(record);
       await this.storage.run('vulpes-private-messages','put',[records,'records']);
@@ -24,14 +26,16 @@ export class Messages {
     return work;
   }
   refreshOutgoing() {
-    if (!this.radioStatus) return Promise.resolve();
+    if (!this.radioStatus && !this.mms) return Promise.resolve();
     const work=this.queue.then(async()=>{
       const records=(await this.storage.run('vulpes-private-messages','get',['records'])).value || [];
       for (const message of records.filter(m=>m.delivery==='sending' && m.radioPath)) {
-        const result=await this.radioStatus(message.radioPath);
+        const result=await (message.type==='mms' ? this.mms.status(message.radioPath) : this.radioStatus(message.radioPath));
         if (!['sent','failed'].includes(result.state)) continue;
         message.delivery=result.state==='sent'?'sent':'error';
         message.deliveryStatus=result.state==='sent'?'not-applicable':'error';
+        if(result.error) message.error=result.error;
+        if(message.type==='mms') message.deliveryInfo=message.receivers.map(receiver=>({receiver,deliveryStatus:message.deliveryStatus,readStatus:'not-applicable'}));
         await this.storage.run('vulpes-private-messages','put',[records,'records']);
         this.notify(result.state,structuredClone(message));
       }
@@ -104,7 +108,34 @@ export class Messages {
       this.notify('sent', structuredClone(record));
       return record;
     }
-    if (['send', 'sendMMS', 'retrieveMMS', 'getSmscAddress', 'setSmscAddress'].includes(operation))
+    if (operation === 'sendMMS' && this.mms) {
+      const payload=args[0];
+      this.mms.validate(payload);
+      const receivers=payload.receivers.slice();
+      const participants=receivers.slice().sort().join(',');
+      const existing=records.find(m=>(m.type==='mms' && m.delivery!=='received' ? m.receivers.slice().sort().join(',') : m.receiver || m.sender)===participants);
+      const record={id:nextId++,threadId:existing?.threadId || nextId++,type:'mms',sender:null,
+        receivers,subject:payload.subject || '',smil:payload.smil || '',attachments:payload.attachments || [],body:payload.subject || '',
+        timestamp:Date.now(),delivery:'sending',deliveryStatus:'pending',read:true,
+        deliveryInfo:receivers.map(receiver=>({receiver,deliveryStatus:'pending',readStatus:'not-applicable'}))};
+      records.push(record);
+      await this.storage.run('vulpes-private-messages','put',[records,'records']);
+      this.notify('sending',structuredClone(record));
+      try {
+        const submitted=await this.mms.send(payload);
+        record.radioPath=submitted.path;
+        await this.storage.run('vulpes-private-messages','put',[records,'records']);
+        return record;
+      } catch(error) {
+        record.delivery='error';record.deliveryStatus='error';record.error=error.message;
+        record.deliveryInfo=receivers.map(receiver=>({receiver,deliveryStatus:'error',readStatus:'not-applicable'}));
+        await this.storage.run('vulpes-private-messages','put',[records,'records']);
+        this.notify('failed',structuredClone(record));throw error;
+      }
+    }
+    if (['sendMMS', 'retrieveMMS'].includes(operation))
+      throw new Error('NotSupportedError');
+    if (['send', 'getSmscAddress', 'setSmscAddress'].includes(operation))
       throw new Error('RadioDisabledError');
     if (operation === 'getThreads') {
       const threads = new Map();
@@ -115,7 +146,7 @@ export class Messages {
             id: message.threadId,
             body: message.body,
             timestamp: message.timestamp,
-            participants: [message.sender || message.receiver],
+            participants: message.delivery==='received' ? [message.sender] : message.type==='mms' ? message.receivers : [message.receiver],
             unreadCount: records.filter((m) => m.threadId === message.threadId && !m.read).length,
             lastMessageType: message.type,
           });

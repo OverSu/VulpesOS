@@ -18,6 +18,21 @@
   function unavailable(message) {
     window.VulpesGaiaUI?.notice(message);
   }
+  if(location.hostname==='system.localhost') {
+    const colorKeys=['accessibility.colors.enable','accessibility.colors.invert','accessibility.colors.grayscale','accessibility.colors.contrast'];
+    const values={};
+    function colors() {
+      const screen=document.getElementById('screen');if(!screen)return;
+      const enabled=values[colorKeys[0]]===true;
+      const contrast=Number(values[colorKeys[3]])||0;
+      screen.style.filter=enabled ? `invert(${values[colorKeys[1]]?1:0}) grayscale(${values[colorKeys[2]]?1:0}) contrast(${Math.max(0,Math.min(2,1+contrast))})` : '';
+    }
+    for(const key of colorKeys) {
+      navigator.mozSettings.addObserver(key,e=>{values[key]=e.settingValue;colors();});
+      navigator.mozSettings.createLock().get(key).then(row=>{values[key]=row[key];colors();});
+    }
+    addEventListener('DOMContentLoaded',colors,{once:true});
+  }
   addEventListener('DOMContentLoaded', () => {
     if (location.hostname === 'system.localhost' && !window.VulpesPlatform) {
       const ids = ['wifi', 'bluetooth', 'data', 'airplane-mode'];
@@ -72,6 +87,23 @@
       );
     }
   });
+  if(['settings.localhost','system.localhost'].includes(location.hostname) && window.VulpesPlatform!=='android') {
+    const manager=Object.assign(new EventTarget(),{}), downloads=new Map();
+    manager.getDownloads=async()=>{
+      const rows=await call('downloads.request',{operation:'list'});
+      return rows.map(row=>{
+        let item=downloads.get(row.id);
+        if(!item) {
+          item=Object.assign(new EventTarget(),{pause:()=>call('downloads.request',{operation:'pause',id:row.id}),resume:()=>call('downloads.request',{operation:'resume',id:row.id})});
+          downloads.set(row.id,item);
+        }
+        Object.assign(item,row,{vulpesDownload:true,getBlob:()=>call('downloads.request',{operation:'blob',id:row.id}),startTime:new Date(row.startTime)});return item;
+      });
+    };
+    manager.remove=item=>call('downloads.request',{operation:'remove',id:item.id});
+    manager.clearAllDone=async()=>{for(const item of await manager.getDownloads())if(item.state==='succeeded')await manager.remove(item);};
+    Object.defineProperty(navigator,'mozDownloadManager',{value:manager});
+  }
   Object.defineProperty(navigator, 'mozAlarms', {
     value: {
       getAll: () =>
@@ -222,6 +254,15 @@
   }
   window.VulpesCompat.cursor = cursor;
   if (location.hostname === 'sms.localhost') {
+    addEventListener('DOMContentLoaded', () => {
+      const send = document.getElementById('messages-send-button');
+      if (!send) return;
+      send.setAttribute('data-vulpes-keep-input', '');
+      // Keep the composer focused, including with Android's native keyboard.
+      // Sending remains a click action, so a cancelled gesture never sends.
+      for (const type of ['pointerdown', 'mousedown'])
+        send.addEventListener(type, event => event.preventDefault());
+    });
     Object.defineProperty(navigator, 'mozMobileConnections', { value: Object.freeze([]) });
     const messages = new EventTarget();
     for (const operation of ['getThreads', 'getMessages'])
@@ -242,11 +283,10 @@
       'getSegmentInfoForText',
     ])
       messages[operation] = (...args) => request(call('messages.request', { operation, args }));
-    const dated = value => value && typeof value==='object' && 'timestamp' in value ?
-      {...value,timestamp:new Date(value.timestamp)} : value;
+    const dated = raw => { const value=window.VulpesSettingsCodec.decode(raw);return value && typeof value==='object' && 'timestamp' in value ?
+      {...value,timestamp:new Date(value.timestamp)} : value; };
     messages.getMessage = id => request(call('messages.request',{operation:'getMessage',args:[id]}).then(dated));
-    messages.send = (recipients,body,options) => {
-      const send = recipient => {
+    const submit = (operation,args) => {
         let id, settle;
         const early = new Map();
         const terminal = new Promise((resolve,reject)=>{settle=message=>{
@@ -260,7 +300,7 @@
           else if(id===undefined && early.size<100) early.set(message.id,message);
         };
         addEventListener('vulpes-service-event',listener);
-        const result=call('messages.request',{operation:'send',args:[recipient,body,options]}).then(message=>{
+        const result=call('messages.request',{operation,args}).then(message=>{
           if(message.delivery!=='sending') return dated(message);
           id=message.id;
           if(early.has(id)) settle(early.get(id));
@@ -268,9 +308,12 @@
           return terminal;
         }).finally(()=>removeEventListener('vulpes-service-event',listener));
         return request(result);
-      };
+    };
+    messages.send = (recipients,body,options) => {
+      const send=recipient=>submit('send',[recipient,body,options]);
       return Array.isArray(recipients) ? recipients.map(send) : send(recipients);
     };
+    messages.sendMMS = (message,options) => submit('sendMMS',[message,options]);
     addEventListener('vulpes-service-event',({detail})=>{
       const type = {'sms-received':'received','sms-sending':'sending','sms-sent':'sent','sms-failed':'failed'}[detail.type];
       if (!type) return;
@@ -281,17 +324,22 @@
     Object.defineProperty(navigator, 'mozMobileMessage', { value: messages });
   }
   if (
-    ['gallery', 'music', 'video', 'camera', 'ringtones'].includes(location.hostname.split('.')[0])
+    ['settings', 'gallery', 'music', 'video', 'camera', 'ringtones'].includes(location.hostname.split('.')[0])
   ) {
     const stores = new Map();
     function storage(type) {
-      if (!['pictures', 'music', 'videos'].includes(type)) return null;
+      if (!['pictures', 'music', 'videos', ...(location.hostname==='settings.localhost'?['apps','sdcard']:[])].includes(type)) return null;
       if (stores.has(type)) return stores.get(type);
       const s = new EventTarget();
       s.storageName = 'sdcard';
       s.default = true;
       s.canBeMounted = false;
-      const run = (operation, params = {}) => call('media.request', { type, operation, ...params });
+      const run = (operation, params = {}) => {
+        if(!['apps','sdcard'].includes(type))return call('media.request', { type, operation, ...params });
+        if(operation==='available')return call('storage.stats',{}).then(()=>'available');
+        if(['freeSpace','usedSpace'].includes(operation))return call('storage.stats',{}).then(stats=>operation==='freeSpace'?stats.free:stats[type]);
+        return Promise.reject(new DOMException('Read-only storage statistics','NotSupportedError'));
+      };
       for (const op of ['available', 'freeSpace', 'usedSpace']) s[op] = () => request(run(op));
       s.get = (name) =>
         request(

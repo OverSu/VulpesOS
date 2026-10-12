@@ -132,6 +132,7 @@ Services.obs.addObserver({observe(win) {
     profile.mkdir(parents=True, exist_ok=True)
     prefs = {'browser.shell.checkDefaultBrowser':False,
              'font.default.x-western':'sans-serif',
+             'widget.wayland.vsync.enabled':True, 'layout.frame_rate':-1,
              'dom.w3c_touch_events.legacy_apis.enabled':True,
              'font.name.sans-serif.x-western':'Fira Sans',
              'browser.dom.window.dump.enabled':True,

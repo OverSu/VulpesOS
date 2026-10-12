@@ -139,10 +139,6 @@ define(function(require) {
    */
   DateTime.prototype._init = function() {
     this._mozTime = window.navigator.mozTime;
-    if (!this._mozTime) {
-      console.error('Could not get window.navigator.mozTime');
-      return;
-    }
 
     this._boundSetTimeAutoEnabled = function(event) {
       this._clockAutoEnabled = event.settingValue;
@@ -320,9 +316,7 @@ define(function(require) {
     switch (type) {
       case 'date':
         tokens = value.split('-');
-        newDate.setYear(tokens[0]);
-        newDate.setMonth(tokens[1] - 1);
-        newDate.setDate(tokens[2]);
+        newDate.setFullYear(Number(tokens[0]), Number(tokens[1]) - 1, Number(tokens[2]));
         break;
 
       case 'time':
@@ -331,7 +325,8 @@ define(function(require) {
         newDate.setMinutes(parseInt(tokens[1]));
         break;
     }
-    this._mozTime.set(newDate);
+    if (!this._mozTime) return;
+    return this._mozTime.set(newDate);
   };
 
   /**

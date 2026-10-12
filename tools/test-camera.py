@@ -65,12 +65,12 @@ with Client(2857) as c:
         )
         results["unavailable_controls"] = ev(
             "camera",
-            'return [".js-flash",".mode-switch"].every(s=>document.querySelector(s).getAttribute("aria-disabled")==="true");',
+            'return [".js-flash"].every(s=>document.querySelector(s).getAttribute("aria-disabled")==="true");',
         )
         assert results["unavailable_controls"]
         ev(
             "camera",
-            'window.__beforeCapture=(await VulpesCompat.call("media.request",{type:"pictures",operation:"enumerate"})).map(f=>f.name);window.__streamBefore=app.camera.mozCamera;document.querySelector(".js-flash").click();document.querySelector(".mode-switch .inner").click();return true;',
+            'window.__beforeCapture=(await VulpesCompat.call("media.request",{type:"pictures",operation:"enumerate"})).map(f=>f.name);window.__streamBefore=app.camera.mozCamera;document.querySelector(".js-flash").click();return true;',
         )
         assert ev(
             "camera",

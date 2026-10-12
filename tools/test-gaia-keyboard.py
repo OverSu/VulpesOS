@@ -78,7 +78,7 @@ find(w.document.getElementById('system').browsingContext).currentWindowGlobal
     evaluate('system', 'ScreenManager.turnScreenOn(true);if(Service.query("locked"))await Service.request("unlock",{forcibly:true});return true;')
     time.sleep(1)
     evaluate('system', 'await VulpesCompat.call("apps.launch",{manifestURL:"http://sms.localhost:8765/manifest.webapp"});return true;')
-    wait('sms', 'return !!window.Navigation;')
+    wait('sms', "return typeof window.Navigation?.toPanel === 'function';")
     evaluate('sms', 'await Navigation.toPanel("thread-list");await Navigation.toPanel("composer");return true;')
     tap('sms', '.recipient[contenteditable]')
     wait('keyboard', 'return navigator.mozInputMethod?.inputcontext?.inputType==="tel" && !!document.querySelector("button[aria-label=\\"2\\"]");')
@@ -93,7 +93,7 @@ find(w.document.getElementById('system').browsingContext).currentWindowGlobal
     tap('keyboard', 'button[aria-label="a"]')
     text = evaluate('sms', 'return document.querySelector("#messages-input").textContent;')
     assert text.lower() == 'a', text
-    assert evaluate('sms', 'return document.querySelector(".recipient[contenteditable]").textContent;') == number, 'Letter changed the recipient'
+    assert evaluate('sms', 'return document.querySelector(`.recipient[data-number="23"]`)?.dataset.number || document.querySelector(".recipient[contenteditable=true]").textContent.trim();') == number.strip(), 'Letter changed the recipient'
     evaluate('sms', 'getSelection().setPosition(document.querySelector("#messages-input").firstChild,0);return true;')
     tap('keyboard', 'button[aria-label="b"]')
     assert evaluate('sms', 'return document.querySelector("#messages-input").textContent.toLowerCase();') == 'ba'

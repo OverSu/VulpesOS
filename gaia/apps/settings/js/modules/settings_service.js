@@ -246,6 +246,17 @@ define(function(require) {
             // directly
             Settings._currentPanel = '#' + panelId;
             callback();
+          }).catch(function(error) {
+            console.error('Settings panel ' + panelId + ':', error);
+            newPanelElement.classList.remove('current');
+            if (currentPanelElement) currentPanelElement.classList.add('current');
+            // Release the navigation lock even when a hardware query fails.
+            callback(error);
+            if (window.VulpesGaiaUI) {
+              window.VulpesGaiaUI.notice(document.documentElement.lang.indexOf('fr') === 0 ?
+                'Ce panneau n’a pas pu être chargé. Vous pouvez revenir aux autres paramètres.' :
+                'This panel could not be loaded. You can return to the other settings.');
+            }
           });
         });
       });

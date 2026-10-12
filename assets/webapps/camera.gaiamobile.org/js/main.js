@@ -5447,6 +5447,9 @@ define('views/viewfinder', [
             if (!preview) {
                 return;
             }
+            // Recompute when the embedded app becomes visible or rotates.
+            this.getSize();
+            if (!this.width || !this.height) { return; }
             var aspect;
             if (sensorAngle % 180 === 0) {
                 this.container = {
@@ -5697,6 +5700,7 @@ define('controllers/viewfinder', [
         this.views.viewfinder.set('grid', 'off');
     };
     ViewfinderController.prototype.bindEvents = function () {
+        window.addEventListener('resize', this.configurePreview);
         this.views.viewfinder.on('fadedin', this.app.firer('viewfinder:visible'));
         this.views.viewfinder.on('fadedout', this.app.firer('viewfinder:hidden'));
         this.views.viewfinder.on('click', this.app.firer('viewfinder:click'));

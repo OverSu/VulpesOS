@@ -118,9 +118,11 @@ for _ in range(120):
     time.sleep(.5)
 else:raise RuntimeError('Display HAL did not start')
 ''')
-    write('etc/tundra/lxc.conf','''lxc.rootfs.path = /android
+    # Cellular HAL and oFono must see the same rmnet interfaces. Display-only
+    # diagnostics retain a separate network namespace. No Android network manager runs.
+    write('etc/tundra/lxc.conf',f'''lxc.rootfs.path = /android
 lxc.uts.name = tundra-hal
-lxc.net.0.type = empty
+lxc.net.0.type = {'none' if hardware else 'empty'}
 lxc.arch = aarch64
 lxc.init.cmd = /init
 lxc.apparmor.profile = unconfined
@@ -137,7 +139,7 @@ lxc.mount.entry = sys sys sysfs nodev,noexec,nosuid 0 0
 lxc.mount.entry = /android/data data none bind 0 0
 lxc.mount.entry = /mnt mnt none rbind 0 0
 ''')
-    for name in ('hal_policy.py','setup-hal.py','lxc-guard.py','hardware-status.py','prepare-network.py','wifi-control.py','radio-control.py','sms-inbox.py','call-audio.py','camera-preview.py','buttons.py'):
+    for name in ('hal_policy.py','setup-hal.py','lxc-guard.py','hardware-status.py','prepare-network.py','wifi-control.py','radio-control.py','mobile-settings.py','sms-inbox.py','call-audio.py','camera-preview.py','buttons.py'):
         shutil.copy2(Path(__file__).parent/name,root/'etc/tundra'/name)
     write('etc/systemd/system/tundra-hardware.service', '''[Unit]
 Description=Tundra read-only battery and network state
@@ -172,6 +174,10 @@ NoNewPrivileges=yes
     (wants/'tundra-buttons.service').symlink_to('../tundra-buttons.service')
     # Older immutable images may not contain the networking packages yet.
     if network:
+        write('etc/NetworkManager/conf.d/80-vulpes-hotspot.conf',Path(__file__).with_name('hotspot-firewall.conf').read_text())
+        for name in ('iptables','ip6tables'):
+            alias=root/'usr/sbin'/name
+            if not alias.exists() and not alias.is_symlink():alias.symlink_to(name+'-legacy')
         write('etc/tundra/network-enabled', 'sargo\n')
         display = root/'etc/systemd/system/tundra-display.service'
         display.write_text(display.read_text().replace('Environment=VULPES_TUNDRA=1',

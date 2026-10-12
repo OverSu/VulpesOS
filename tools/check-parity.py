@@ -41,9 +41,9 @@ with source as archive:
             "gaia-compat.js",
             "settings-codec.js",
             "gaia-services.js",
-            "gaia-styles.js",
+            "gaia-styles.js", "gaia-theme.js", "gaia-select.js", "gaia-mobile-settings.js", "gaia-theme.css", "gaia-input.js",
             "gaia-restoration.js",
-            "gaia-wifi.js",
+            "gaia-wifi.js", "gaia-bluetooth.js",
             "desktop.css",
         ]:
             expected = translate((ROOT / "host" / name).read_text()).encode()
@@ -60,7 +60,8 @@ with source as archive:
             ("system", "js/notification_screen.js"),
             ("system", "style/system/system.css"),
             ("communications", "dialer/style/call_log.css"),
-        ]:
+        ] + [("settings", path.relative_to(ROOT / "overrides/settings.gaiamobile.org").as_posix())
+             for path in sorted((ROOT / "overrides/settings.gaiamobile.org").rglob("*.js"))]:
             expected = translate((ROOT / "overrides" / (app + ".gaiamobile.org") / path).read_text())
             for old, new in [("-moz-calc(", "calc("), ("-moz-box-sizing:", "box-sizing:"),
                              ("-moz-plaintext", "plaintext"), (":-moz-dir(", ":dir("),
@@ -73,7 +74,11 @@ with source as archive:
         for app, path, source in [
             ("calendar", "gaia_build_defer_index.js", "overrides"),
             ("calendar", "js/bundle.js", "overrides"),
-            ("gallery", "js/metadata_scripts.js", "assets/webapps"),
+            ("gallery", "js/metadata_scripts.js", "overrides"),
+            ("gallery", "js/MetadataParser.js", "overrides"),
+            ("video", "gaia_build_defer_index.js", "overrides"),
+            ("camera", "js/main.js", "overrides"),
+            ("camera", "js/lib/dcf.js", "overrides"),
             ("gallery", "js/ImageEditor.js", "assets/webapps"),
             ("communications", "contacts/js/views/form.js", "assets/webapps"),
             ("communications", "contacts/js/contacts.js", "assets/webapps"),
@@ -89,6 +94,10 @@ with source as archive:
             actual = gaia.read(app + "/" + path)
             assert actual == expected, "Stale application workflow: " + app + "/" + path
             results[app + "/" + path] = hashlib.sha256(actual).hexdigest()
+        helper = "dialer/js/telephony_helper.js"
+        expected = translate((ROOT / "gaia/apps/communications" / helper).read_text()).encode()
+        assert gaia.read("communications/" + helper) == expected, "Stale call-log dial helper"
+        results["communications/" + helper] = hashlib.sha256(expected).hexdigest()
         for name in ("marketplace.js", "marketplace.css", "icon.png"):
             expected = (ROOT / "assets/webapps/marketplace.gaiamobile.org" / name).read_bytes()
             if name.endswith(".js"): expected = translate(expected.decode()).encode()
@@ -99,7 +108,8 @@ with source as archive:
                 assert gaia.read("search/" + relative.as_posix()) == path.read_bytes(), str(relative)
         assert b"vulpes-local-home" in gaia.read("search/newtab.html")
     assert archive.read("assets/bridge/Messages.mjs") == (ROOT / "host/Messages.sys.mjs").read_bytes()
-    for name in ["platform.mjs", "settings.mjs", "datastores.mjs", "screen-power.mjs", "activities.mjs", "packages.mjs"]:
+    assert archive.read("assets/bridge/input-editor.js") == (ROOT / "services/input-editor.mjs").read_text().replace('export class InputEditor', 'class InputEditor').encode(), "Stale Android input editor"
+    for name in ["platform.mjs", "settings.mjs", "datastores.mjs", "screen-power.mjs", "activities.mjs", "packages.mjs", "input.mjs"]:
         assert (
             archive.read("assets/bridge/services/" + name)
             == (ROOT / "services" / name).read_bytes()

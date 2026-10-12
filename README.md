@@ -4,7 +4,7 @@
 <p align="center">Firefox OS fork · Open source</p>
 
 <p align="center">
-<a href="https://nnsprod.com/git/oversu/VulpesOS/releases"><img src="https://img.shields.io/badge/Vulpes-2.7%20Preview%2017-0755be?style=flat-square" alt="Vulpes: 2.7 Preview 17"></a>
+<a href="https://nnsprod.com/git/oversu/VulpesOS/releases"><img src="https://img.shields.io/badge/Vulpes-2.7%20Preview%2020-0755be?style=flat-square" alt="Vulpes: 2.7 Preview 20"></a>
 <img src="https://img.shields.io/badge/Gaia-2.7-0755be?style=flat-square" alt="Gaia: 2.7">
 <img src="https://img.shields.io/badge/Gecko-156.0.1-0099cc?style=flat-square" alt="Gecko: 156.0.1">
 <img src="https://img.shields.io/badge/Tundra-0.1.0-0099cc?style=flat-square" alt="Tundra: 0.1.0">
@@ -37,6 +37,12 @@ I’m OverSu, and I develop Vulpes mostly on my own, with help from people who t
 | **Google Pixel 3a · Sargo** | Run Vulpes as a native operating system with Tundra. A downloadable image is still being prepared; see the [device page](https://vulpes-os.org/devices/pixel-3a.php?lang=en) for tested features and known limitations. |
 
 On the Pixel 3a, **Tundra boots Gecko and Gaia directly** and provides access to the hardware. Droidian was used as a testing environment early in development. It is not included in Vulpes OS, and Tundra is not based on it.
+
+### Preview 20 · 13 October 2026
+
+[Download the APK](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.20). Shared updates cover Gaia settings, camera recording, contacts and media. Native network changes are included in the sources. See the [changelog](CHANGELOG.en.md) for checks and remaining limitations.
+
+Desktop/Sargo use Gecko **156.0.1**; Android uses GeckoView **156.0**. Android 8 / API 26 minimum is declared; not every device is tested. Calls and SMS open Android applications. The APK is a signed development build, with debugging through authorized ADB.
 
 ### Linux
 

@@ -25,7 +25,7 @@ var dcfConfig = {
   seq: null,
   postFix: 'MZLLA',
   prefix: {video: 'VID_', image: 'IMG_'},
-  ext: {video: '3gp', image: 'jpg'}
+  ext: {video: window.VulpesVideoExtension || '3gp', image: 'jpg'}
 };
 
 exports.init = function() {

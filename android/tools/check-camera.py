@@ -125,11 +125,11 @@ result["camera_resumes_from_android_background"] = wait(
     "camera",
     '!document.hidden && !!app.camera.mozCamera && app.camera.mozCamera!==__streamBefore && app.camera.mozCamera.getVideoTracks().every(t=>t.readyState==="live") && !app.camera.isBusy',
 )
-result["unavailable_controls"] = ev(
+result["capability_controls"] = ev(
     "camera",
-    '[".js-flash",".mode-switch"].every(s=>document.querySelector(s).getAttribute("aria-disabled")==="true")',
+    'document.querySelector(".js-flash").getAttribute("aria-disabled")==="true" && (document.querySelector(".mode-switch").getAttribute("aria-disabled")!=="true") === !!Object.keys(app.camera.mozCamera.capabilities.recorderProfiles).length',
 )
-assert result["unavailable_controls"]
+assert result["capability_controls"]
 result["errors"] = ev(
     "camera", '__vulpesDiagnostics.filter(d=>d.kind==="error" || d.kind==="rejection")'
 )

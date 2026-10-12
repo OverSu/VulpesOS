@@ -86,6 +86,18 @@
     try { return await call('platform.' + operation, params); }
     catch (error) { failure(error); }
   };
+  if (app === 'communications') {
+    // All Gaia call entry points use the same authorized host operation.
+    window.VulpesPlatformDial = async number => {
+      try {
+        return navigator.mozTelephony ? await navigator.mozTelephony.dial(number) :
+          await call('platform.dial', {number});
+      } catch (error) {
+        failure(error);
+        throw error;
+      }
+    };
+  }
   function button(id, french, english, action) {
     const b = text(document.createElement('button'), french, english);
     b.id = id;
@@ -145,7 +157,10 @@
     event.preventDefault();
     event.stopImmediatePropagation();
     const number = document.getElementById('phone-number-view')?.value;
-    if (number) run('dial', {number});
+    if (number) {
+      if (window.CallHandler) CallHandler.call(number, 0);
+      else window.VulpesPlatformDial(number).catch(() => {});
+    }
   }, true);
   async function initialize() {
     const caps = await capabilities;

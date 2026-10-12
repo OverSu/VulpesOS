@@ -6,6 +6,7 @@ The parent owns stdin. EOF or five seconds without a request closes the sensor.
 A pbuffer and external texture are required even for the software NV21 callback.
 """
 import argparse
+import fcntl
 import struct
 import ctypes as C
 import json
@@ -214,6 +215,12 @@ def main():
     parser.add_argument('--probe', action='store_true', help='Count frames for five seconds, retain no images')
     args = parser.parse_args()
     output = os.fdopen(os.dup(1), 'wb', buffering=0)
+    try:
+        # A preview packet is 450 KiB. A larger pipe avoids waking the parent
+        # for each 64 KiB fragment; unsupported kernels retain their default.
+        fcntl.fcntl(output.fileno(), fcntl.F_SETPIPE_SZ, 1024 * 1024)
+    except OSError:
+        pass
     os.dup2(2, 1)  # HAL callbacks can print; keep stdout protocol uncontaminated.
     camera = None
     try:
@@ -236,8 +243,12 @@ def main():
             last_request = time.monotonic()
             if command == 'frame\n':
                 data = camera.frame or b''
-                output.write(struct.pack('<II', camera.count & 0xffffffff, len(data)))
-                output.write(data)
+                packet = memoryview(struct.pack('<II', camera.count & 0xffffffff, len(data)) + data)
+                while packet:
+                    written = output.write(packet)
+                    if not written:
+                        raise BrokenPipeError('Camera preview pipe closed')
+                    packet = packet[written:]
             else:
                 try:
                     result = camera.control(json.loads(command))

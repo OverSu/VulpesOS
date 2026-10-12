@@ -5,6 +5,54 @@
  *
  * @module SliderHandler
  */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
+/**
+ * Update setting value based on slider position.
+ * Base on sound panel's implementation.
+ *
+ * @module SliderHandler
+ */
 define('panels/display/slider_handler',["require"],function(require) {
   'use strict';
 
@@ -128,6 +176,5 @@ define('panels/display/slider_handler',["require"],function(require) {
     return new SliderHandler();
   };
 });
-
 define('panels/display/display',['require','shared/settings_listener','panels/display/slider_handler'],function(require){'use strict';var SettingsListener=require('shared/settings_listener');var SliderHandler=require('panels/display/slider_handler');const AUTO_BRIGHTNESS_SETTING='screen.automatic-brightness';const SCREEN_BRIGHTNESS='screen.brightness';var Display=function(){this.elements=null;};Display.prototype={init:function d_init(elements,data){this.elements=elements;this.initBrightnessItems(data);SliderHandler().init(elements.brightnessManualInput,SCREEN_BRIGHTNESS);},initBrightnessItems:function d_init_brightness_items(data){var brightnessAuto=this.elements.brightnessAuto;var brightnessAutoCheckbox=this.elements.brightnessAutoCheckbox;var brightnessManual=this.elements.brightnessManual;var brightnessManualInput=this.elements.brightnessManualInput;if(data.ambientLight){brightnessAuto.hidden=false;SettingsListener.observe(AUTO_BRIGHTNESS_SETTING,false,function(value){brightnessAutoCheckbox.checked=value;brightnessManual.hidden=value;}.bind(this));}else{brightnessAuto.hidden=true;brightnessManual.hidden=false;var cset={};cset[AUTO_BRIGHTNESS_SETTING]=false;SettingsListener.getSettingsLock().set(cset);}
 SettingsListener.observe(SCREEN_BRIGHTNESS,0.5,function(value){brightnessManualInput.value=value;}.bind(this));}};return function ctor_display(){return new Display();};});define('panels/display/panel',['require','modules/settings_panel','panels/display/display','shared/lazy_loader'],function(require){'use strict';var SettingsPanel=require('modules/settings_panel');var DisplayModule=require('panels/display/display');var LazyLoader=require('shared/lazy_loader');var displayElements={};return function ctor_display_panel(){var display=DisplayModule();return SettingsPanel({onInit:function dp_onInit(panel){displayElements={brightnessManual:panel.querySelector('.brightness-manual'),brightnessManualInput:panel.querySelector('.brightness-manual input'),brightnessAuto:panel.querySelector('.brightness-auto'),brightnessAutoCheckbox:panel.querySelector('.brightness-auto gaia-checkbox')};LazyLoader.getJSON('/resources/device-features.json').then(function(data){display.init(displayElements,data);});}});};});

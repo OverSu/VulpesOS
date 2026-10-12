@@ -252,7 +252,7 @@ Storage.prototype.checkFilepath = function(filepath) {
   // image and get the video filepath by changing '.jpg' to '.3gp'
   if (filepath.indexOf('VID') != -1 &&
       filepath.lastIndexOf('.jpg') === filepath.length - 4) {
-    filepath = filepath.replace('.jpg', '.3gp');
+    filepath = filepath.replace('.jpg', '.' + (window.VulpesVideoExtension || '3gp'));
   }
 
   return filepath;
@@ -380,7 +380,7 @@ Storage.prototype.deletePicture = function(filepath, done) {
  * @param  {String} filepath
  */
 Storage.prototype.deleteVideo = function(filepath) {
-  var poster = filepath.replace('.3gp', '.jpg');
+  var poster = filepath.replace(/\.(?:3gp|mp4|webm)$/, '.jpg');
 
   this.video.delete(filepath).onerror = function(e) {
     console.warn(

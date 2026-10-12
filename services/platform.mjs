@@ -13,6 +13,9 @@ export function authorizePlatform(app, operation, params = {}) {
     settings: ['settings', 'system', 'costcontrol'].includes(app.id),
     snapshot: ['settings', 'system', 'costcontrol'].includes(app.id),
     wifi: ['settings', 'system'].includes(app.id),
+    mobileSettings: app.id === 'settings',
+    deviceSettings: app.id === 'settings',
+    bluetooth: ['settings', 'system', 'bluetooth'].includes(app.id),
     notification: !!permissions['desktop-notification'],
     capture: app.id === 'camera' && writeMedia('pictures'),
     cameraPreview: app.id === 'camera' && writeMedia('pictures'),
@@ -30,6 +33,11 @@ export function authorizePlatform(app, operation, params = {}) {
   };
   if (!Object.hasOwn(allowed, operation)) throw Error('METHOD_NOT_SUPPORTED');
   if (!allowed[operation]) throw Error('PERMISSION_DENIED');
+  if (operation === 'wifi' && ['hotspotStatus','hotspotSave','hotspotPower'].includes(params.operation) && app.id !== 'settings') throw Error('PERMISSION_DENIED');
+  if (operation === 'mobileSettings' && !['sim','smsc','calls','messages','deliveryReports','network','dataEnabled','roaming','radioMode','setRadioMode','apns','editApn','setCallWaiting','setCallerId','forwarding','setForwarding'].includes(params.action)) throw Error('INVALID_VALUE');
+  if (operation === 'mobileSettings' && ['deliveryReports','dataEnabled','roaming','setCallWaiting','setForwarding'].includes(params.action) && typeof params.enabled !== 'boolean') throw Error('INVALID_VALUE');
+  if (operation === 'mobileSettings' && JSON.stringify(params).length > 6144) throw Error('INVALID_VALUE');
+  if (operation === 'deviceSettings' && (!['clock','setTime','setTimezone','setAutomatic'].includes(params.action) || JSON.stringify(params).length > 1024)) throw Error('INVALID_VALUE');
   if (operation === 'cameraPreview' &&
       (!['start', 'frame', 'stop', 'focus', 'zoom', 'picture'].includes(params.action) ||
        (params.action === 'start' && !['back', 'front'].includes(params.camera))))
@@ -47,7 +55,7 @@ export function authorizePlatform(app, operation, params = {}) {
       throw Error('INVALID_VALUE');
   }
   if (operation === 'ackCallHistory' && (!Array.isArray(params.ids) || params.ids.length > 500 || params.ids.some(id => typeof id !== 'string' || !/^\d{1,20}$/.test(id)))) throw Error('INVALID_VALUE');
-  if (operation === 'wifi'  && JSON.stringify(params).length > 4096)
+  if (['wifi', 'bluetooth'].includes(operation) && JSON.stringify(params).length > 4096)
     throw Error('QuotaExceededError');
   if (operation === 'notification' && JSON.stringify(params).length > 65536)
     throw Error('QuotaExceededError');

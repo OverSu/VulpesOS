@@ -107,7 +107,7 @@ OverlayController.prototype.updateOverlay = function(type, enabled, reason) {
       return;
     }
 
-    var closable = self.activity.pick && type !== 'request-fail';
+    var closable = self.activity.pick || reason === 'request-fail';
     var view = new OverlayView({
       type: reason,
       closable: closable,
@@ -118,6 +118,10 @@ OverlayController.prototype.updateOverlay = function(type, enabled, reason) {
 
     overlay.view = view.appendTo(document.body)
       .on('click:close-btn', function() {
+        if (reason === 'request-fail' && !self.activity.pick) {
+          self.updateOverlay(type, false);
+          return;
+        }
         self.app.emit('activitycanceled');
       });
 

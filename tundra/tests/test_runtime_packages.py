@@ -5,6 +5,7 @@ from pathlib import Path
 import ssl
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('packages', ROOT/'runtime/runtime-packages.py')
@@ -33,9 +34,20 @@ class RuntimePackages(unittest.TestCase):
             self.assertEqual(packages.stage(root, CACHE), first)
             self.assertEqual(json.loads((root/'usr/share/vulpes/runtime-packages.json').read_text()), first)
             self.assertTrue((root/'usr/libexec/bluetooth/bluetoothd').is_file())
+            self.assertFalse((root/'usr/bin/btmon').exists())
+            self.assertTrue((root/'usr/bin/bluetoothctl').is_file())
+            self.assertTrue((root/'usr/lib/audiosystem-passthrough/audiosystem-passthrough').is_file())
             context = ssl.create_default_context(cafile=str(root/'etc/ssl/certs/ca-certificates.crt'))
             self.assertGreater(context.cert_store_stats()['x509_ca'], 50)
             self.assertTrue((root/'usr/lib/ssl/cert.pem').is_file())
+            providers = ET.parse(root/'usr/share/mobile-broadband-provider-info/serviceproviders.xml')
+            self.assertGreater(len(providers.findall('country')), 100)
+            orange = [provider for provider in providers.findall("./country[@code='fr']/provider")
+                      if any(n.attrib == {'mcc':'208', 'mnc':'01'}
+                             for n in provider.findall('.//network-id'))]
+            self.assertTrue(orange)
+            self.assertTrue(any(apn.get('value') == 'orange' for provider in orange
+                                for apn in provider.findall('.//apn')))
             target = root/'usr/libexec/bluetooth/bluetoothd'
             target.write_bytes(b'unknown local binary')
             with self.assertRaisesRegex(ValueError, 'Conflicting package file'):

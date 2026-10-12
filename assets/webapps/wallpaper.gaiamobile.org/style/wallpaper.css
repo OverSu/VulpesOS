@@ -70,3 +70,6 @@ html[dir="rtl"] .wallpaper {
   margin: 0 0.5rem;
 }
 
+
+/* Keep preview tiles aligned when source wallpapers have different ratios. */
+#wallpapers .wallpaper { aspect-ratio: 2 / 3; object-fit: cover; display: block; }

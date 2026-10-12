@@ -25,6 +25,7 @@
         "http://*.localhost/*"
       ],
       "js": [
+        "input-editor.js",
         "content.js"
       ],
       "all_frames": true,

@@ -113,6 +113,10 @@ var DownloadHelper = (function() {
    */
   function getBlob(download) {
     var req = new Request();
+    if (download.vulpesDownload) {
+      download.getBlob().then(function(blob) { req.done(blob); }, function(error) { req.failed(error); });
+      return req;
+    }
     var storage = getVolume(download.storageName);
     var storeAvailableReq = storage.available();
 
@@ -394,6 +398,10 @@ var DownloadHelper = (function() {
    */
   function remove(download) {
     var req = new Request();
+    if (download.vulpesDownload) {
+      navigator.mozDownloadManager.remove(download).then(function() { req.done(download); }, function(error) { req.failed(error); });
+      return req;
+    }
     var incompleteDownload = download.state !== 'succeeded';
     // If is not done, use download manager to remove it,
     // otherwise, deal with the datastore.

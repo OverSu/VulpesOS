@@ -205,6 +205,9 @@ module.exports = View.extend({
    */
   updatePreview: function(preview, sensorAngle, mirrored) {
     if (!preview) { return; }
+    // An embedded app can initialize before its window is visible.
+    this.getSize();
+    if (!this.width || !this.height) { return; }
     var aspect;
 
     // Invert dimensions if the camera's `sensorAngle` is

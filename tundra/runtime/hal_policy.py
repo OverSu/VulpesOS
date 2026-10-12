@@ -20,8 +20,10 @@ NETWORK_SERVICES = frozenset(('irsc_util', 'vendor.per_mgr', 'vendor.rmt_storage
                               'vendor.tftp_server', 'cnss-daemon', 'pd_mapper'))
 
 
-HARDWARE_SERVICES = frozenset(('vendor.bluetooth-1-0', 'vendor.qcrild', 'vendor.google.radioext@1.0',
-                               'vendor.audio-hal-2-0', 'vendor.camera-provider-2-4',
+# PulseAudio opens the primary audio HAL through libhybris. A second Android
+# audio service competes for its ACDB calibration buffers on Sargo.
+HARDWARE_SERVICES = frozenset(('vendor.bluetooth-1-0', 'vendor.qcrild', 'netmgrd', 'netd-hal-1-1-stub', 'ipastart_sh', 'vendor.google.radioext@1.0',
+                               'vendor.camera-provider-2-4',
                                'camera_service', 'minimedia', 'minisf', 'miniaf'))
 
 def is_init_script(path):

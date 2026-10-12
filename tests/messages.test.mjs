@@ -97,3 +97,13 @@ test('pending transmission status survives a host restart',async()=>{
   assert.deepEqual(events,['sent']);
   assert.equal((await restarted.request(app,{operation:'getMessages'}))[0].delivery,'sent');
 });
+
+test('unsupported MMS never invokes the SMS modem or records a sent message',async()=>{
+  let submissions=0;
+  const service=new Messages(store(),async()=>{submissions++;return {};});
+  for(const operation of ['sendMMS','retrieveMMS']) {
+    await assert.rejects(service.request(app,{operation,args:[{}]}),/NotSupportedError/);
+  }
+  assert.equal(submissions,0);
+  assert.deepEqual(await service.request(app,{operation:'getMessages'}),[]);
+});

@@ -67,7 +67,25 @@
     const unsupported = () => Promise.reject(new DOMException('Not available on this adapter', 'NotSupportedError'));
     telephony.conferenceGroup = Object.assign(new EventTarget(), {calls:[], state:'', add:unsupported, remove:unsupported, hangUp:unsupported});
     telephony.ready = Promise.resolve();
-    telephony.dial = number => call('platform.dial',{number});
+    class TelephonyCall extends EventTarget {}
+    Object.defineProperty(window,'TelephonyCall',{value:TelephonyCall});
+    function makeCall(item) {
+      return Object.assign(new TelephonyCall(),{path:item.path,id:{number:item.number},serviceId:0,
+        state:({active:'connected',waiting:'incoming'})[item.state] || item.state,
+        emergency:false,group:null,switchable:false,mergeable:false,
+        answer:()=>call('platform.answer',{path:item.path}),hangUp:()=>call('platform.hangup',{path:item.path}),
+        hold:unsupported,resume:unsupported});
+    }
+    telephony.dial = async number => {
+      const result = await call('platform.dial',{number});
+      let current = telephony.calls.find(c=>c.path===result.path);
+      if (!current) {
+        current = makeCall({path:result.path,number,state:'dialing'});
+        telephony.calls.push(current);
+        emit(telephony,'callschanged');
+      }
+      return current;
+    };
     telephony.dialEmergency = unsupported;
     telephony.sendTones = unsupported;
     telephony.startTone = unsupported;
@@ -94,14 +112,17 @@
           const state = ({active:'connected',waiting:'incoming'})[item.state] || item.state;
           if (!c) {
             changed = true;
-            c = Object.assign(new EventTarget(),{path:item.path,id:{number:item.number}, serviceId:0,
-              state, emergency:false, group:null, switchable:false, mergeable:false,
-              answer:()=>call('platform.answer',{path:item.path}), hangUp:()=>call('platform.hangup',{path:item.path}),
-              hold:unsupported,resume:unsupported});
+            c = makeCall(item);
           } else if (c.state !== state) { c.state=state;changes.push(c); }
           return c;
         });
-        for (const c of old) if (!telephony.calls.includes(c)) {c.state='disconnected';changes.push(c);changed=true;}
+        for (const c of old) if (!telephony.calls.includes(c)) {
+          c.state='disconnected';
+          // The broker currently supplies no modem disconnect cause. Avoid
+          // inventing an error when a call simply disappears after hang-up.
+          c.disconnectedReason=null;
+          changes.push(c);changed=true;
+        }
         for (const c of changes) {emit(c,'statechange',{call:c});emit(c,c.state,{call:c});}
         if (changed) {
           if (location.hostname === 'system.localhost' && live.some(c => ['incoming','waiting'].includes(c.state))) window.Service?.request('turnScreenOn');
@@ -131,13 +152,13 @@
   const settingsCodec = window.VulpesSettingsCodec;
   async function call(method, params) {
     if (!navigator.vulpesRequest) return Promise.reject(new Error('VULPES_HOST_UNAVAILABLE'));
-    if (settingsCodec && (method === 'settings.set' ||
+    if (settingsCodec && (method === 'settings.set' || method === 'messages.request' ||
         (window.VulpesPlatform === 'android' && ['media.request', 'activities.finish', 'contacts.request'].includes(method))))
       params = await settingsCodec.encode(params);
     return navigator.vulpesRequest({ version: 1, id: ++sequence, method, params }).then((reply) => {
       if (reply.error) throw new DOMException(reply.error.code, reply.error.code);
       return settingsCodec &&
-        ['settings.get', 'settings.snapshot', 'media.request', 'activities.start', 'contacts.request'].includes(method)
+        ['messages.request', 'settings.get', 'settings.snapshot', 'media.request', 'activities.start', 'contacts.request'].includes(method)
         ? settingsCodec.decode(reply.result)
         : reply.result;
     });
@@ -217,11 +238,15 @@
     }
     if (type === 'callscreen-closed') document.querySelector('iframe[name="call_screen"]')?.dispatchEvent(new CustomEvent('mozbrowserclose',{bubbles:true}));
     if (type === 'hardware-key') dispatchEvent(new CustomEvent('softwareButtonEvent', {detail:data}));
+    if (type === 'activity-choice') dispatchEvent(new CustomEvent('mozChromeEvent', {detail:{...data,type:'activity-choice'}}));
     if (type === 'activity-launch') dispatchEvent(new CustomEvent('open-app', {detail:{...data,showApp:true,onlyShowApp:false}}));
     if (type === 'launch') dispatchEvent(new CustomEvent('webapps-launch', { detail: data }));
     if (type === 'screen-off') {
-      dispatchEvent(new CustomEvent('secure-killapps'));
-      window.Service?.request('lock').catch(console.error);
+      settings.createLock().get('lockscreen.enabled').then(values => {
+        if (values['lockscreen.enabled'] === false) return;
+        dispatchEvent(new CustomEvent('secure-killapps'));
+        window.Service?.request('lock').catch(console.error);
+      }).catch(console.error);
     }
     if (type === 'screen-on') window.ScreenManager?.turnScreenOn(true);
     if (type === 'home' || type === 'holdhome') {
@@ -229,6 +254,10 @@
       dispatchEvent(new CustomEvent(type));
     }
     if (type === 'activity-view') dispatchEvent(new CustomEvent('activity-view', { detail: data }));
+  });
+  if (location.hostname==='system.localhost') addEventListener('mozContentEvent', event=>{
+    if (event.detail?.type==='activity-choice')
+      call('activities.select',{id:event.detail.id,value:event.detail.value}).catch(console.error);
   });
   function application(record) {
     // DOMApplication never exposed the registry's internal id. Gaia uses `id`
@@ -520,7 +549,7 @@
     frames.add(frame);
     // Set delegation before navigation; a MutationObserver runs too late on Android.
     if (location.hostname === 'system.localhost')
-      frame.setAttribute('allow', 'camera http://camera.localhost:' + location.port);
+      frame.setAttribute('allow', 'camera http://camera.localhost:' + location.port + '; microphone http://camera.localhost:' + location.port);
     frame.addEventListener('load', () => {
       if (!frame.hasAttribute('mozbrowser')) return;
       if (webViews.has(frame)) return;

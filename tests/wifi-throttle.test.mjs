@@ -27,6 +27,11 @@ test('Wi-Fi bursts share one scan, cache errors, and retry after cooldown', asyn
     assert.ok((await Promise.all(burst)).every(r => r.networks.length === 0));
     await tundraWifi({operation:'scan'});
     assert.equal(starts, 1);
+    await tundraWifi({operation:'known'});
+    await tundraWifi({operation:'status'});
+    await tundraWifi({operation:'scan'});
+    assert.equal(starts, 3, 'read-only status and saved networks preserve the radio scan cache');
+    starts -= 2;
     now += 6000;
     reply = {error:'WIFI_UNAVAILABLE'};
     const failures = await Promise.allSettled(Array.from({length:1000}, () => tundraWifi({operation:'scan'})));

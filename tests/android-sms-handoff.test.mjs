@@ -8,8 +8,12 @@ function setup(composer) {
   const calls=[];
   const recipients={numbers:[]};
   const context={console,location:{hostname:'sms.localhost',pathname:'/index.html'},
-    document:{readyState:'complete',addEventListener:(name,handler)=>{if(name==='click')click=handler;}},
-    VulpesCompat:{call:async(method,params)=>{calls.push({method,params});}},
+    addEventListener(){},MutationObserver:class {observe(){}},
+    document:{documentElement:{lang:'fr'},readyState:'complete',addEventListener:(name,handler)=>{if(name==='click')click=handler;}},
+    VulpesCompat:{call:async(method,params)=>{
+      if(method==='platform.capabilities')return {mms:false};
+      calls.push({method,params});
+    }},
     VulpesPlatform:'android',Navigation:{isCurrentPanel:()=>composer},
     ConversationView:{recipients,activeThread:{participants:['5550123']},assimilateRecipients(){assimilated=true;recipients.numbers=['5550199'];}},
     Compose:{type:'sms',getText:()=> 'Message à confirmer'},

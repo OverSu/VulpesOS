@@ -103,9 +103,10 @@ define(function(require) {
      * @access public
      */
     _onAppChoose: function pl__onAppChoose(evt) {
-      if (evt.target.dataset && evt.target.dataset.appIndex) {
+      var target = evt.target.closest('[data-app-index]');
+      if (target && this._listRoot.contains(target)) {
         SettingsService.navigate('appPermissions-details', {
-          app: this._apps[evt.target.dataset.appIndex],
+          app: this._apps[target.dataset.appIndex],
           permissionsTable: this._permissionTable
         });
       }
@@ -262,7 +263,7 @@ define(function(require) {
      * @return {Bool}
      */
     _isExplicitPerm: function pl_isExplicitPerm(perm) {
-      return mozPerms.isExplicit(perm, this._currentApp.manifestURL,
+      return mozPerms && mozPerms.isExplicit(perm, this._currentApp.manifestURL,
                                  this._currentApp.origin, false);
     },
 

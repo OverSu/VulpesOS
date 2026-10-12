@@ -16,6 +16,8 @@ import socket
 import subprocess
 import sys
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 SOCKET = Path('/run/tundra-radio/radio.sock')
 MODEM = '/ril_0'
@@ -54,12 +56,20 @@ def request(value):
     if not isinstance(value, dict) or value.get('version') != 1:
         raise ValueError('INVALID_REQUEST')
     operation = value.get('operation')
+    if operation == 'deviceSettings':
+        spec = importlib.util.spec_from_file_location('mobile_settings', Path(__file__).with_name('mobile-settings.py'))
+        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        return module.device_request(value)
+    if operation == 'mobileSettings':
+        spec = importlib.util.spec_from_file_location('mobile_settings',Path(__file__).with_name('mobile-settings.py'))
+        module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module.request(value)
     if operation in ('incomingMessages','ackMessages','messageState'):
         spec = importlib.util.spec_from_file_location('inbox',Path(__file__).with_name('sms-inbox.py'))
         inbox = importlib.util.module_from_spec(spec);spec.loader.exec_module(inbox)
         if operation == 'messageState':
             path = value.get('path', '')
-            if not isinstance(path,str) or not re.fullmatch(r'/ril_0/message[0-9a-f_]+',path):
+            if not isinstance(path,str) or not re.fullmatch(r'/ril_0/message[0-9a-fA-F_]+',path):
                 raise ValueError('INVALID_SMS_PATH')
             state = inbox.outgoing_state(path)
             if state is None:
@@ -119,9 +129,100 @@ def request(value):
     raise ValueError('NOT_SUPPORTED')
 
 
-def reply(stream, value):
-    stream.write((json.dumps(value, separators=(',', ':')) + '\n').encode())
-    stream.flush()
+def send_response(conn, response):
+    try:
+        conn.sendall((json.dumps(response, separators=(',', ':')) + '\n').encode())
+    except OSError:
+        # Closing an app must not bring down the broker or retry an operation.
+        pass
+
+
+def error_response(error):
+    # TimeoutExpired includes command arguments, potentially an SMS body.
+    reason = 'RADIO_TIMEOUT' if isinstance(error, subprocess.TimeoutExpired) else (
+        'RADIO_ERROR' if isinstance(error, OSError) else str(error) or 'RADIO_ERROR')
+    return {'ok': False, 'error': reason}
+
+
+def execute_request(conn, value):
+    try:
+        response = {'ok': True, 'result': request(value)}
+    except (ValueError, RuntimeError, OSError, subprocess.TimeoutExpired) as error:
+        response = error_response(error)
+    send_response(conn, response)
+
+
+class SettingsWorker:
+    """Serialize Settings transactions without blocking the voice/SMS broker."""
+    def __init__(self):
+        self.pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix='settings')
+        self.slots = threading.BoundedSemaphore(8)
+
+    def submit(self, conn, value):
+        if not self.slots.acquire(blocking=False):
+            return False
+        try:
+            self.pool.submit(self.run, conn, value, time.monotonic())
+        except RuntimeError:
+            self.slots.release()
+            return False
+        return True
+
+    def run(self, conn, value, received):
+        try:
+            with conn:
+                # Do not apply a stale preference after its queued client has
+                # timed out. An already-started APN rollback still runs to completion.
+                if time.monotonic() - received > 15:
+                    send_response(conn, {'ok':False, 'error':'RADIO_BUSY'})
+                else:
+                    execute_request(conn, value)
+        finally:
+            self.slots.release()
+
+    def close(self):
+        self.pool.shutdown(wait=True)
+
+
+def handle_connection(conn, settings_worker=None):
+    conn.settimeout(20)
+    line = b''
+    try:
+        while not line.endswith(b'\n') and len(line) <= 8192:
+            chunk = conn.recv(min(1024, 8193 - len(line)))
+            if not chunk:
+                return False
+            line += chunk
+        if len(line) > 8192:
+            raise ValueError('INVALID_REQUEST')
+        value = json.loads(line.decode())
+    except (socket.timeout, ConnectionError):
+        return False
+    except (ValueError, OSError) as error:
+        send_response(conn, error_response(error))
+        return False
+    if settings_worker and isinstance(value, dict) and value.get('operation') in ('mobileSettings','deviceSettings'):
+        if settings_worker.submit(conn, value):
+            return True  # The worker now owns and closes this connection.
+        send_response(conn, {'ok':False, 'error':'RADIO_BUSY'})
+    else:
+        execute_request(conn, value)
+    return False
+
+
+def network_clock_loop(stop, worker):
+    # Use the same executor as manual date/time writes: disabling automatic
+    # time cannot race a delayed network update. Voice/SMS keep their own loop.
+    spec = importlib.util.spec_from_file_location('clock_settings', Path(__file__).with_name('mobile-settings.py'))
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    def tick():
+        try:
+            module.sync_network_clock()
+        except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired):
+            pass  # No SIM or no NITZ yet; retry after registration.
+    while not stop.is_set():
+        worker.pool.submit(tick)
+        stop.wait(60)
 
 
 def serve():
@@ -139,27 +240,28 @@ def serve():
         except (KeyError, OSError):
             pass
         server.listen(8)
-        while True:
-            conn, _ = server.accept()
-            with conn:
-                conn.settimeout(20)
-                line = b''
-                while not line.endswith(b'\n') and len(line) < 8192:
-                    chunk = conn.recv(1024)
-                    if not chunk:
-                        break
-                    line += chunk
-                try:
-                    result = request(json.loads(line.decode()))
-                    reply(conn.makefile('wb'), {'ok': True, 'result': result})
-                except (ValueError, RuntimeError, OSError, subprocess.TimeoutExpired) as error:
-                    reply(conn.makefile('wb'), {'ok': False, 'error': str(error) or 'RADIO_ERROR'})
+        worker = SettingsWorker()
+        clock_stop = threading.Event()
+        clock_thread = threading.Thread(target=network_clock_loop, args=(clock_stop, worker), daemon=True)
+        clock_thread.start()
+        try:
+            while True:
+                conn, _ = server.accept()
+                if not handle_connection(conn, worker):
+                    conn.close()
+        finally:
+            clock_stop.set()
+            clock_thread.join()
+            worker.close()
 
 
 def client(envelope=False):
     raw = sys.stdin.read(8192)
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
-        sock.settimeout(20)
+        value = json.loads(raw)
+        # Seven bounded writes plus their rollback/readback can exceed 20 s.
+        slow_settings = isinstance(value, dict) and value.get('operation') == 'mobileSettings' and value.get('action') in ('editApn','calls','setCallWaiting','setCallerId','forwarding','setForwarding')
+        sock.settimeout(100 if slow_settings else 20)
         sock.connect(str(SOCKET))
         sock.sendall(raw.encode() + (b'' if raw.endswith('\n') else b'\n'))
         data = b''

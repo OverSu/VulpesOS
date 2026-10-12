@@ -146,6 +146,12 @@ h1, h2, h3, h4, h5, h6, #statusbar-time,
 /* Gaia owns edge gestures; avoid a second host overscroll effect. */
 html[data-vulpes-app] { overscroll-behavior:none; }
 
+/* padding-box is no longer supported. Content-box made the full-width
+   section wrap below the dialog's spacer, hiding its title and message. */
+form[role='dialog'][data-type='confirm'] > section {
+  box-sizing: border-box;
+}
+
 
 /* Native selects now paint their own arrow; the old Gecko arrow-hiding offset
    clips Fira descenders on current Gecko. */
@@ -200,3 +206,47 @@ html[data-vulpes-app='camera'], html[data-vulpes-app='camera'] body { touch-acti
 /* Homescreen pages must settle at their boundary after a drag (Forgejo #3). */
 html[data-vulpes-app="homescreen"] #panels { scroll-snap-type:x mandatory; }
 html[data-vulpes-app="homescreen"] #panels > * { scroll-snap-align:start; }
+
+/* System gestures are handled by Gaia, not by the page's pan/zoom handler.
+   App frames keep their own scrolling; the notification list scrolls vertically. */
+html[data-vulpes-app='system'],
+html[data-vulpes-app='system'] body {
+  overscroll-behavior: none;
+}
+html[data-vulpes-app='system'] #lockscreen {
+  touch-action: none;
+}
+html[data-vulpes-app='system'] #utility-tray {
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+/* Keep the original Gaia value selector inside the application's viewport. */
+html[data-vulpes-app] #vulpes-value-selector {
+  position: fixed; inset: 0; z-index: 2147483000; margin: 0;
+  font-family: FiraSans, sans-serif; box-sizing: border-box;
+}
+html[data-vulpes-app] #vulpes-value-selector > section { box-sizing: border-box; }
+html[data-vulpes-app] #vulpes-value-selector [role=option][aria-disabled=true] { opacity: .45; }
+
+html[data-vulpes-app] #vulpes-value-selector-layer {
+  position: fixed; inset: 0; z-index: 2147483000;
+}
+
+html[data-vulpes-app] :is(.button,.bb-button) select.vulpes-select-label-owner {
+  opacity: 0;
+}
+html[data-vulpes-app] .vulpes-select-label {
+  position: absolute;
+  inset: 0 3.5rem 0 1.1rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  font: italic 1.7rem/1.5 FiraSans, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--text-color, #333);
+  text-shadow: none;
+}
+html[dir=rtl][data-vulpes-app] .vulpes-select-label { inset: 0 1.1rem 0 3.5rem; }
+html[data-vulpes-theme=dark] .vulpes-select-label { color: #eee; }

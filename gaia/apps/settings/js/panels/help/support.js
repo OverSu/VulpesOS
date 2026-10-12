@@ -21,7 +21,7 @@ define(function(require) {
        * refer to the JSON File Data.
        */
       this._callSupportInfo = null;
-      var url = 'http://support.mozilla.org/products/firefox-os';
+      var url = 'https://vulpes-os.org/';
       this._elements.userGuide.addEventListener('click', () => {
         this._elements.userGuide.blur();
         var activity = new window.MozActivity({
@@ -55,7 +55,10 @@ define(function(require) {
       .then(function loadSupportInfo(data) {
         this._supportInfo = data;
         callback(this._supportInfo);
-      }.bind(this));
+      }.bind(this)).catch(function(error) {
+        console.warn('Support information:', error);
+        callback({onlinesupport: {title: 'Vulpes OS', href: 'https://vulpes-os.org/'}, callsupport: []});
+      });
     },
     /**
      * create support url items
@@ -103,7 +106,7 @@ define(function(require) {
     _renderSupportInfo: function support_renderSupportInfo(result) {
       var onlineSupportInfo = null;
       var onlineSupportTitle = result['support.onlinesupport.title'];
-      if (onlineSupportTitle !== '') {
+      if (typeof onlineSupportTitle === 'string' && onlineSupportTitle !== '') {
         onlineSupportInfo = { title: onlineSupportTitle };
         onlineSupportInfo.href = result['support.onlinesupport.href'];
         this._setOnlineSupportInfo(onlineSupportInfo);
@@ -114,7 +117,7 @@ define(function(require) {
       // Check to see if we have a title for the first support number.
       var callSupport1Title = result['support.callsupport1.title'];
       // If we have a title we'll go ahead and load the href for it too.
-      if (callSupport1Title !== '') {
+      if (typeof callSupport1Title === 'string' && callSupport1Title !== '') {
         this._callSupportInfo = [
           {
             'title': callSupport1Title,
@@ -125,7 +128,7 @@ define(function(require) {
         // Now check to see if we have a title for the second
         // support number. If we do, we'll load it's href as well.
         var callSupport2Title = result['support.callsupport2.title'];
-        if (callSupport2Title !== '') {
+        if (typeof callSupport2Title === 'string' && callSupport2Title !== '') {
           this._callSupportInfo.push({
               'title': callSupport2Title,
               'href': result['support.callsupport2.href']

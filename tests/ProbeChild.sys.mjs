@@ -1,6 +1,21 @@
 // Test-only actor, registered by tools/inspect-host.py through Marionette.
 export class VulpesProbeChild extends JSWindowActorChild {
   async receiveMessage(message) {
+    if (message.name === 'Swipe') {
+      const {x,y,toX,toY}=message.data, win=this.contentWindow;
+      if (![x,y,toX,toY].every(Number.isFinite) ||
+          [x,toX].some(v=>v<0 || v>=win.innerWidth) ||
+          [y,toY].some(v=>v<0 || v>=win.innerHeight)) throw Error('INVALID_TEST_POINT');
+      const {setTimeout}=ChromeUtils.importESModule('resource://gre/modules/Timer.sys.mjs');
+      for (let step=0;step<=12;step++) {
+        const points=[{identifier:0,offsetX:x+(toX-x)*step/12,
+          offsetY:y+(toY-y)*step/12,radiiX:1,radiiY:1}];
+        win.synthesizeTouchEvent(step===0?'touchstart':'touchmove',points,0,{isAsyncEnabled:false});
+        await new Promise(resolve=>setTimeout(resolve,20));
+      }
+      win.synthesizeTouchEvent('touchend',[{identifier:0,offsetX:toX,offsetY:toY,radiiX:1,radiiY:1}],0,{isAsyncEnabled:false});
+      return true;
+    }
     if (message.name === 'MouseClick') {
       const {x,y}=message.data, win=this.contentWindow;
       if (!Number.isFinite(x) || !Number.isFinite(y) || x<0 || y<0 ||

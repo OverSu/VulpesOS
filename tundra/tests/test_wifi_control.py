@@ -28,6 +28,16 @@ class WifiTests(unittest.TestCase):
         self.assertTrue(result[0]['connected'])
         self.assertEqual(result[1]['security'], 'unsupported')
 
+    def test_connection_information_uses_validated_address_and_actual_bitrate(self):
+        def nm(*args, **kwargs):
+            value='invalid\n192.0.2.4/24\n' if args[1]=='IP4.ADDRESS' else '/org/freedesktop/NetworkManager/Devices/4\n'
+            return SimpleNamespace(returncode=0,stdout=value)
+        with patch.object(wifi,'nm',side_effect=nm), patch.object(wifi.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout='{"data":[351000]}')):
+            self.assertEqual(wifi.connection_info(),{'ipAddress':'192.0.2.4','linkSpeed':351})
+        with patch.object(wifi,'nm',return_value=SimpleNamespace(returncode=0,stdout='/invalid/path')), patch.object(wifi.subprocess,'run') as run:
+            self.assertEqual(wifi.connection_info(),{})
+            run.assert_not_called()
+
     def test_secret_persists_only_after_success(self):
         for fail in (False, True):
             with tempfile.TemporaryDirectory() as temporary:
@@ -85,6 +95,18 @@ class WifiTests(unittest.TestCase):
         for password in ('short', 'testpass\n[connection]', 'x'*100):
             with self.assertRaises(wifi.WifiError):
                 wifi.profile_text(AP, password, 'test')
+
+    def test_hidden_network_uses_encoded_ssid_and_private_profile(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(wifi,'nm',return_value=SimpleNamespace(returncode=0)):
+            root=Path(folder)
+            wifi.dispatch({'operation':'connectHidden','ssid':'Hidden; réseau','security':'wpa-psk','password':'testpassword'},root)
+            saved=next(root.iterdir())
+            self.assertIn('hidden=true',saved.read_text())
+            self.assertEqual(stat.S_IMODE(saved.stat().st_mode),0o600)
+            self.assertEqual(wifi.saved_profiles(root)[0]['ssid'],'Hidden; réseau')
+        for ssid in ('','x'*33,'é'*17):
+            with tempfile.TemporaryDirectory() as folder, self.assertRaises(wifi.WifiError):
+                wifi.dispatch({'operation':'connectHidden','ssid':ssid,'security':'open'},Path(folder))
 
     def test_socket_round_trip_and_limits(self):
         a, b = socket.socketpair()

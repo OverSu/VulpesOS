@@ -147,7 +147,7 @@ StorageController.prototype.storeVideo = function(video) {
   var self = this;
 
   // Add the poster image to the image storage
-  poster.filepath = video.filepath.replace('.3gp', '.jpg');
+  poster.filepath = video.filepath.replace(/\.(?:3gp|mp4|webm)$/, '.jpg');
   video.isVideo = true;
 
   this.storage.addPicture(

@@ -30,7 +30,15 @@ window.addEventListener('load', async () => {
       const pollKeys = async () => {
         try {
           const state = await IOUtils.readJSON('/run/tundra-buttons/events.json');
-          if (state.session !== session) { session = state.session; sequence = state.sequence; }
+          if (state.session !== session) {
+            session = state.session;
+            // Keep events already present when the poller first sees a new
+            // service session. Setting the sequence to the file's final
+            // value silently dropped the first physical key presses after a
+            // Gecko reload.
+            const first = state.events?.[0]?.id;
+            sequence = Number.isInteger(first) ? first - 1 : 0;
+          }
           else if (Date.now()/1000-state.recordedAt < 5) {
             for (const event of state.events) if (event.id > sequence) {
               Runtime.broadcast('hardware-key', {type:event.type}, 'system');
@@ -46,7 +54,7 @@ window.addEventListener('load', async () => {
       parent: { esModuleURI: 'resource://vulpes/host/actors/VulpesParent.sys.mjs' },
       child: {
         esModuleURI: 'resource://vulpes/host/actors/VulpesChild.sys.mjs',
-        events: { DOMDocElementInserted: { capture: true }, focusin:{capture:true}, pointerdown:{capture:true} },
+        events: { DOMDocElementInserted: { capture: true }, focusin:{capture:true}, pointerdown:{capture:true}, click:{capture:true} },
       },
       allFrames: true,
       safeForUntrustedWebProcess: true,
@@ -89,6 +97,11 @@ window.addEventListener('load', async () => {
         browser.style.width = width + 'px';
         browser.style.height = height + 'px';
         homeButton.style.width = landscape ? '44px' : window.innerWidth + 'px';
+        // Flush the embedder's layout before notifying the remote document.
+        // On Wayland its initial viewport can otherwise remain 0x0 until an
+        // unrelated chrome layout query, leaving Gaia and video unpainted.
+        browser.getBoundingClientRect();
+        browser.frameLoader?.requestUpdatePosition?.();
 
       };
       window.addEventListener('resize', resize);

@@ -272,7 +272,7 @@ ActivityController.prototype.onActivityConfirmed = function(newMedia) {
 
   // Video
   if (newMedia.isVideo) {
-    media.type = 'video/3gpp';
+    media.type = media.blob.type || 'video/3gpp';
     media.poster = newMedia.poster.blob;
     activity.postResult(media);
     this.app.clearSpinner();

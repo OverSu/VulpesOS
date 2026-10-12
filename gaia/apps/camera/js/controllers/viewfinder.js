@@ -102,6 +102,7 @@ ViewfinderController.prototype.hideGrid = function() {
  * @private
  */
 ViewfinderController.prototype.bindEvents = function() {
+  window.addEventListener('resize', this.configurePreview);
 
   // View
   this.views.viewfinder.on('fadedin', this.app.firer('viewfinder:visible'));

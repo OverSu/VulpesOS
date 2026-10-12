@@ -78,6 +78,21 @@ on boot
         self.assertNotIn('critical',output)
         self.assertIn('class core',output)
 
+    def test_hardware_policy_keeps_one_primary_audio_owner(self):
+        from unittest.mock import patch
+        source = '''service vendor.audio-hal-2-0 /vendor/bin/hw/android.hardware.audio@2.0-service
+    class hal
+service vendor.camera-provider-2-4 /vendor/bin/hw/android.hardware.camera.provider@2.4-service
+    class hal
+on boot
+    start vendor.audio-hal-2-0
+    start vendor.camera-provider-2-4
+'''
+        with patch.object(policy, 'SERVICES', policy.SERVICES | policy.HARDWARE_SERVICES):
+            output, report = policy.filter_rc(source)
+        self.assertNotIn('vendor.audio-hal-2-0', output)
+        self.assertIn('vendor.camera-provider-2-4', report['services'])
+
     def test_display_keeps_its_platform_properties_and_configstore(self):
         output,report=policy.filter_rc('on post-fs-data\n    load_system_props\nservice vendor.configstore-hal /vendor/bin/hw/android.hardware.configstore@1.1-service\n    class hal animation\n    user system\n')
         self.assertIn('load_system_props',output)

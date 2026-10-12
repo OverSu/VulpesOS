@@ -439,7 +439,8 @@
      */
     populate: function(callback) {
       this.initSources(function(entries) {
-        this.deferredSave(entries, callback);
+        // The first render waits for this write; deferring it waits for that render.
+        this.save(entries, callback);
       }.bind(this));
     },
 

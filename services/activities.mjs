@@ -1,5 +1,7 @@
 export function isGaiaActivity(source) {
   return source?.name === 'pick' ||
+    (source?.name === 'moz_configure_window' && source.data?.target === 'device') ||
+    (source?.name === 'configure' && source.data?.target === 'ringtone') ||
     (source?.name === 'dial' && source.data?.type === 'webtelephony/number') ||
     (source?.name === 'new' && source.data?.type === 'websms/sms') ||
     (['new','update','open'].includes(source?.name) && source.data?.type === 'webcontacts/contact');
@@ -14,19 +16,24 @@ function entryPointFor(app, path) {
 
 // Route Gaia's built-in pickers; only the selected provider can finish a request.
 export class Activities {
-  constructor({identity, apps, launch, notify, uuid}) {
-    Object.assign(this, {identity, apps, launch, notify, uuid});
+  constructor({identity, apps, launch, notify, uuid, choose}) {
+    Object.assign(this, {identity, apps, launch, notify, uuid, choose});
     this.pending = new Map();
     this.listeners = new Map();
+    this.choices = new Map();
   }
   route(source, caller) {
     const types = [].concat(source?.data?.type || []), name=source?.name;
     let id;
     if (name === 'pick') {
       if (types.some(t=>['ringtone','alerttone'].includes(t))) id='ringtones';
-      else if (types.some(t=>['webcontacts/contact','webcontacts/tel','webcontacts/email','webcontacts/select'].includes(t))) id='communications';
-      else if (types.some(t=>typeof t==='string' && t.startsWith('image/'))) id=caller?.id==='communications'?'gallery':'wallpaper';
-    } else if (name === 'dial' && types.includes('webtelephony/number')) id='communications';
+      else if (types.includes('wallpaper')) id='wallpaper';
+      else if (types.some(t=>['webcontacts/contact','webcontacts/tel','webcontacts/email','webcontacts/select','text/vcard','text/x-vcard','text/directory'].includes(t))) id='communications';
+      else if (types.some(t=>typeof t==='string' && t.startsWith('image/'))) id=!caller || caller.id==='settings'?'wallpaper':'gallery';
+      else if (types.some(t=>typeof t==='string' && t.startsWith('audio/'))) id='music';
+      else if (types.some(t=>typeof t==='string' && t.startsWith('video/'))) id='video';
+    } else if (name === 'configure' && source.data?.target === 'ringtone') id='ringtones';
+    else if (name === 'dial' && types.includes('webtelephony/number')) id='communications';
     else if (name === 'new' && types.includes('websms/sms')) id='sms';
     else if (['new','update','open'].includes(name) && types.includes('webcontacts/contact')) id='communications';
     const app = this.apps().find(a=>a.id===id);
@@ -48,9 +55,54 @@ export class Activities {
   provider(source) { return this.route(source).app; }
   start(caller, source) {
     const app = this.identity(caller);
+    if(source?.name==='moz_configure_window' && source.data?.target==='device') {
+      if(app?.id!=='keyboard')throw Error('PERMISSION_DENIED');
+      const settings=this.apps().find(a=>a.id==='settings');
+      if(!settings)throw Error('ACTIVITY_NOT_SUPPORTED');
+      this.launch(settings,settings.manifest.launch_path || '/index.html',{});
+      return Promise.resolve(null);
+    }
     if (!app || !['settings','system','homescreen','verticalhome','ringtones','sms','communications','email','calendar'].includes(app.id))
       throw Error('PERMISSION_DENIED');
-    const {app:provider,definition,url,entryPoint}=this.route(source,app);
+    const types = [].concat(source?.data?.type || []);
+    if (source?.name==='pick' && types.length>1 && this.choose) {
+      const routes=[];
+      for (const type of types) {
+        try {
+          const route=this.route({...source,data:{...source.data,type}},app);
+          if (!routes.some(r=>r.app.id===route.app.id)) routes.push(route);
+        } catch (error) { if (error.message!=='ACTIVITY_NOT_SUPPORTED') throw error; }
+      }
+      if (routes.length>1) {
+        if (this.choices.size) throw Error('ACTIVITY_BUSY');
+        const id=this.uuid();
+        return new Promise((resolve,reject)=>{
+          this.choices.set(id,{caller,app,source,routes,resolve,reject});
+          this.choose({id,name:source.name,activityType:types.join(','),
+            choices:routes.map(r=>{
+              const icons=r.app.manifest.icons || {};
+              const icon=icons[128] || icons[60] || Object.values(icons)[0];
+              return {manifest:r.app.manifestURL,icon:icon?new URL(icon,r.app.origin).href:undefined};
+            })});
+        });
+      }
+      if (routes.length===1) return this.open(caller,app,source,routes[0]);
+    }
+    return this.open(caller,app,source,this.route(source,app));
+  }
+  select(peer,{id,value}) {
+    if (this.identity(peer)?.id!=='system') throw Error('PERMISSION_DENIED');
+    const row=this.choices.get(id);
+    if (!row) throw Error('ACTIVITY_CANCELLED');
+    if (!/^(?:-1|\d+)$/.test(String(value))) throw Error('INVALID_ACTIVITY_CHOICE');
+    const index=Number(value);
+    if (index!==-1 && !row.routes[index]) throw Error('INVALID_ACTIVITY_CHOICE');
+    this.choices.delete(id);
+    if (index===-1) {row.reject(Error('ACTIVITY_CANCELLED'));return;}
+    try {this.open(row.caller,row.app,row.source,row.routes[index]).then(row.resolve,row.reject);}
+    catch(error) {row.reject(error);}
+  }
+  open(caller,app,source,{app:provider,definition,url,entryPoint}) {
     if ([...this.pending.values()].some(p=>p.provider.id===provider.id)) throw Error('ACTIVITY_BUSY');
     const id = this.uuid();
     return new Promise((resolve,reject) => {
@@ -102,8 +154,13 @@ export class Activities {
     if (this.identity(peer)?.id !== 'system') throw Error('PERMISSION_DENIED');
     for (const row of this.pending.values()) row.reject(Error('ACTIVITY_CANCELLED'));
     this.pending.clear();
+    for (const row of this.choices.values()) row.reject(Error('ACTIVITY_CANCELLED'));
+    this.choices.clear();
   }
   cleanup(peer) {
+    for (const [id,row] of this.choices) if (row.caller===peer) {
+      this.choices.delete(id);row.reject(Error('ACTIVITY_CANCELLED'));
+    }
     for (const [app, listener] of this.listeners) if (listener === peer) this.listeners.delete(app);
     for (const [id,row] of this.pending) {
       if (row.caller === peer || row.delivered === peer) {

@@ -12,10 +12,19 @@ import tempfile
 import urllib.request
 
 PACKAGES = (
+    ('pulseaudio-module-bluetooth_14.2-2+droidian4+git20250504201345.dc4fdb8.next.production_arm64.deb',
+     'https://production.repo.droidian.org/pool/main/p/pulseaudio',
+     'f0a6fa15835f1e22a5708dc46356bd30bb492d57655f769aaf4df78b6838f4f3'),
+    ('libsbc1_2.1-1+b2_arm64.deb', 's/sbc',
+     '62dd7210ff6500e3ee4976d865826d603127787f588c4c4a8f93556104c95634'),
     ('libdw1t64_0.196-1_arm64.deb', 'e/elfutils', 'a82634454de2b28d73374f693e4ab6c1c2634fa53b0139312c5f439c294dad2b'),
     ('libelf1t64_0.196-1_arm64.deb', 'e/elfutils', 'ead8a1244824d982ce51fb82be4904312d5dc44ddc157e589def58c257738476'),
     ('bluez_5.87-4_arm64.deb', 'b/bluez', 'fe733034dbdfa6146fc94112ad8ca0fce71d8e01d22a59ddb49ef2df3777d6b5'),
     ('ca-certificates_20260816_all.deb', 'c/ca-certificates', '1cb8b73c74c47677b329fad4095fb9370227d4b8f1969372411478a4586c46cf'),
+    ('mobile-broadband-provider-info_20251101-1_all.deb', 'm/mobile-broadband-provider-info', 'c34e6bad952a320078fa91faf29a6c754d57963e7280998a01ccb058e60b87cc'),
+    ('audiosystem-passthrough_1.3.0-1+droidian1+git20240519112654.f49813c.next.production_arm64.deb',
+     'https://production.repo.droidian.org/pool/main/a/audiosystem-passthrough',
+     'bb4dc41ee66b3b00e8fbd3e0bb8559ab0b98675836219efef7b02958c47b815d'),
 )
 
 
@@ -27,7 +36,8 @@ def stage(root, cache=None):
     cache.mkdir(parents=True, exist_ok=True)
     records = []
     for name, directory, sha in PACKAGES:
-        url = 'https://deb.debian.org/debian/pool/main/'+directory+'/'+name
+        base = directory if directory.startswith('https://') else 'https://deb.debian.org/debian/pool/main/'+directory
+        url = base+'/'+name
         package = cache/name
         if not package.exists():
             with urllib.request.urlopen(url, timeout=60) as response:
@@ -59,13 +69,28 @@ def stage(root, cache=None):
                 selected = [source/'usr/share/doc/ca-certificates/copyright']
             else:
                 selected = [p for p in (source/'usr').rglob('*') if p.is_file() or p.is_symlink()]
+            # The packet-capture utility is not used by the runtime. Keep it in
+            # the pinned package cache rather than enlarging the boot ramdisk.
+            excluded = ['usr/bin/btmon'] if name.startswith('bluez_') else []
+            selected = [p for p in selected if str(p.relative_to(source)) not in excluded]
             for path in selected:
                 target = root/path.relative_to(source)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 if path.is_symlink():
                     if target.exists() or target.is_symlink():
-                        if not target.is_symlink() or target.readlink() != path.readlink():
+                        if not target.is_symlink():
                             raise ValueError('Conflicting package link: '+str(target))
+                        # The reference runtime ships the compatibility link
+                        # for libelf 0.194.  The pinned 0.196 package keeps the
+                        # same ABI name but points it at the newer SONAME.
+                        # Replace that one known compatibility link while
+                        # retaining the strict conflict checks for everything
+                        # else.
+                        if target.readlink() != path.readlink():
+                            if str(target.relative_to(root)) != 'usr/lib/aarch64-linux-gnu/libelf.so.1':
+                                raise ValueError('Conflicting package link: '+str(target))
+                            target.unlink()
+                            target.symlink_to(path.readlink())
                     else:
                         target.symlink_to(path.readlink())
                 else:
@@ -75,7 +100,7 @@ def stage(root, cache=None):
                             raise ValueError('Conflicting package file: '+str(target))
                     shutil.copyfile(path, target)
                     target.chmod(path.stat().st_mode & 0o777)
-        records.append({'file': name, 'url': url, 'sha256': sha})
+        records.append({'file': name, 'url': url, 'sha256': sha, 'excluded': excluded})
     record = root/'usr/share/vulpes/runtime-packages.json'
     record.parent.mkdir(parents=True, exist_ok=True)
     record.write_text(json.dumps(records, indent=2)+'\n')

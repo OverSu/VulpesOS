@@ -4265,7 +4265,7 @@ define('controllers/overlay', [
             if (id !== overlay.id) {
                 return;
             }
-            var closable = self.activity.pick && type !== 'request-fail';
+            var closable = self.activity.pick || reason === 'request-fail';
             var view = new OverlayView({
                 type: reason,
                 closable: closable
@@ -4274,6 +4274,10 @@ define('controllers/overlay', [
                 return;
             }
             overlay.view = view.appendTo(document.body).on('click:close-btn', function () {
+                if (reason === 'request-fail' && !self.activity.pick) {
+                  self.updateOverlay(type, false);
+                  return;
+                }
                 self.app.emit('activitycanceled');
             });
             debug('inserted \'%s/%s\' overlay', type, reason);
@@ -5452,6 +5456,9 @@ define('views/viewfinder', [
             if (!preview) {
                 return;
             }
+            // Recompute when the embedded app becomes visible or rotates.
+            this.getSize();
+            if (!this.width || !this.height) { return; }
             var aspect;
             if (sensorAngle % 180 === 0) {
                 this.container = {
@@ -5702,6 +5709,7 @@ define('controllers/viewfinder', [
         this.views.viewfinder.set('grid', 'off');
     };
     ViewfinderController.prototype.bindEvents = function () {
+        window.addEventListener('resize', this.configurePreview);
         this.views.viewfinder.on('fadedin', this.app.firer('viewfinder:visible'));
         this.views.viewfinder.on('fadedout', this.app.firer('viewfinder:hidden'));
         this.views.viewfinder.on('click', this.app.firer('viewfinder:click'));
@@ -6280,167 +6288,313 @@ define('lib/bytes-to-pixels', [
         return Math.round(uncompressedBytes / bytesPerPixel);
     };
 });
-define('controllers/activity', [
-    'require',
-    'exports',
-    'module',
-    'debug',
-    'lib/bytes-to-pixels',
-    'lib/bind-all'
-], function (require, exports, module) {
-    'use strict';
-    var debug = require('debug')('controller:activity');
-    var bytesToPixels = require('lib/bytes-to-pixels');
-    var bindAll = require('lib/bind-all');
-    module.exports = function (app) {
-        return new ActivityController(app);
-    };
-    module.exports.ActivityController = ActivityController;
-    function ActivityController(app) {
-        bindAll(this);
-        this.app = app;
-        this.win = app.win;
-        this.settings = app.settings;
-        this.configure();
-        this.bindEvents();
-        debug('initialized');
+define("controllers/activity",["require", "exports", "module", "debug", "lib/bytes-to-pixels", "lib/bind-all"],function(require, exports, module) {
+'use strict';
+
+/**
+ * Dependencies
+ */
+
+var debug = require('debug')('controller:activity');
+var bytesToPixels = require('lib/bytes-to-pixels');
+var bindAll = require('lib/bind-all');
+
+/**
+ * Exports
+ */
+
+module.exports = function(app) { return new ActivityController(app); };
+module.exports.ActivityController = ActivityController;
+
+/**
+ * Initialize new `ActivityController`
+ *
+ * @param {App} app
+ */
+function ActivityController(app) {
+  bindAll(this);
+  this.app = app;
+  this.win = app.win;
+  this.settings = app.settings;
+  this.configure();
+  this.bindEvents();
+  debug('initialized');
+}
+
+/**
+ * Supported activity types.
+ *
+ * @type {Object}
+ */
+ActivityController.prototype.types = {
+  pick: 'pick',
+  record: 'record'
+};
+
+/**
+ * Initial configuration.
+ *
+ * @private
+ */
+ActivityController.prototype.configure = function() {
+  this.name = this.getName();
+  this.app.activity[this.name] = true;
+};
+
+/**
+ * Filter down pictureSizes and
+ * recorderProfiles to match activity
+ * parameters each time the settings
+ * are configured.
+ *
+ * @private
+ */
+ActivityController.prototype.bindEvents = function() {
+  this.app.on('activitycanceled', this.onActivityCanceled);
+  this.app.on('confirm:selected', this.onActivityConfirmed);
+
+  // If an activity name was found, we must bind
+  // the listener straight away so we don't miss
+  // the event, otherwise we can bind more lazily.
+  if (this.name) { this.setupListener(); }
+  else { this.app.once('criticalpathdone', this.setupListener); }
+};
+
+ActivityController.prototype.setupListener = function() {
+  debug('setup listener');
+  navigator.mozSetMessageHandler('activity', this.onMessage);
+  debug('listener setup');
+};
+
+/**
+ * Get activity name from the hash fragment.
+ *
+ * This is used only so that some parts
+ * of the app can prepare for an incoming
+ * activity before the message arrives.
+ *
+ * @private
+ */
+ActivityController.prototype.getName = function() {
+  var hash = this.win.location.hash;
+  var name = hash && hash.substr(1);
+  return this.types[name];
+};
+
+/**
+ * Responds to incoming activity message.
+ *
+ * Configures the mode then emits an
+ * event so that other parts of
+ * the app can update accordingly.
+ *
+ * @param  {MozActivity} activity
+ */
+ActivityController.prototype.onMessage = function(activity) {
+  debug('incoming activity', activity);
+  var name = activity.source.name;
+  var supported = this.types[name];
+
+  // Exit if this activity isn't supported
+  if (!supported) { return; }
+
+  var data = {
+    name: name,
+    maxPixelSize: this.getMaxPixelSize(activity),
+    maxFileSizeBytes: activity.source.data.maxFileSizeBytes
+  };
+
+  this.activity = activity;
+  this.configureMode(activity);
+  this.app.emit('activity', data);
+  this.app.emit('activity:' + name, data);
+};
+
+/**
+ * Configures the mode setting based
+ * on the parameters supplied by
+ * the incoming activity.
+ *
+ * @param  {MozActivity} activity
+ * @private
+ */
+ActivityController.prototype.configureMode = function(activity) {
+  var type = activity.source.data.type;
+  var name = activity.source.name;
+  var modes = (name === 'pick') ?
+    this.getModesForPick(type) :
+    this.getModesForRecord(type);
+
+  this.settings.mode.filterOptions(modes);
+  this.settings.mode.select(modes[0]);
+  debug('configured mode', modes);
+};
+
+/**
+ * Get a max pixel size estimate based
+ * on the parameters supplied by the
+ * incoming activity.
+ *
+ * Activities don't always supply pixel
+ * size restrictions.
+ *
+ * NOTE: There
+ *
+ * @param  {MozActivity} activity
+ * @return {Number|null}
+ */
+ActivityController.prototype.getMaxPixelSize = function(activity) {
+  var data = activity.source.data;
+  var bytes = data.maxFileSizeBytes;
+  var maxPickPixelSize = this.settings.activity.get('maxPickPixelSize') || 0;
+  var maxPixelSize;
+
+  // If bytes were specified then derive
+  // a maxPixelSize from that, else we
+  // calculate the maxPixelSize using
+  // supplied dimensions.
+  if (bytes) {
+    maxPixelSize = bytesToPixels(bytes);
+  } else if (data.width || data.height) {
+    maxPixelSize = this.getMaxPixelsFromSize(data);
+  } else {
+    maxPixelSize = maxPickPixelSize;
+  }
+
+  // If the Camera app has been configured to have a max pixel size
+  // for pick activities, ensure we are at or below that value.
+  if (maxPickPixelSize > 0) {
+    maxPixelSize = Math.min(maxPixelSize, maxPickPixelSize);
+  }
+
+  debug('maxPixelsSize: %s', maxPixelSize);
+  return maxPixelSize;
+};
+
+ActivityController.prototype.getMaxPixelsFromSize = function(size) {
+  var scale = this.settings.activity.get('maxPixelSizeScaleFactor');
+  var aspect = 4 / 3;
+
+  // In the event that only one dimension has
+  // been supplied, calculate the largest the
+  // other edge could be based on a 4:3 aspect.
+  var width = size.width || size.height * aspect;
+  var height = size.height || size.width * aspect;
+  var pixels = width * height;
+
+  // Take the actual total number of
+  // pixels asked for and bump it by the
+  // `scale` to cover pictureSizes above
+  // the pixels asked for. We later resize
+  // the image post-capture to the exact size
+  // requested (data.width * data.height).
+  //
+  // This is to avoid us picking a pictureSize
+  // smaller than the number of pixels requested
+  // and then to scaling up post-capture,
+  // resulting in a shitty image.
+  return pixels * scale;
+};
+
+/**
+ * Parse types given by 'pick' activity
+ * and return a list of modes.
+ *
+ * @param  {Array|String} types
+ * @return {Array}
+ */
+ActivityController.prototype.getModesForPick = function(types) {
+  types = [].concat(types || []);
+  var modes = [];
+
+  types.forEach(function(item) {
+    var type = item.split('/')[0];
+    var mode = type === 'image' ? 'picture' : type;
+
+    if (modes.indexOf(mode) === -1) {
+      modes.push(mode);
     }
-    ActivityController.prototype.types = {
-        pick: 'pick',
-        record: 'record'
-    };
-    ActivityController.prototype.configure = function () {
-        this.name = this.getName();
-        this.app.activity[this.name] = true;
-    };
-    ActivityController.prototype.bindEvents = function () {
-        this.app.on('activitycanceled', this.onActivityCanceled);
-        this.app.on('confirm:selected', this.onActivityConfirmed);
-        if (this.name) {
-            this.setupListener();
-        } else {
-            this.app.once('criticalpathdone', this.setupListener);
+  });
+
+  if (modes.length === 0) {
+    modes = ['picture', 'video'];
+  }
+
+  return modes;
+};
+
+/**
+ * Parse types given by 'record' activity
+ * and return a list of modes.
+ *
+ * @param  {String} type
+ * @return {Array}
+ */
+ActivityController.prototype.getModesForRecord = function(type) {
+  return type === 'videos' ?
+    ['video', 'picture'] :
+    ['picture', 'video'];
+};
+
+/**
+ * Respond to activity cancelation
+ * events and send the error call
+ * via the original acitity object.
+ *
+ * @private
+ */
+ActivityController.prototype.onActivityCanceled = function() {
+  if (!this.activity) { return; }
+  this.activity.postError('pick cancelled');
+};
+
+// TODO: Messy, tidy up!
+ActivityController.prototype.onActivityConfirmed = function(newMedia) {
+  var self = this;
+  var activity = this.activity;
+  var media = {
+    blob: newMedia.blob
+  };
+
+  // In low end devices resizing can be slow.
+  // We display a spinner
+  this.app.showSpinner();
+
+  // Video
+  if (newMedia.isVideo) {
+    media.type = media.blob.type || 'video/3gpp';
+    media.poster = newMedia.poster.blob;
+    activity.postResult(media);
+    this.app.clearSpinner();
+  }
+
+  // Image
+  else {
+    media.type = 'image/jpeg';
+
+    // We need to call resizeImageAndSave() unconditionally even if
+    // the image does not need to be resized because if the camera
+    // produces images with EXIF orientation, we need to rotate the
+    // image before returning it from the pick activity. If the image
+    // does not need to be resized or rotated, then resizeImageAndSave
+    // will return it unchanged, and will not re-save it.
+    require(['lib/resize-image-and-save'], function(resizeImageAndSave) {
+      resizeImageAndSave(
+        {
+          blob: newMedia.blob,
+          width: activity.source.data.width,
+          height: activity.source.data.height
+        },
+        function onImageResized(resizedBlob) {
+          media.blob = resizedBlob;
+          activity.postResult(media);
+          self.app.clearSpinner();
         }
-    };
-    ActivityController.prototype.setupListener = function () {
-        debug('setup listener');
-        navigator.mozSetMessageHandler('activity', this.onMessage);
-        debug('listener setup');
-    };
-    ActivityController.prototype.getName = function () {
-        var hash = this.win.location.hash;
-        var name = hash && hash.substr(1);
-        return this.types[name];
-    };
-    ActivityController.prototype.onMessage = function (activity) {
-        debug('incoming activity', activity);
-        var name = activity.source.name;
-        var supported = this.types[name];
-        if (!supported) {
-            return;
-        }
-        var data = {
-            name: name,
-            maxPixelSize: this.getMaxPixelSize(activity),
-            maxFileSizeBytes: activity.source.data.maxFileSizeBytes
-        };
-        this.activity = activity;
-        this.configureMode(activity);
-        this.app.emit('activity', data);
-        this.app.emit('activity:' + name, data);
-    };
-    ActivityController.prototype.configureMode = function (activity) {
-        var type = activity.source.data.type;
-        var name = activity.source.name;
-        var modes = name === 'pick' ? this.getModesForPick(type) : this.getModesForRecord(type);
-        this.settings.mode.filterOptions(modes);
-        this.settings.mode.select(modes[0]);
-        debug('configured mode', modes);
-    };
-    ActivityController.prototype.getMaxPixelSize = function (activity) {
-        var data = activity.source.data;
-        var bytes = data.maxFileSizeBytes;
-        var maxPickPixelSize = this.settings.activity.get('maxPickPixelSize') || 0;
-        var maxPixelSize;
-        if (bytes) {
-            maxPixelSize = bytesToPixels(bytes);
-        } else if (data.width || data.height) {
-            maxPixelSize = this.getMaxPixelsFromSize(data);
-        } else {
-            maxPixelSize = maxPickPixelSize;
-        }
-        if (maxPickPixelSize > 0) {
-            maxPixelSize = Math.min(maxPixelSize, maxPickPixelSize);
-        }
-        debug('maxPixelsSize: %s', maxPixelSize);
-        return maxPixelSize;
-    };
-    ActivityController.prototype.getMaxPixelsFromSize = function (size) {
-        var scale = this.settings.activity.get('maxPixelSizeScaleFactor');
-        var aspect = 4 / 3;
-        var width = size.width || size.height * aspect;
-        var height = size.height || size.width * aspect;
-        var pixels = width * height;
-        return pixels * scale;
-    };
-    ActivityController.prototype.getModesForPick = function (types) {
-        types = [].concat(types || []);
-        var modes = [];
-        types.forEach(function (item) {
-            var type = item.split('/')[0];
-            var mode = type === 'image' ? 'picture' : type;
-            if (modes.indexOf(mode) === -1) {
-                modes.push(mode);
-            }
-        });
-        if (modes.length === 0) {
-            modes = [
-                'picture',
-                'video'
-            ];
-        }
-        return modes;
-    };
-    ActivityController.prototype.getModesForRecord = function (type) {
-        return type === 'videos' ? [
-            'video',
-            'picture'
-        ] : [
-            'picture',
-            'video'
-        ];
-    };
-    ActivityController.prototype.onActivityCanceled = function () {
-        if (!this.activity) {
-            return;
-        }
-        this.activity.postError('pick cancelled');
-    };
-    ActivityController.prototype.onActivityConfirmed = function (newMedia) {
-        var self = this;
-        var activity = this.activity;
-        var media = { blob: newMedia.blob };
-        this.app.showSpinner();
-        if (newMedia.isVideo) {
-            media.type = 'video/3gpp';
-            media.poster = newMedia.poster.blob;
-            activity.postResult(media);
-            this.app.clearSpinner();
-        } else {
-            media.type = 'image/jpeg';
-            require(['lib/resize-image-and-save'], function (resizeImageAndSave) {
-                resizeImageAndSave({
-                    blob: newMedia.blob,
-                    width: activity.source.data.width,
-                    height: activity.source.data.height
-                }, function onImageResized(resizedBlob) {
-                    media.blob = resizedBlob;
-                    activity.postResult(media);
-                    self.app.clearSpinner();
-                });
-            });
-        }
-    };
+      );
+    });
+  }
+};
+
 });
 define('controllers/camera', [
     'require',
@@ -6792,354 +6946,606 @@ define('controllers/camera', [
         }
     };
 });
-define('lib/storage', [
-    'require',
-    'exports',
-    'module',
-    'debug',
-    'lib/bind-all',
-    'evt'
-], function (require, exports, module) {
-    'use strict';
-    var debug = require('debug')('storage');
-    var bindAll = require('lib/bind-all');
-    var events = require('evt');
-    var storageSingleton;
-    module.exports = Storage;
-    events(Storage.prototype);
-    function Storage(options) {
-        if (storageSingleton) {
-            return storageSingleton;
-        }
-        storageSingleton = this;
-        bindAll(this);
-        this.maxFileSize = 0;
-        options = options || {};
-        this.dcf = options.dcf;
-        if (this.dcf) {
-            this.dcf.init();
-        }
-        this.require = options.require || require;
-        navigator.mozSettings.addObserver('device.storage.writable.name', this.onStorageVolumeChanged);
-        this.configure();
-        debug('initialized');
+define("lib/storage",["require", "exports", "module", "debug", "lib/bind-all", "evt"],function(require, exports, module) {
+'use strict';
+
+/**
+ * Dependencies
+ */
+
+var debug = require('debug')('storage');
+var bindAll = require('lib/bind-all');
+var events = require('evt');
+var storageSingleton;
+
+/**
+ * Expose `Storage`
+ */
+
+module.exports = Storage;
+
+/**
+ * Mixin event emitter
+ */
+
+events(Storage.prototype);
+
+/**
+ * Initialize a new `Storage`.
+ *
+ * @param {Object} options
+ */
+function Storage(options) {
+  if (storageSingleton) {
+    return storageSingleton;
+  }
+  storageSingleton = this;
+  bindAll(this);
+  this.maxFileSize = 0;
+  options = options || {};
+  this.dcf = options.dcf;
+  if (this.dcf) {
+    this.dcf.init();
+  }
+  this.require = options.require || require;
+  navigator.mozSettings.addObserver(
+    'device.storage.writable.name',
+    this.onStorageVolumeChanged);
+  this.configure();
+  debug('initialized');
+}
+
+Storage.prototype.createFilename = function(storage, type, done) {
+  var self = this;
+  this.require(['asyncStorage', 'lib/dcf'], function(as, dcf) {
+    if (!self.dcf) {
+      self.dcf = dcf;
+      self.dcf.init();
     }
-    Storage.prototype.createFilename = function (storage, type, done) {
-        var self = this;
-        this.require([
-            'asyncStorage',
-            'lib/dcf'
-        ], function (as, dcf) {
-            if (!self.dcf) {
-                self.dcf = dcf;
-                self.dcf.init();
-            }
-            self.dcf.createDCFFilename(storage, type, done);
-        });
+
+    self.dcf.createDCFFilename(storage, type, done);
+  });
+};
+
+/**
+ * Save the image Blob to DeviceStorage
+ * then lookup the File reference and
+ * return that in the callback as well
+ * as the resulting paths.
+ *
+ * You always want to forget about the
+ * Blob you told us about and use the
+ * File instead since otherwise you
+ * are wasting precious memory.
+ *
+ * @param {Object} [options]
+ * @param {String} options.filepath
+ *   The path to save the image to.
+ */
+Storage.prototype.addPicture = function(blob, options, done) {
+  if (typeof options === 'function') {
+    done = options;
+    options = {};
+  }
+
+  done = done || function() {};
+  var filepath = options && options.filepath;
+  var self = this;
+  debug('add picture', filepath);
+
+  // Create a filepath if
+  // one hasn't been given.
+  if (!filepath) {
+    debug('creating filename');
+    this.createFilename(this.picture, 'image', onCreated);
+  } else {
+    onCreated(filepath);
+  }
+
+  function onCreated(filepath) {
+    var req = self.picture.addNamed(blob, filepath);
+    req.onerror = function() { self.emit('error'); };
+    req.onsuccess = function(e) {
+      debug('image stored', filepath);
+      var absolutePath = e.target.result;
+
+      // `addNamed` does not give us a File
+      // handle so we need to get() it again.
+      refetchFile(filepath, absolutePath);
     };
-    Storage.prototype.addPicture = function (blob, options, done) {
-        if (typeof options === 'function') {
-            done = options;
-            options = {};
-        }
-        done = done || function () {
-        };
-        var filepath = options && options.filepath;
-        var self = this;
-        debug('add picture', filepath);
-        if (!filepath) {
-            debug('creating filename');
-            this.createFilename(this.picture, 'image', onCreated);
-        } else {
-            onCreated(filepath);
-        }
-        function onCreated(filepath) {
-            var req = self.picture.addNamed(blob, filepath);
-            req.onerror = function () {
-                self.emit('error');
-            };
-            req.onsuccess = function (e) {
-                debug('image stored', filepath);
-                var absolutePath = e.target.result;
-                refetchFile(filepath, absolutePath);
-            };
-        }
-        function refetchFile(filepath, absolutePath) {
-            var req = self.picture.get(filepath);
-            req.onerror = function () {
-                self.emit('error');
-                done('Error adding picture to storage');
-            };
-            req.onsuccess = function (e) {
-                debug('image file blob handle retrieved');
-                var fileBlob = e.target.result;
-                done(null, filepath, absolutePath, fileBlob);
-            };
-        }
+  }
+
+  function refetchFile(filepath, absolutePath) {
+    var req = self.picture.get(filepath);
+    req.onerror = function() {
+      self.emit('error');
+      done('Error adding picture to storage');
     };
-    Storage.prototype.createVideoFilepath = function (done) {
-        var videoStorage = this.video;
-        var self = this;
-        this.createFilename(this.video, 'video', function (filepath) {
-            var dummyFilepath = getDir(filepath) + '.tmp.3gp';
-            var blob = new Blob([''], { type: 'video/3gpp' });
-            var req = videoStorage.addNamed(blob, dummyFilepath);
-            req.onerror = function (e) {
-                debug('Failed to add ' + filepath + ' to DeviceStorage', e);
-                var req = videoStorage.delete(dummyFilepath);
-                req.onerror = function () {
-                    done('Error creating video file path');
-                };
-                req.onsuccess = function () {
-                    self.createVideoFilepath(done);
-                };
-            };
-            req.onsuccess = function (e) {
-                videoStorage.delete(e.target.result);
-                done(null, filepath);
-            };
-        });
+    req.onsuccess = function(e) {
+      debug('image file blob handle retrieved');
+      var fileBlob = e.target.result;
+      done(null, filepath, absolutePath, fileBlob);
     };
-    Storage.prototype.onStorageChange = function (e) {
-        debug('state change: %s', e.reason);
-        var value = e.reason;
-        switch (value) {
-        case 'deleted':
-            var filepath = this.checkFilepath(e.path);
-            this.emit('itemdeleted', { path: filepath });
-            break;
-        case 'available':
-        case 'shared':
-        case 'unavailable':
-            this.setState(value);
-            break;
-        }
-        this.check();
+  }
+};
+
+/**
+ * Create a new video filepath.
+ *
+ * The CameraControl API will not
+ * automatically create directories
+ * for the new file if they do not
+ * exist.
+ *
+ * So we write a dummy file to the
+ * same directory via DeviceStorage
+ * to ensure that the directory exists
+ * before attempting to record to this
+ * filepath.
+ *
+ * If the request errors it can mean that
+ * there is a file that already exists
+ * in that name. If so, we attempt to delete
+ * it and try to create the filepath again.
+ *
+ * @param  {Function} done
+ * @public
+ */
+Storage.prototype.createVideoFilepath = function(done) {
+  var videoStorage = this.video;
+  var self = this;
+
+  this.createFilename(this.video, 'video', function(filepath) {
+    var dummyFilepath = getDir(filepath) + '.tmp.3gp';
+    var blob = new Blob([''], { type: 'video/3gpp' });
+    var req = videoStorage.addNamed(blob, dummyFilepath);
+
+    req.onerror = function(e) {
+      debug('Failed to add ' + filepath + ' to DeviceStorage', e);
+      var req = videoStorage.delete(dummyFilepath);
+      req.onerror = function() { done('Error creating video file path'); };
+      req.onsuccess = function() { self.createVideoFilepath(done); };
     };
-    Storage.prototype.configure = function (storageVolumeName) {
-        var i;
-        var videosStorages;
-        var picturesStorages;
-        if (this.picture) {
-            this.picture.removeEventListener('change', this.onStorageChange);
-        }
-        if (!storageVolumeName) {
-            this.video = navigator.getDeviceStorage('videos');
-            this.picture = navigator.getDeviceStorage('pictures');
-        } else {
-            videosStorages = navigator.getDeviceStorages('videos');
-            this.video = videosStorages[0];
-            for (i = 0; i < videosStorages.length; ++i) {
-                if (videosStorages[i].storageName === storageVolumeName) {
-                    this.video = videosStorages[i];
-                    break;
-                }
-            }
-            picturesStorages = navigator.getDeviceStorages('pictures');
-            this.picture = picturesStorages[0];
-            for (i = 0; i < picturesStorages.length; ++i) {
-                if (picturesStorages[i].storageName === storageVolumeName) {
-                    this.picture = picturesStorages[i];
-                    break;
-                }
-            }
-        }
-        if (!this.picture) {
-            this.setState('unavailable');
-            return;
-        }
-        this.picture.addEventListener('change', this.onStorageChange);
-        this.emit('volumechanged', {
-            video: this.video,
-            picture: this.picture
-        });
+
+    req.onsuccess = function(e) {
+      videoStorage.delete(e.target.result);
+      done(null, filepath);
     };
-    Storage.prototype.onStorageVolumeChanged = function (setting) {
-        debug('default storage volume change: %s', setting.settingValue);
-        this.configure(setting.settingValue);
-    };
-    Storage.prototype.checkFilepath = function (filepath) {
-        var startString = filepath.indexOf('DCIM/');
-        if (startString < -1) {
-            return;
-        } else if (startString > 0) {
-            filepath = filepath.substr(startString);
-        }
-        if (filepath.indexOf('VID') != -1 && filepath.lastIndexOf('.jpg') === filepath.length - 4) {
-            filepath = filepath.replace('.jpg', '.3gp');
-        }
-        return filepath;
-    };
-    Storage.prototype.setState = function (value) {
-        this.state = value;
-        debug('set state: %s', value);
-        this.emit('changed', value);
-    };
-    Storage.prototype.setMaxFileSize = function (maxFileSize) {
-        this.maxFileSize = maxFileSize;
-        this.check();
-        debug('max file size set: %d', maxFileSize);
-    };
-    Storage.prototype.check = function (done) {
-        debug('check');
-        var self = this;
-        done = done || function () {
-        };
-        this.getState(function (result) {
-            self.setState(result);
-            if (!self.available()) {
-                onComplete('unhealthy');
-                return;
-            }
-            if (self.dcf) {
-                self.dcf.checkFileCounter();
-            }
-            self.isSpace(function (result) {
-                if (!result) {
-                    self.setState('nospace');
-                }
-                onComplete('healthy');
-            });
-        });
-        function onComplete(state) {
-            self.emit('checked', state);
-        }
-    };
-    Storage.prototype.isSpace = function (done) {
-        var maxFileSize = this.maxFileSize;
-        this.picture.freeSpace().onsuccess = function (e) {
-            var freeSpace = e.target.result;
-            var result = freeSpace > maxFileSize;
-            debug('is space: %s', result, freeSpace, maxFileSize);
-            done(result);
-        };
-    };
-    Storage.prototype.getState = function (done) {
-        if (!this.picture) {
-            setTimeout(function () {
-                done('unavailable');
-            });
-            return;
-        }
-        this.picture.available().onsuccess = function (e) {
-            done(e.target.result);
-        };
-    };
-    Storage.prototype.available = function () {
-        return this.state === 'available';
-    };
-    Storage.prototype.deletePicture = function (filepath, done) {
-        var req = this.picture.delete(filepath);
-        req.onerror = function (e) {
-            var message = 'Failed to delete ' + filepath + ' from DeviceStorage:' + e.target.error;
-            console.warn(message);
-            done(message);
-        };
-        if (done) {
-            req.onsuccess = function () {
-                done(null);
-            };
-        }
-    };
-    Storage.prototype.deleteVideo = function (filepath) {
-        var poster = filepath.replace('.3gp', '.jpg');
-        this.video.delete(filepath).onerror = function (e) {
-            console.warn('Failed to delete', filepath, 'from DeviceStorage:', e.target.error);
-        };
-        this.picture.delete(poster).onerror = function (e) {
-            console.warn('Failed to delete poster image', poster, 'for video', filepath, 'from DeviceStorage:', e.target.error);
-        };
-    };
-    function getDir(filepath) {
-        var index = filepath.lastIndexOf('/') + 1;
-        return index ? filepath.substring(0, index) : '';
+  });
+};
+
+Storage.prototype.onStorageChange = function(e) {
+  debug('state change: %s', e.reason);
+  var value = e.reason;
+
+  switch (value) {
+    case 'deleted':
+      // Emit an `itemdeleted` event to
+      // allow parts of the UI to update.
+      var filepath = this.checkFilepath(e.path);
+      this.emit('itemdeleted', { path: filepath });
+      break;
+    case 'available':
+    case 'shared':
+    case 'unavailable':
+      this.setState(value);
+      break;
+  }
+
+  // Check storage
+  // has spare capacity
+  this.check();
+};
+
+Storage.prototype.configure = function(storageVolumeName) {
+  var i;
+  var videosStorages;
+  var picturesStorages;
+  // If we had a previous ds for pictures, let's remove the observer
+  // we had set as well before fetching new ds.
+  if (this.picture) {
+    this.picture.removeEventListener('change', this.onStorageChange);
+  }
+  if (!storageVolumeName) {
+    this.video = navigator.getDeviceStorage('videos');
+    this.picture = navigator.getDeviceStorage('pictures');
+  } else { // We select the volumes with the passed name
+    videosStorages = navigator.getDeviceStorages('videos');
+    this.video = videosStorages[0];
+    for (i = 0; i < videosStorages.length; ++i) {
+      if (videosStorages[i].storageName === storageVolumeName) {
+        this.video = videosStorages[i];
+        break;
+      }
     }
+
+    picturesStorages = navigator.getDeviceStorages('pictures');
+    this.picture = picturesStorages[0];
+    for (i = 0; i < picturesStorages.length; ++i) {
+      if (picturesStorages[i].storageName === storageVolumeName) {
+        this.picture = picturesStorages[i];
+        break;
+      }
+    }
+  }
+
+  // Shouldn't happen?
+  if (!this.picture) {
+    this.setState('unavailable');
+    return;
+  }
+
+  this.picture.addEventListener('change', this.onStorageChange);
+  this.emit('volumechanged',{
+    video: this.video,
+    picture: this.picture
+  });
+};
+
+Storage.prototype.onStorageVolumeChanged = function(setting) {
+  debug('default storage volume change: %s', setting.settingValue);
+  this.configure(setting.settingValue);
+};
+
+Storage.prototype.checkFilepath = function(filepath) {
+  var startString = filepath.indexOf('DCIM/');
+
+  if (startString < -1) { return; }
+  else if (startString > 0) {
+    filepath = filepath.substr(startString);
+  }
+
+  // Check whether filepath is a video poster image or not. If filepath
+  // contains 'VID' and ends with '.jpg', consider it a video poster
+  // image and get the video filepath by changing '.jpg' to '.3gp'
+  if (filepath.indexOf('VID') != -1 &&
+      filepath.lastIndexOf('.jpg') === filepath.length - 4) {
+    filepath = filepath.replace('.jpg', '.' + (window.VulpesVideoExtension || '3gp'));
+  }
+
+  return filepath;
+};
+
+Storage.prototype.setState = function(value) {
+  this.state = value;
+  debug('set state: %s', value);
+  this.emit('changed', value);
+};
+
+Storage.prototype.setMaxFileSize = function(maxFileSize) {
+  this.maxFileSize = maxFileSize;
+  this.check();
+  debug('max file size set: %d', maxFileSize);
+};
+
+/**
+ * Run a full storage check.
+ *
+ * @param  {Function} done
+ * @public
+ */
+Storage.prototype.check = function(done) {
+  debug('check');
+
+  var self = this;
+  done = done || function() {};
+
+  this.getState(function(result) {
+    self.setState(result);
+
+    if (!self.available()) {
+      onComplete('unhealthy');
+      return;
+    }
+
+    // check file counter in dcf if it already exist.
+    if (self.dcf) {
+      self.dcf.checkFileCounter();
+    }
+    self.isSpace(function(result) {
+      if (!result) { self.setState('nospace'); }
+      onComplete('healthy');
+    });
+  });
+
+  function onComplete(state) {
+    self.emit('checked', state);
+  }
+};
+
+/**
+ * Checks if there is enough space to
+ * accomdate the current `maxFileSize`.
+ *
+ * @param  {Function} done
+ */
+Storage.prototype.isSpace = function(done) {
+  var maxFileSize = this.maxFileSize;
+  this.picture
+    .freeSpace()
+    .onsuccess = function(e) {
+      var freeSpace = e.target.result;
+      var result = freeSpace > maxFileSize;
+      debug('is space: %s', result, freeSpace, maxFileSize);
+      done(result);
+    };
+};
+
+/**
+ * Get current storage state.
+ *
+ * @param  {Function} done
+ */
+Storage.prototype.getState = function(done) {
+  if (!this.picture) {
+    setTimeout(function() {
+      done('unavailable');
+    });
+    return;
+  }
+
+  this.picture
+    .available()
+    .onsuccess = function(e) {
+      done(e.target.result);
+    };
+};
+
+/**
+ * States if sotrage is available.
+ *
+ * @return {Boolean}
+ */
+Storage.prototype.available = function() {
+  return this.state === 'available';
+};
+
+/**
+ * Delete a picture.
+ *
+ * @param  {String} filepath
+ */
+Storage.prototype.deletePicture = function(filepath, done) {
+  var req = this.picture.delete(filepath);
+  req.onerror = function(e) {
+    var message = 'Failed to delete ' + filepath +
+      ' from DeviceStorage:' + e.target.error;
+    console.warn(message);
+    done(message);
+  };
+
+  if (done) {
+    req.onsuccess = function() {
+      done(null);
+    };
+  }
+};
+
+/**
+ * Delete a video and accompanying
+ * poster image.
+ *
+ * @param  {String} filepath
+ */
+Storage.prototype.deleteVideo = function(filepath) {
+  var poster = filepath.replace(/\.(?:3gp|mp4|webm)$/, '.jpg');
+
+  this.video.delete(filepath).onerror = function(e) {
+    console.warn(
+      'Failed to delete', filepath,
+      'from DeviceStorage:', e.target.error);
+  };
+
+  this.picture.delete(poster).onerror = function(e) {
+    console.warn(
+      'Failed to delete poster image', poster,
+      'for video', filepath,
+      'from DeviceStorage:', e.target.error);
+  };
+};
+
+/**
+ * Get the directory from a filepath.
+ *
+ * @param  {String} filepath
+ * @return {String}
+ */
+function getDir(filepath) {
+  var index = filepath.lastIndexOf('/') + 1;
+  return index ? filepath.substring(0, index) : '';
+}
+
 });
-define('controllers/storage', [
-    'require',
-    'exports',
-    'module',
-    'debug',
-    'lib/bind-all',
-    'lib/storage'
-], function (require, exports, module) {
-    'use strict';
-    var debug = require('debug')('controller:storage');
-    var bindAll = require('lib/bind-all');
-    var Storage = require('lib/storage');
-    module.exports = function (app) {
-        return new StorageController(app);
-    };
-    module.exports.StorageController = StorageController;
-    function StorageController(app) {
-        bindAll(this);
-        this.app = app;
-        this.camera = app.camera;
-        this.settings = app.settings;
-        this.storage = app.storage || new Storage();
-        this.bindEvents();
-        this.configure();
-        debug('initialized');
-    }
-    StorageController.prototype.configure = function () {
-        this.storage.configure();
-        this.camera.createVideoFilepath = this.storage.createVideoFilepath;
-        this.updateMaxFileSize();
-    };
-    StorageController.prototype.bindEvents = function () {
-        debug('bind events');
-        this.settings.pictureSizes.on('change:selected', this.updateMaxFileSize);
-        this.app.on('previewgallery:deletepicture', this.storage.deletePicture);
-        this.app.on('previewgallery:deletevideo', this.storage.deleteVideo);
-        this.app.on('settings:configured', this.updateMaxFileSize);
-        this.app.on('camera:newimage', this.storePicture);
-        this.app.on('camera:newvideo', this.storeVideo);
-        this.app.on('visible', this.storage.check);
-        this.storage.on('volumechanged', this.app.firer('storage:volumechanged'));
-        this.storage.on('itemdeleted', this.app.firer('storage:itemdeleted'));
-        this.storage.on('changed', this.onChanged);
-        this.storage.on('checked', this.onChecked);
-        debug('events bound');
-    };
-    StorageController.prototype.onChanged = function (state) {
-        debug('changed: %s', state);
-        this.app.emit('storage:changed', state);
-    };
-    StorageController.prototype.onChecked = function (value) {
-        debug('checked: %s', value);
-        this.app.emit('storage:checked', value);
-        this.app.emit('storage:checked:' + value);
-    };
-    StorageController.prototype.storePicture = function (picture) {
-        var memoryBlob = picture.blob;
-        var self = this;
-        this.storage.addPicture(memoryBlob, function (error, filepath, abspath, fileBlob) {
-            picture.blob = fileBlob;
-            picture.filepath = filepath;
-            debug('stored picture', picture);
-            self.app.emit('newmedia', picture);
-        });
-    };
-    StorageController.prototype.storeVideo = function (video) {
-        debug('new video', video);
-        var poster = video.poster;
-        var self = this;
-        poster.filepath = video.filepath.replace('.3gp', '.jpg');
-        video.isVideo = true;
-        this.storage.addPicture(poster.blob, { filepath: poster.filepath }, function (error, path, absolutePath, fileBlob) {
-            poster.blob = fileBlob;
-            debug('new video', video);
-            self.app.emit('newmedia', video);
-        });
-    };
-    StorageController.prototype.updateMaxFileSize = function () {
-        var pictureSize = this.settings.pictureSizes.selected('data');
-        if (pictureSize) {
-            var bytes = pictureSize.width * pictureSize.height / 2 + 25000;
-            this.storage.setMaxFileSize(bytes);
-            debug('maxFileSize updated %s', bytes);
-        }
-    };
+define("controllers/storage",["require", "exports", "module", "debug", "lib/bind-all", "lib/storage"],function(require, exports, module) {
+'use strict';
+
+/**
+ * Dependencies
+ */
+
+var debug = require('debug')('controller:storage');
+var bindAll = require('lib/bind-all');
+var Storage = require('lib/storage');
+
+/**
+ * Exports
+ */
+
+module.exports = function(app) { return new StorageController(app); };
+module.exports.StorageController = StorageController;
+
+/**
+ * Initialize a new `StorageController`
+ *
+ * @param {App} app
+ */
+function StorageController(app) {
+  bindAll(this);
+  this.app = app;
+  this.camera = app.camera;
+  this.settings = app.settings;
+  this.storage = app.storage || new Storage();
+  this.bindEvents();
+  this.configure();
+  debug('initialized');
+}
+
+/**
+ * Initial configuration.
+ *
+ * Give the camera a way to create video filepaths.
+ * This is so that the camera can record videos
+ * directly to the final location without us
+ * having to move the video file from temporary,
+ * to final location at recording end.
+ *
+ * @private
+ */
+StorageController.prototype.configure = function() {
+  this.storage.configure();
+  this.camera.createVideoFilepath = this.storage.createVideoFilepath;
+  this.updateMaxFileSize();
+};
+
+/**
+ * Bind to relevant events.
+ *
+ * @private
+ */
+StorageController.prototype.bindEvents = function() {
+  debug('bind events');
+
+  // App
+  this.settings.pictureSizes.on('change:selected', this.updateMaxFileSize);
+  this.app.on('previewgallery:deletepicture', this.storage.deletePicture);
+  this.app.on('previewgallery:deletevideo', this.storage.deleteVideo);
+  this.app.on('settings:configured', this.updateMaxFileSize);
+  this.app.on('camera:newimage', this.storePicture);
+  this.app.on('camera:newvideo', this.storeVideo);
+  this.app.on('visible', this.storage.check);
+
+  // Storage
+  this.storage.on('volumechanged', this.app.firer('storage:volumechanged'));
+  this.storage.on('itemdeleted', this.app.firer('storage:itemdeleted'));
+  this.storage.on('changed', this.onChanged);
+  this.storage.on('checked', this.onChecked);
+  debug('events bound');
+};
+
+/**
+ * Relay storage state change events.
+ *
+ * @param  {String} state
+ * @private
+ */
+StorageController.prototype.onChanged = function(state) {
+  debug('changed: %s', state);
+  this.app.emit('storage:changed', state);
+};
+
+/**
+ * Emit the outcome of a storage check
+ * so that other parts of the app
+ * can respond.
+ *
+ * @param  {String} value
+ * @private
+ */
+StorageController.prototype.onChecked = function(value) {
+  debug('checked: %s', value);
+  this.app.emit('storage:checked', value);
+  this.app.emit('storage:checked:' + value);
+};
+
+/**
+ * Store a picture.
+ *
+ * In either case, save the memory-backed
+ * photo blob to device storage, retrieve
+ * the resulting File (blob) and pass that
+ * around instead of the original memory blob.
+ *
+ * This is critical for "pick" activity consumers
+ * where the memory-backed Blob is either highly
+ * inefficent or will almost-immediately become
+ * inaccesible, depending on the state of the
+ * platform. https://bugzil.la/982779
+ *
+ * @param  {Object} picture
+ * @private
+ */
+StorageController.prototype.storePicture = function(picture) {
+  var memoryBlob = picture.blob;
+  var self = this;
+
+  this.storage.addPicture(
+    memoryBlob,
+    function(error, filepath, abspath, fileBlob) {
+      picture.blob = fileBlob;
+      picture.filepath = filepath;
+      debug('stored picture', picture);
+      self.app.emit('newmedia', picture);
+  });
+};
+
+/**
+ * Store a video.
+ *
+ * We don't store the video blob like
+ * we do for images, as it is recorded
+ * directly to the final location.
+ * This is for memory reason. The poster
+ * is also automatically created.
+ *
+ * @param  {Object} video
+ */
+StorageController.prototype.storeVideo = function(video) {
+  debug('new video', video);
+  var poster = video.poster;
+  var self = this;
+
+  // Add the poster image to the image storage
+  poster.filepath = video.filepath.replace(/\.(?:3gp|mp4|webm)$/, '.jpg');
+  video.isVideo = true;
+
+  this.storage.addPicture(
+    poster.blob,
+    { filepath: poster.filepath },
+    function(error, path, absolutePath, fileBlob) {
+      // Replace the memory-backed Blob with the DeviceStorage file-backed File.
+      // Note that "video" has a reference to "poster", so video previews will
+      // use this File.
+      poster.blob = fileBlob;
+      debug('new video', video);
+      self.app.emit('newmedia', video);
+  });
+};
+
+/**
+ * Calculate and set a `maxFileSize`
+ * value on the storage instance.
+ *
+ * This is so that it can alert us when there
+ * isn't enough space left in storage
+ * to accomodate a new picture.
+ *
+ * It is very unlikely that a JPEG file will have a file size that is
+ * more than half a byte per pixel. There is some fixed EXIF overhead
+ * that is the same for small and large pictures, however, so we add
+ * an additional 25,000 bytes of padding.
+ *
+ * @private
+ */
+StorageController.prototype.updateMaxFileSize = function() {
+  var pictureSize = this.settings.pictureSizes.selected('data');
+  /* Depending on when we get loaded, we may not have a picture size yet. */
+  if (pictureSize) {
+    var bytes = (pictureSize.width * pictureSize.height / 2) + 25000;
+    this.storage.setMaxFileSize(bytes);
+    debug('maxFileSize updated %s', bytes);
+  }
+};
+
 });
 window.jsStarted = Date.now();
 define('main', [

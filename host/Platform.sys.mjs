@@ -1,9 +1,12 @@
+import {receivedMms} from 'resource://vulpes/services/mms.mjs';
 import { authorizePlatform } from 'resource://vulpes/services/platform.mjs';
 import {
   tundraCapabilities,
+  tundraBluetooth,
   tundraCallAudio,
   tundraHardware,
   tundraRadio,
+  tundraMms,
   tundraSnapshot,
   tundraWifi,
 } from 'resource://vulpes/host/Tundra.sys.mjs';
@@ -48,6 +51,25 @@ export class Platform {
   }
   async init() {
     this.radioQueue = Promise.resolve();
+    if (Services.env.get('VULPES_TUNDRA') === '1') {
+      let shown = null;
+      const pollBluetooth = async () => {
+        try {
+          const state = await tundraBluetooth({operation:'status'});
+          const pending = state.pairing?.[0];
+          const app = this.runtime.apps.find(a=>a.id==='bluetooth');
+          if (pending && app && pending.id!==shown) {
+            shown=pending.id;
+            this.runtime.broadcast('launch',{manifestURL:app.manifestURL,origin:app.origin,
+              url:app.origin+'/onpair.html',timestamp:Date.now()},'system');
+          }
+          if (!pending) shown=null;
+        } catch (_) {}
+        setTimeout(pollBluetooth,1500);
+      };
+      pollBluetooth();
+    }
+
     this.notificationPath = PathUtils.join(PathUtils.profileDir,'vulpes-notifications.json');
     let notifications = [];
     try { notifications = await IOUtils.readJSON(this.notificationPath); } catch (_) {}
@@ -80,6 +102,16 @@ export class Platform {
             await tundraRadio('ackMessages',{ids:[row.receipt]});
           }
         } catch(error) {console.error('SMS inbox:',error.message);}
+        try {
+          const rows=await tundraMms('incoming');
+          const app=this.runtime.apps.find(a=>a.id==='sms');
+          for(const row of rows) {
+            const message=await this.runtime.messages.receive(receivedMms(row));
+            await this.gaiaNotification(app,{operation:'show',title:message.sender,body:message.body || 'MMS',tag:'sms-'+message.id,data:{threadId:message.threadId}});
+            this.runtime.broadcast('sms-received',message,'sms');
+            await tundraMms('ack',{ids:[row.receipt]});
+          }
+        } catch(error) {console.error('MMS inbox:',error.message);}
         setTimeout(inbox,2000);
       };
       inbox();
@@ -136,48 +168,39 @@ export class Platform {
       !request.secure ||
       request.sharingScreen ||
       request.sharingAudio ||
-      request.audioInputDevices?.length ||
-      !request.videoInputDevices?.length
+      !(request.videoInputDevices?.length || request.audioInputDevices?.length)
     ) {
       deny();
       return;
     }
     const principal = global.documentPrincipal;
-    let permission = Services.perms.testExactPermissionFromPrincipal(principal, 'camera');
-    if (permission === Ci.nsIPermissionManager.UNKNOWN_ACTION) {
-      const allowed = Services.prompt.confirm(
-        browser.ownerDocument.defaultView,
-        'Vulpes — Photo',
-        'Autoriser Photo à utiliser la webcam ? / Allow Camera to use your webcam?',
-      );
-      permission = allowed
-        ? Ci.nsIPermissionManager.ALLOW_ACTION
-        : Ci.nsIPermissionManager.DENY_ACTION;
-      Services.perms.addFromPrincipal(principal, 'camera', permission);
+    const video = request.videoInputDevices?.[0], audio = request.audioInputDevices?.[0];
+    for (const [device, kind, message] of [
+      [video, 'camera', 'Autoriser Photo à utiliser la caméra ? / Allow Camera to use your camera?'],
+      [audio, 'microphone', 'Autoriser Photo à enregistrer le son ? / Allow Camera to record audio?']
+    ]) {
+      if (!device) continue;
+      let permission = Services.perms.testExactPermissionFromPrincipal(principal, kind);
+      if (permission === Ci.nsIPermissionManager.UNKNOWN_ACTION) {
+        permission = Services.prompt.confirm(browser.ownerDocument.defaultView, 'Vulpes — Photo', message)
+          ? Ci.nsIPermissionManager.ALLOW_ACTION : Ci.nsIPermissionManager.DENY_ACTION;
+        Services.perms.addFromPrincipal(principal, kind, permission);
+      }
+      if (permission !== Ci.nsIPermissionManager.ALLOW_ACTION) { deny(); return; }
     }
-    if (permission !== Ci.nsIPermissionManager.ALLOW_ACTION) {
-      deny();
-      return;
-    }
-    if (!(await actor.checkOSPermission(true, false, false))) {
-      deny();
-      return;
-    }
-    // Gecko consumes this one-shot grant when allocating the real device.
-    // Use its top-level principal, as Firefox's WebRTC permission handler does.
+    if (!(await actor.checkOSPermission(!!video, !!audio, false))) { deny(); return; }
     const topPrincipal = browser.browsingContext.currentWindowGlobal.documentPrincipal;
-    Services.perms.addFromPrincipal(
-      topPrincipal,
-      'MediaManagerVideo',
-      Ci.nsIPermissionManager.ALLOW_ACTION,
-      Ci.nsIPermissionManager.EXPIRE_SESSION,
-    );
-    const device = request.videoInputDevices[0];
-    actor.activateDevicePerm(request.windowID, device.mediaSource, device.rawId);
+    const devices = [];
+    for (const [device, kind] of [[video, 'MediaManagerVideo'], [audio, 'MediaManagerAudio']]) {
+      if (!device) continue;
+      Services.perms.addFromPrincipal(topPrincipal, kind, Ci.nsIPermissionManager.ALLOW_ACTION, Ci.nsIPermissionManager.EXPIRE_SESSION);
+      actor.activateDevicePerm(request.windowID, device.mediaSource, device.rawId);
+      devices.push(device.deviceIndex);
+    }
     actor.sendAsyncMessage('webrtc:Allow', {
       callID: request.callID,
       windowID: request.windowID,
-      devices: [request.videoInputDevices[0].deviceIndex],
+      devices,
     });
   }
   async request(actor, app, operation, params) {
@@ -193,6 +216,9 @@ export class Platform {
       if (operation === 'snapshot') return tundraSnapshot();
       if (operation === 'power') return tundraHardware({operation:'power', action:params.action});
       if (operation === 'wifi') return tundraWifi(params);
+      if (operation === 'deviceSettings') return tundraRadio('deviceSettings', params);
+      if (operation === 'mobileSettings') return tundraRadio('mobileSettings', params);
+      if (operation === 'bluetooth') return tundraBluetooth(params);
       if (['callHistory','ackCallHistory'].includes(operation)) return this.radio(operation, params);
       if (operation === 'dial') return this.radio('dial', params);
       if (operation === 'hangup') return tundraRadio('hangup', params);

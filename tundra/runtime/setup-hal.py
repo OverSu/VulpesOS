@@ -86,6 +86,10 @@ def main():
         if not p.is_file() or p.is_symlink() or not is_init_script(p):continue
         text=p.read_text();filtered,record=filter_rc(text);record['sourceSha256']=hashlib.sha256(text.encode()).hexdigest()
         p.write_text(filtered);report[str(p)]=record
+    if Path('/etc/tundra/hardware-enabled').is_file():
+        # The stock boot-completed trigger never runs without Android framework.
+        with Path('/android/init.rc').open('a') as init:
+            init.write('\non boot\n    start ipastart_sh\n')
     (Path('/run/tundra')/'hal-policy-report.json').write_text(json.dumps(report,indent=2))
     # The container cannot open block devices. Its data and metadata live in RAM.
     for p in ('/android/data','/android/metadata'):

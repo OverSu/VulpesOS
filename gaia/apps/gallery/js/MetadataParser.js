@@ -651,25 +651,30 @@ var metadataParser = (function() {
 
   function videoMetadataParser(file, metadataCallback, errorCallback) {
     var metadata = {};
-    var videofilename = file.name.replace('.jpg', '.3gp');
-    metadata.video = videofilename;
-
-    var getreq = videostorage.get(videofilename);
-    getreq.onerror = function() {
-      errorCallback('cannot get video file: ' + videofilename);
-    };
-    getreq.onsuccess = function() {
-      var videofile = getreq.result;
-      getVideoRotation(videofile, function(rotation) {
-        if (typeof rotation === 'number') {
-          metadata.rotation = rotation;
+    var extensions = ['webm', '3gp', 'mp4'];
+    function findVideo() {
+      var videofilename = file.name.replace(/\.jpg$/, '.' + extensions.shift());
+      var getreq = videostorage.get(videofilename);
+      getreq.onerror = function() {
+        if (extensions.length) findVideo();
+        else errorCallback('cannot get video file: ' + videofilename);
+      };
+      getreq.onsuccess = function() {
+        metadata.video = videofilename;
+        if (/\.webm$/.test(videofilename)) {
+          metadata.rotation = 0;
           getVideoThumbnailAndSize();
+          return;
         }
-        else if (typeof rotation === 'string') {
-          errorCallback('Video rotation:', rotation);
-        }
-      });
-    };
+        getVideoRotation(getreq.result, function(rotation) {
+          if (typeof rotation === 'number') {
+            metadata.rotation = rotation;
+            getVideoThumbnailAndSize();
+          } else errorCallback('Video rotation: ' + rotation);
+        });
+      };
+    }
+    findVideo();
 
     function getVideoThumbnailAndSize() {
       var url = URL.createObjectURL(file);

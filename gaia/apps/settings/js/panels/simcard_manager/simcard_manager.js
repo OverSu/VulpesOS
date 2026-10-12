@@ -304,7 +304,7 @@ define(function(require) {
      */
     _updateSimSettingsUI: function scm__updateSimSettingsUI() {
       var firstCardInfo = this._simcards[0].getInfo();
-      var secondCardInfo = this._simcards[1].getInfo();
+      var secondCardInfo = (this._simcards[1] ? this._simcards[1].getInfo() : {absent: true});
       var hidden = firstCardInfo.absent && secondCardInfo.absent ||
         this._isAirplaneMode;
 
@@ -322,7 +322,7 @@ define(function(require) {
      */
     _updateSelectOptionsUI: function scm__updateSelectOptionsUI() {
       var firstCardInfo = this._simcards[0].getInfo();
-      var secondCardInfo = this._simcards[1].getInfo();
+      var secondCardInfo = (this._simcards[1] ? this._simcards[1].getInfo() : {absent: true});
 
       // two cards all are not absent, we have to update separately
       if (!firstCardInfo.absent && !secondCardInfo.absent) {

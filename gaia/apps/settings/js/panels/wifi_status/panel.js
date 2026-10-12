@@ -41,7 +41,8 @@ define(function(require) {
         var info = wifiManager.connectionInformation || {};
         elements.ip.textContent = info.ipAddress || '';
         document.l10n.setAttributes(elements.speed,
-          'linkSpeedMbs', { linkSpeed: info.linkSpeed });
+          Number.isFinite(info.linkSpeed) ? 'linkSpeedMbs' : 'unavailable',
+          Number.isFinite(info.linkSpeed) ? { linkSpeed: info.linkSpeed } : {});
       }
     });
   };

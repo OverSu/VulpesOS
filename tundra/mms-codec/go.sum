@@ -1,0 +1,12 @@
+github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=
+github.com/godbus/dbus/v5 v5.1.0/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
+github.com/kr/pretty v0.2.1 h1:Fmg33tUaq4/8ym9TJN1x7sLJnHVwhP33CNkpYV/7rwI=
+github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
+github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
+github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+gitlab.com/ubports/development/core/go-ldm v0.0.0-20240829085643-4b8905597dac h1:qwJa6TLO/c3SnjyXyxVRMEpHY2AKAcoSOgzuHmXp3y0=
+gitlab.com/ubports/development/core/go-ldm v0.0.0-20240829085643-4b8905597dac/go.mod h1:pucSy3AIvCddSTBSWMi0ksVk1f14RLUoTTo/6ir9WEg=
+gitlab.com/ubports/development/core/nuntium v0.0.0-20260827194050-d051757417a4 h1:pObcbcl2WrOp8Mdw1/vs72xFZX/WAmHYk2GIToeLbBo=
+gitlab.com/ubports/development/core/nuntium v0.0.0-20260827194050-d051757417a4/go.mod h1:FccedFuGf6fPathxJjT5POSHItV2A2imvERNIdoBGdA=
+gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
+gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c/go.mod h1:JHkPIbrfpd72SG/EVd6muEfDQjcINNoR0C8j2r3qZ4Q=

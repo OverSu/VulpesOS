@@ -1,3 +1,4 @@
+import {Input} from './services/input.mjs';
 import { Packages, packageURL } from './services/packages.mjs';
 import { Activities, isGaiaActivity } from './services/activities.mjs';
 import { authorizePlatform } from './services/platform.mjs';
@@ -10,6 +11,8 @@ import { Connections } from './Connections.mjs';
 import { Alarms } from './Alarms.mjs';
 const peers = new Set();
 let activities, packages;
+const input = new Input({identity:peer=>peer.app,broadcast});
+let editSequence=0;
 const nativePackages=(operation,data={})=>browser.runtime.sendNativeMessage('vulpes',{type:'packages.'+operation,...data}).then(JSON.parse);
 async function refreshInstalled(){const installed=await nativePackages('list');apps.splice(0,apps.length,...apps.filter(a=>!a.installed),...installed);}
 let apps, values, settings, dataStores, contacts, messages, connections, alarms, storage;
@@ -31,7 +34,7 @@ function grants(app) {
 function broadcast(type, data, target) {
   for (const peer of peers) {
     if (target && peer.app.id !== target) continue;
-    if (type === 'settingchange' && data.key !== 'language.current' && !grants(peer.app).includes('settings.read')) continue;
+    if (type === 'settingchange' && !['language.current', 'vulpes.theme'].includes(data.key) && !grants(peer.app).includes('settings.read')) continue;
     if (
       type === 'contactchange' &&
       !peer.app.manifest.permissions?.contacts?.access?.includes('read')
@@ -90,6 +93,7 @@ const ready = (async () => {
     await browser.storage.local.set({ settings: values });
   }
   activities = new Activities({identity,apps:()=>apps,notify,uuid:()=>crypto.randomUUID(),
+    choose:data=>broadcast('activity-choice',data,'system'),
     launch:(target,path,{reload=false,entryPoint}={})=>launch(target,entryPoint,path,reload)});
   let writes = Promise.resolve();
   settings = new SettingsService(
@@ -100,7 +104,12 @@ const ready = (async () => {
           const next = { ...values, ...Object.fromEntries(entries) };
           await browser.storage.local.set({ settings: next });
           values = next;
-          for (const [key, value] of entries) broadcast('settingchange', { key, value });
+          for (const [key, value] of entries) {
+            broadcast('settingchange', { key, value });
+            if(key==='keyboard.gaia.enabled') {
+              input.hide();broadcast('input-mode',{enabled:value===true});
+            }
+          }
         });
         writes = write.catch(() => {});
         return write;
@@ -302,6 +311,9 @@ async function handle(peer, request) {
     }
     if (!Object.keys(params.values).length) return null;
   }
+  if (method === 'input.config') return values['keyboard.gaia.enabled'] === true;
+  if (method === 'input.request') return input.request(peer,params);
+  if (method === 'appearance.current') return values['vulpes.theme'] || 'light';
   if (method === 'locale.current') return values['language.current'] || 'en-US';
   if (method === 'settings.snapshot') {
     if (!grants(app).includes('settings.read')) throw Error('PERMISSION_DENIED');
@@ -357,6 +369,7 @@ async function handle(peer, request) {
     return null;
   }
   if (method === 'activities.cancel') return activities.cancel(peer);
+  if (method === 'activities.select') return activities.select(peer,params);
   if (method === 'activities.subscribe') return activities.subscribe(peer);
   if (method === 'activities.finish') return activities.finish(peer,params);
   if (method === 'activities.start' && isGaiaActivity(params)) return activities.start(peer,params);
@@ -412,6 +425,7 @@ async function handle(peer, request) {
     return null;
   }
   if (method === 'desktop.wakelock') return null; // Android Activity owns the visible screen.
+  if (method === 'storage.stats') {if(app.id!=='settings')throw Error('PERMISSION_DENIED');return android('storage',{});}
   if (method === 'media.request') return media(app, params);
   throw Error('METHOD_NOT_SUPPORTED');
 }
@@ -449,6 +463,15 @@ browser.runtime.onConnect.addListener((port) => {
       app,
       manager: { documentURI: { spec: url.href } },
       sendAsyncMessage: (_, event) => notify(peer, event.type, event.data),
+      edits: new Map(),
+      sendQuery(_, params) {
+        const id=++editSequence;
+        return new Promise((resolve,reject)=>{
+          const timer=setTimeout(()=>{peer.edits.delete(id);reject(Error('INPUT_CONTEXT_EXPIRED'));},5000);
+          peer.edits.set(id,{resolve,reject,timer});
+          port.postMessage({edit:{id,params}});
+        });
+      },
     };
     peers.add(peer);
   });
@@ -456,6 +479,16 @@ browser.runtime.onConnect.addListener((port) => {
     let reply;
     try {
       await attached;
+      if(Object.hasOwn(message,'inputFocus')) {
+        if(values['keyboard.gaia.enabled']===true) input.changed(peer,message.inputFocus);
+        return;
+      }
+      if(Object.hasOwn(message,'editReply')) {
+        const edit=peer.edits.get(message.editReply);
+        if(edit) {clearTimeout(edit.timer);peer.edits.delete(message.editReply);
+          if(message.error)edit.reject(Error(message.error));else edit.resolve(message.result);}
+        return;
+      }
       reply = { result: await handle(peer, message.request) };
     } catch (e) {
       reply = { error: { code: e.message || 'HOST_ERROR' } };
@@ -469,6 +502,9 @@ browser.runtime.onConnect.addListener((port) => {
     attached
       .then(() => {
         peers.delete(peer);
+        input.cleanup(peer);
+        for(const edit of peer.edits.values()) {clearTimeout(edit.timer);edit.reject(Error('INPUT_CONTEXT_EXPIRED'));}
+        peer.edits.clear();
         if (peer.app.id === 'system' && ![...peers].some((p) => p.app.id === 'system'))
           systemReady = false;
         activities.cleanup(peer);

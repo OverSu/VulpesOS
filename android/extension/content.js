@@ -25,7 +25,23 @@
     });
   }
   function onMessage(message) {
+    if (message.edit) {
+      try {
+        const result=editor.edit(message.edit.params);
+        result.inputMode=originalModes.get(editor.inputElement) ||
+          (editor.inputElement.classList.contains('recipient')?'tel':'');
+        port.postMessage({editReply:message.edit.id, result});
+      }
+      catch (error) { port.postMessage({editReply:message.edit.id, error:String(error.message)}); }
+      return;
+    }
     if (message.event) {
+      if(message.event.type==='input-mode') {
+        gaiaKeyboard=message.event.data.enabled===true;
+        if(!gaiaKeyboard) restoreMode();
+        win.VulpesNativeInput=gaiaKeyboard;
+        win.dispatchEvent(new window.Event('vulpes-input-configured'));
+      }
       win.dispatchEvent(
         new window.CustomEvent('vulpes-service-event', { detail: cloneInto(message.event, win) }),
       );
@@ -50,6 +66,45 @@
     }, 1000);
   }
   connect();
+  const editor = new InputEditor(window);
+  let gaiaKeyboard = false;
+  const originalModes = new WeakMap();
+  function restoreMode() {
+    const field = editor.inputElement;
+    if (!field || !originalModes.has(field)) return;
+    const value = originalModes.get(field);
+    if (value === null) field.removeAttribute('inputmode');
+    else field.setAttribute('inputmode', value);
+    originalModes.delete(field);
+  }
+  request({version:1,id:0,method:'input.config',params:{}}).then(reply => {
+    gaiaKeyboard = reply.result === true;
+    win.VulpesNativeInput = gaiaKeyboard;
+    win.dispatchEvent(new window.Event('vulpes-input-configured'));
+  }).catch(error => console.error('Gaia input configuration:', error));
+  for (const type of ['focusin', 'pointerdown', 'click']) addEventListener(type, event => {
+    if (!gaiaKeyboard || editor.editing || location.hostname === 'keyboard.localhost') return;
+    let element = event.target;
+    if (element?.isContentEditable) element=element.closest('[contenteditable=true]') || element;
+    const editable = element?.isContentEditable ||
+      (['input','textarea'].includes(element?.localName) &&
+      !['button','submit','range','checkbox','radio','date','time','datetime-local','file'].includes(element.type));
+    if (!editable || element.disabled || element.readOnly) {
+      if (type === 'click' && !element?.closest?.('[data-vulpes-keep-input]')) port.postMessage({inputFocus:null});
+      return;
+    }
+    if (element !== editor.inputElement) restoreMode();
+    editor.focus(element);
+    if (!originalModes.has(element)) originalModes.set(element, element.getAttribute('inputmode'));
+    // Suppress Android's IME only in this editor; external web pages keep it.
+    element.setAttribute('inputmode', 'none');
+    const state=editor.state();
+    state.inputMode=originalModes.get(element) || (element.classList.contains('recipient')?'tel':'');
+    port.postMessage({inputFocus:state});
+  }, true);
+  addEventListener('visibilitychange', () => {
+    if (document.hidden && gaiaKeyboard) { restoreMode(); port.postMessage({inputFocus:null}); }
+  });
   addEventListener('unload', () => clearTimeout(reconnect));
   exportFunction(request, win.navigator, { defineAs: 'vulpesRequest' });
   const frames = new Map();

@@ -181,33 +181,10 @@ def main():
                 ('SYSTEM_IMAGE=/installed/tundra/images/'+sha+'.ext4\nSYSTEM_IMAGE_SHA='+sha+'\n# A kernel fallback').encode())
             # Bundle UI changes with the boot trial rather than retransferring
             # the entire immutable system image for each CSS/JS adjustment.
-            buffer = io.BytesIO()
-            selected = [*sorted((ROOT.parent/'host').rglob('*')),
-                        *sorted((ROOT.parent/'services').rglob('*.mjs')),
-                        *sorted((ROOT.parent/'assets/webapps/marketplace.gaiamobile.org').rglob('*')),
-                        ROOT.parent/'tools/installed_apps.py',
-                        *sorted((ROOT.parent/'gaia/shared/elements/vulpes-fonts').rglob('*')),
-                        *sorted((ROOT.parent/'overrides').rglob('*')),
-                        ROOT.parent/'assets/webapps/communications.gaiamobile.org/contacts/js/views/form.js',
-                        ROOT.parent/'assets/webapps/communications.gaiamobile.org/contacts/js/contacts.js',
-                        ROOT.parent/'assets/webapps/communications.gaiamobile.org/contacts/js/activities.js',
-                        ROOT.parent/'assets/webapps/search.gaiamobile.org/manifest.webapp',
-                        ROOT.parent/'assets/webapps/homescreen.gaiamobile.org/gaia_build_defer_index.js',
-                        ROOT.parent/'assets/webapps/ringtones.gaiamobile.org/gaia_build_defer_pick.js',
-                        ROOT.parent/'assets/webapps/ringtones.gaiamobile.org/gaia_build_defer_manage.js',
-                        ROOT.parent/'assets/webapps/ringtones.gaiamobile.org/js/tone_player.js',
-                        ROOT.parent/'tools/project.py',
-                        ROOT.parent/'tools/serve-gaia.py',
-                        ROOT.parent/'release.json', ROOT.parent/'tests/ProbeChild.sys.mjs',
-                        ROOT/'droidian/probe.sys.mjs', ROOT/'droidian/session.py']
-            with tarfile.open(fileobj=buffer, mode='w') as archive:
-                for path in selected:
-                    if not path.is_file(): continue
-                    relative = str(path.relative_to(ROOT.parent))
-                    target = 'trial/'+path.name if path in (ROOT/'droidian/probe.sys.mjs', ROOT/'droidian/session.py') else relative
-                    archive.add(path, arcname='opt/vulpes/'+target, filter=owned)
-                    shared_ui[relative] = digest(path)
-            files['shared-ui.tar'] = (0o600, buffer.getvalue())
+            from shared_ui import build_payload
+            payload, shared_ui = build_payload()
+            files['shared-ui.tar'] = (0o600, payload)
+            sources.append(ROOT/'tools/shared_ui.py')
         if state:
             config = ('STATE_IMAGE=/installed/tundra/data/'+state['uuid']+'.ext4\n'
                       'STATE_UUID='+state['uuid']+'\nSTATE_BYTES='+str(state['bytes'])+'\n')

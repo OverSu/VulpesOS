@@ -66,8 +66,11 @@ define(function(require) {
       },
 
       _bindEvents: function() {
-        this._elements.passcodeInput.onkeypress =
-          this._onPasscodeInputKeypress.bind(this);
+        this._elements.passcodeInput.type = 'password';
+        this._elements.passcodeInput.inputMode = 'numeric';
+        this._elements.passcodeInput.maxLength = 8;
+        this._elements.passcodeInput.oninput =
+          this._onPasscodeInput.bind(this);
         this._elements.passcodeContainer.onclick =
           this._onPasscodeContainerClick.bind(this);
       },
@@ -77,37 +80,14 @@ define(function(require) {
         this._elements.passcodeInput.focus();
       },
 
-      _onPasscodeInputKeypress: function(evt) {
-        // key code for key strokes from the keypad are 0 (numbers) and 8
-        // (backspace). Filter out the events that are not from the keypad.
-        var keyCode = evt.keyCode;
-        if (keyCode !== 0 && keyCode !== 8) {
-          return;
+      _onPasscodeInput: function() {
+        // Android IMEs commit text without legacy keypress/charCode events.
+        var value = this._elements.passcodeInput.value.replace(/[^0-9]/g, '').slice(0, 8);
+        this._hideErrorMessage();
+        if (this._elements.panel.dataset.passcodeStatus === 'success') {
+          this._resetPasscodeStatus();
         }
-
-        evt.preventDefault();
-
-        if (this._passcodeBuffer === '') {
-          this._hideErrorMessage();
-        }
-
-        var code = evt.charCode;
-        if (code !== 0 && (code < 0x30 || code > 0x39)) {
-          return;
-        }
-
-        var key = String.fromCharCode(code);
-        if (evt.charCode === 0) {
-          if (this._passcodeBuffer.length > 0) {
-            this._passcodeBuffer = this._getPasscodeBuffer('all');
-            if (this._elements.panel.dataset.passcodeStatus === 'success') {
-              this._resetPasscodeStatus();
-            }
-          }
-        } else if (this._passcodeBuffer.length < 8) {
-          this._passcodeBuffer += key;
-        }
-
+        this._passcodeBuffer = value;
         this._updatePassCodeUI();
         this._processPasscode();
       },
@@ -134,6 +114,7 @@ define(function(require) {
       },
 
       _updatePassCodeUI: function() {
+        this._elements.passcodeInput.value = this._passcodeBuffer;
         for (var i = 0; i < 8; i++) {
           if (i < this._passcodeBuffer.length) {
             this._elements.passcodeDigits[i].dataset.dot = true;

@@ -2,10 +2,34 @@
 """Connect the Sargo Bluetooth HAL to BlueZ; pairing stays user initiated."""
 
 def prepare(root, write):
+    import shutil
+    from pathlib import Path
+    shutil.copy2(Path(__file__).with_name('bluetooth-control.py'),root/'etc/tundra/bluetooth-control.py')
+    write('etc/systemd/system/tundra-bluetooth.service', """[Unit]
+Description=Tundra Bluetooth pairing and discovery broker
+Requires=bluetooth.service
+After=bluetooth.service
+PartOf=bluetooth.service
+[Service]
+ExecStart=/usr/bin/python3 /etc/tundra/bluetooth-control.py
+RuntimeDirectory=tundra-bluetooth
+RuntimeDirectoryMode=0755
+UMask=0077
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+""")
+
     write('etc/dbus-1/system.d/tundra-bluetooth.conf', '''<!DOCTYPE busconfig PUBLIC
  "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
  "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
-<busconfig><policy user="root"><allow own="org.bluez"/><allow send_destination="org.bluez"/></policy></busconfig>
+<busconfig>
+<policy user="root"><allow own="org.bluez"/><allow send_destination="org.bluez"/></policy>
+<policy user="droidian"><allow send_destination="org.bluez"/></policy>
+</busconfig>
 ''')
     write('etc/bluetooth/main.conf', '[General]\nName=Vulpes OS\nDiscoverableTimeout=120\n[Policy]\nAutoEnable=false\n')
     write('etc/systemd/system/tundra-bluebinder.service', '''[Unit]
@@ -31,4 +55,5 @@ After=tundra-bluebinder.service dbus.service
 ''')
     wants = root/'etc/systemd/system/tundra.target.wants'
     wants.mkdir(parents=True, exist_ok=True)
+    (wants/'tundra-bluetooth.service').symlink_to('/etc/systemd/system/tundra-bluetooth.service')
     (wants/'bluetooth.service').symlink_to('/usr/lib/systemd/system/bluetooth.service')
