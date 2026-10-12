@@ -6,17 +6,19 @@ PC, Android (APK) et Tundra/Sargo. Les statuts indiquent des sources en dévelop
 
 <a id="2.7-preview.20"></a>
 
-## 2.7-preview.20 — APK construit · 13 octobre 2026
+## 2.7-preview.20 — APK publié · 13 octobre 2026
 
 - ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Preview 20 réunit les corrections communes depuis l’APK Preview 17 : paramètres Gaia, apparence, sélecteurs, clavier, contacts, Marketplace et médias.
 - ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Photo : enregistrement WebM avec miniature et lecture dans Galerie/Vidéo. Autorisation micro demandée ; commandes adaptées aux capacités du matériel.
 - ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Caméra : changement de capteur, arrêt et reprise fiabilisés. PC et Android utilisent leurs API caméra ; Sargo conserve son adaptateur HAL.
 - ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo : mises à jour Wi-Fi, Bluetooth, appels, SMS/MMS et réglages réseau incluses dans les sources. Les fonctions non raccordées restent indiquées dans les panneaux.
 - ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Changelog : reprise des textes simplifiés FR/EN, badges conservés, filtres PC/APK/Sargo indépendants des titres. Markdown, site et notes de release issus du même JSON.
-- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) APK signé avec la clé des Preview précédentes ; alignement et cohérence des 53 fichiers partagés vérifiés. Validation d’exécution Android en cours.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) APK signé avec la clé des Preview précédentes ; alignement et cohérence des 53 fichiers partagés vérifiés. Exécution de cette Preview sur Android non qualifiée dans cette passe : émulateur Android instable sans accélération KVM.
 - ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Gecko PC/Sargo 156.0.1 ; GeckoView Android 156.0. Gaia 2.7.0. L’APK délègue appels/SMS à Android : il ne remplace pas le système téléphonique Android.
 - ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Preview expérimentale : Compte Mozilla/Sync, localisation distante, extensions Firefox OS et transfert USB restent incomplets. Sargo : aperçu autour de 16 FPS ; son des vidéos et audio téléphonique à qualifier séparément.
 - ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Pixel 3a : Preview 20 r62 démarrée en RAM puis flashée sur boot_a. Empreinte relue identique ; démarrage installé, onze contrôles Gaia et dix contrôles natifs réussis. Données conservées, Wi-Fi connecté et enregistrement LTE observé. Pas de nouvelle conversation audio testée.
+
+[Release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.20)
 
 <a id="development-2026-10-12-video-clock"></a>
 

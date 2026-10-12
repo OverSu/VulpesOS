@@ -6,17 +6,19 @@ Desktop, Android (APK) and Tundra/Sargo. Status indicates development sources, a
 
 <a id="2.7-preview.20"></a>
 
-## 2.7-preview.20 — APK built · 13 October 2026
+## 2.7-preview.20 — APK published · 13 October 2026
 
 - ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Preview 20 brings together shared fixes since APK Preview 17: Gaia settings, appearance, selectors, keyboard, contacts, Marketplace and media.
 - ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) Camera: WebM recording with posters and Gallery/Video playback. Microphone permission requested; controls follow hardware capabilities.
 - ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) Camera: more reliable sensor switching, stopping and resuming. Desktop and Android use their camera APIs; Sargo retains its HAL adapter.
 - ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Sargo: Wi-Fi, Bluetooth, calls, SMS/MMS and network settings updates included in the sources. Unimplemented functions remain identified in their panels.
 - ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) Changelog: simplified French/English text and badges retained; desktop/APK/Sargo filters independent of headings. Markdown, website and release notes generated from one JSON.
-- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) APK signed with the previous Preview key; alignment and consistency of 53 shared files verified. Android runtime validation in progress.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) APK signed with the previous Preview key; alignment and consistency of 53 shared files verified. Android execution of this Preview is not qualified in this pass: unstable Android emulator without KVM acceleration.
 - ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Desktop/Sargo Gecko 156.0.1; Android GeckoView 156.0. Gaia 2.7.0. The APK delegates calls/SMS to Android; it does not replace Android telephony.
 - ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) Experimental Preview: Mozilla account/Sync, remote location, Firefox OS add-ons and USB file transfer remain incomplete. Sargo: preview around 16 fps; recorded sound and call audio require separate qualification.
 - ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) Pixel 3a: Preview 20 r62 RAM-booted, then flashed to boot_a. Matching readback hash; installed startup, eleven Gaia checks and ten native checks passed. Data retained, Wi-Fi connected and LTE registration observed. No new two-way audio call tested.
+
+[Release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.20)
 
 <a id="development-2026-10-12-video-clock"></a>
 
