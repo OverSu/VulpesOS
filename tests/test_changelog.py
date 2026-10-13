@@ -2,6 +2,7 @@
 import copy
 import importlib.util
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -41,8 +42,8 @@ class ChangelogTests(unittest.TestCase):
         self.assertTrue(documents['release-body.md'].startswith(self.source['releases'][self.tag]['summary']))
         for lang in export.LANGUAGES:
             text = documents[f'CHANGELOG.{lang}.md']
-            self.assertIn('## 2.7-preview.14', text)
-            self.assertNotIn('## 2.7-156.0.1 ', text)
+            self.assertIn('## 30/09/2026 : 2.7-preview.14', text)
+            self.assertNotIn('## 2.7-156.0.1', text)
         future = copy.deepcopy(self.source['entries'][0])
         future['id'] = 'future'
         self.source['entries'].insert(0, future)
@@ -62,22 +63,58 @@ class ChangelogTests(unittest.TestCase):
                 export.generate(p, Path(d), Path(d)/'site.json', Path(d)/'releases')
             self.assertFalse((Path(d)/'site.json').exists())
 
-    def test_flat_entry_keeps_explicit_platforms_in_both_languages(self):
+    def test_grouped_entries_keep_explicit_platforms_in_both_languages(self):
         for language in export.LANGUAGES:
             for source, rendered in zip(self.source['entries'], self.languages[language]):
                 self.assertEqual(rendered['platforms'], source['metadata']['platforms'])
                 self.assertEqual(rendered['models'], source['metadata']['models'])
                 self.assertEqual(rendered['status'], source['metadata']['status'])
-                self.assertEqual(rendered['groups'][0]['platforms'], rendered['platforms'])
+                self.assertEqual({p for group in rendered['groups'] for p in group['platforms']},
+                                 set(rendered['platforms']))
+
+    def test_date_first_heading_and_platform_badges(self):
+        for language in export.LANGUAGES:
+            entry = self.languages[language][0]
+            self.assertEqual(entry['id'], '2.7-preview.20')
+            self.assertEqual(entry['date'], '2026-10-13')
+            common = next(g for g in entry['groups'] if g['common'])
+            self.assertEqual(common['platforms'], ['pc', 'apk', 'models'])
+            web = next(g for g in entry['groups'] if g['name'] == 'Web')
+            self.assertEqual(web['platforms'], ['web'])
+            self.assertIn('>Web</span>', web['nameHtml'])
+            self.assertEqual(entry['notes'], '')
+        self.assertEqual(export.group_scope('![Desktop + Sargo](https://example.org/badge)')[1], ['pc', 'models'])
+        with self.assertRaisesRegex(ValueError, 'Unknown platform'):
+            export.group_scope('Unknown')
+
+    def test_tags_alphabetical_in_every_platform_group(self):
+        for entry in self.source['entries']:
+            for lang in export.LANGUAGES:
+                for group in re.split(r'^### ', entry['text'][lang], flags=re.M)[1:]:
+                    tags = re.findall(r'^- !\[([^\]]+)\]', group, re.M)
+                    self.assertTrue(tags, (entry['id'], lang))
+                    self.assertEqual(tags, sorted(tags), (entry['id'], lang))
+                    self.assertLessEqual(set(tags), {'Add', 'Change', 'Fix', 'Note', 'Test'})
+
+    def test_release_summary_follows_the_entry_without_copying_text(self):
+        tag = 'v2.7-preview.20'
+        self.source['entries'][0]['text']['fr'] += '\nA new correction.\n'
+        docs = export.release_documents(self.source, tag)
+        self.assertIn('A new correction.', docs['release-body.md'])
 
     def test_badges_are_images_with_escaped_attributes(self):
-        rendered = export.inline('![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) **Camera**')
+        rendered = export.inline('![Fix](https://example.org/badge.svg) **Camera**')
         self.assertIn('<img class="cl-badge"', rendered)
         self.assertIn('alt="Fix"', rendered)
         self.assertIn('<strong>Camera</strong>', rendered)
         self.assertNotIn('<a ', rendered)
         self.assertNotIn('<img', export.inline('![unsafe](javascript:alert)'))
         self.assertNotIn(' onerror="', export.inline('![\" onerror=\"bad](https://example.org/a.png)'))
+
+    def test_website_badges_do_not_require_external_images(self):
+        rendered = export.inline('![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square)')
+        self.assertEqual(rendered, '<span class="cl-badge" style="background:#52677D">Fix</span>')
+        self.assertNotIn('<script>', export.inline('![<script>](https://img.shields.io/badge/Fix-52677D?style=flat-square)'))
 
     def test_invalid_platform_is_rejected(self):
         self.source['entries'][0]['metadata']['platforms'] = ['unknown']

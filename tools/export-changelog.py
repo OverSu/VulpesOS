@@ -21,6 +21,10 @@ def inline(value):
             return '<strong>' + html.escape(text[2:-2]) + '</strong>'
         if text.startswith('!['):
             label, url = re.fullmatch(r'!\[([^\]]+)\]\(([^)]+)\)', text).groups()
+            badge = re.fullmatch(r'https://img\.shields\.io/badge/[^?]+-([0-9A-Fa-f]{6})\?style=flat-square', url)
+            if badge:
+                # Website badges are text: visible offline, without image-loading delays.
+                return '<span class="cl-badge" style="background:#' + badge[1] + '">' + html.escape(label) + '</span>'
             if url.startswith('https://'):
                 return '<img class="cl-badge" src="' + html.escape(url, quote=True) + '" alt="' + html.escape(label, quote=True) + '" height="20" loading="lazy" style="vertical-align:middle;width:auto">'
             return html.escape(label)
@@ -62,6 +66,22 @@ def parse(path):
     return parse_text(path.read_text())
 
 
+def group_scope(name):
+    """Read platform badges as labels, not as image URLs."""
+    label = re.sub(r'!\[([^\]]+)\]\([^)]+\)', r'\1', name)
+    common = label.startswith(('Commun', 'Shared', 'Toutes les plateformes', 'All Platforms'))
+    if common:
+        return label, ['pc', 'apk', 'models'], True
+    scope = []
+    if re.search(r'\bPC\b|Desktop', label): scope.append('pc')
+    if 'Android' in label: scope.append('apk')
+    if 'Sargo' in label or 'Tundra' in label: scope.append('models')
+    if label == 'Web': scope.append('web')
+    if not scope:
+        raise ValueError('Unknown platform group: ' + label)
+    return label, scope, False
+
+
 def parse_text(markdown):
     entries = []
     months = {name: index for names in (
@@ -71,23 +91,26 @@ def parse_text(markdown):
     for chunk in re.split(r'^## ', markdown, flags=re.MULTILINE)[1:]:
         heading, _, body = chunk.partition('\n')
         if heading.startswith(('Tenue du journal', 'Maintaining this journal')): continue
-        version = re.match(r'\d+\.\d+[.\w-]*', heading)
-        key = version.group() if version else ('development' if heading.startswith(('En développement', 'In development')) else 'history')
+        title = re.sub(r'^\d{2}/\d{2}/\d{4}\s*:\s*', '', heading)
+        version = re.match(r'\d+\.\d+[.\w-]*', title)
+        key = version.group() if version else ('development' if title.startswith(('En développement', 'In development')) else 'history')
         kind = 'version' if version else key
         stamp = re.search(r'(\d{1,2}) ([A-Za-zéû]+) (\d{4})', heading)
         date = None
         if stamp and stamp[2].lower() in months:
             date = f'{stamp[3]}-{months[stamp[2].lower()]:02d}-{int(stamp[1]):02d}'
+        numeric_date = re.match(r'(\d{2})/(\d{2})/(\d{4})\s*:', heading)
+        if numeric_date:
+            date = f'{numeric_date[3]}-{numeric_date[2]}-{numeric_date[1]}'
         names = re.findall(r'^### (.+)', body, re.MULTILINE)
-        platforms = []
-        if any(re.search(r'\bPC\b|Desktop', name) for name in names): platforms.append('pc')
-        if any('Android' in name for name in names): platforms.append('apk')
-        if any('Tundra' in name or 'Sargo' in name for name in names): platforms.append('models')
-        if not platforms:
-            platforms = ['pc', 'apk', 'models'] if any(name.startswith(('Commun', 'Shared')) for name in names) else ['apk']
+        platforms = [p for p in ('pc', 'apk', 'models', 'web')
+                     if any(p in group_scope(name)[1] for name in names)] or ['apk']
         status = 'development' if key == 'development' else 'history' if key == 'history' else 'published' if re.search(r'publi[ée]|published', heading, re.I) else 'built'
         release = re.search(r'^\[Release\]\((https://[^)]+)\)', body, re.MULTILINE)
         body = re.sub(r'^\[Release\]\([^)]+\)\s*', '', body, flags=re.MULTILINE)
+        # The website already displays the status beside the date/version.
+        body = re.sub(r'^!\[(?:Publié|Published|En développement|In development|APK construit · non publié|APK built · not published)\]\([^)]+\)\s*',
+                      '', body, flags=re.MULTILINE)
         parts = re.split(r'^### (.+)\n', body, flags=re.MULTILINE)
         groups = []
         intro = blocks(parts[0].splitlines())
@@ -95,16 +118,11 @@ def parse_text(markdown):
             groups.append({'name': '', 'platforms': platforms, 'common': False, 'html': intro})
             intro = ''
         for name, text in zip(parts[1::2], parts[2::2]):
-            common = name.startswith(('Commun', 'Shared'))
-            scope = platforms if common else []
-            if not common:
-                if re.search(r'\bPC\b|Desktop', name): scope.append('pc')
-                if 'Android' in name: scope.append('apk')
-                if 'Sargo' in name or 'Tundra' in name: scope.append('models')
-                if not scope: scope = ['pc']
+            label, scope, common = group_scope(name)
             # Closing limits belong to the whole entry, not to the last group.
             split = re.split(r'(?=^\*\*(?:Limites|Limitations) :)|(?=^\*\*Limitations:)', text, maxsplit=1, flags=re.MULTILINE)
-            groups.append({'name': name, 'platforms': scope, 'common': common, 'html': blocks(split[0].splitlines())})
+            groups.append({'name': label, 'nameHtml': inline(name), 'platforms': scope,
+                           'common': common, 'html': blocks(split[0].splitlines())})
             if len(split)>1: intro += blocks(split[1].splitlines())
         entries.append({'id': key, 'kind': kind, 'date': date, 'title': heading, 'status': status, 'platforms': platforms,
                         'models': ['sargo'] if 'models' in platforms else [], 'notes': intro,
@@ -148,7 +166,7 @@ def load_source(path):
             require(metadata['status'] in ('development', 'history', 'built', 'published'), 'Invalid entry status: ' + key)
             require(isinstance(metadata['platforms'], list) and bool(metadata['platforms']) and
                     len(set(metadata['platforms'])) == len(metadata['platforms']) and
-                    set(metadata['platforms']) <= {'pc', 'apk', 'models'}, 'Invalid platforms: ' + key)
+                    set(metadata['platforms']) <= {'pc', 'apk', 'models', 'web'}, 'Invalid platforms: ' + key)
             require(isinstance(metadata['models'], list) and
                     all(isinstance(model, str) and re.fullmatch(r'[a-z0-9-]+', model) for model in metadata['models']) and
                     (not metadata['models'] or 'models' in metadata['platforms']), 'Invalid models: ' + key)
@@ -162,6 +180,9 @@ def load_source(path):
                 # Flat changelogs keep scope independently of translated prose.
                 if len(item['groups']) == 1 and not item['groups'][0]['name']:
                     item['groups'][0]['platforms'] = metadata['platforms']
+                else:
+                    require(set(metadata['platforms']) == {p for g in item['groups'] for p in g['platforms']},
+                            'Group/entry platform mismatch: ' + key)
             if item['kind'] == 'version':
                 require(item['id'] == key, 'Version/ID mismatch: ' + key)
             # Development IDs are fixed in the source, independent of order/date.
@@ -188,15 +209,19 @@ def release_documents(source, tag):
     histories = {}
     for lang in LANGUAGES:
         title = 'Historique cumulatif' if lang == 'fr' else 'Cumulative history'
-        note = ('Les sections datées décrivent l’état à chaque étape. Les limites et correctifs ont évolué ; '
-                'consulter la synthèse de la release pour l’état final. Les chemins de documentation désignent '
-                'les sources locales, dont la publication est distincte de cet APK.' if lang == 'fr' else
-                'Dated sections describe each development stage. Limitations and fixes evolved; the release '
-                'summary describes the final state. Documentation paths refer to local sources; source '
-                'publication is separate from this APK.')
+        note = ('Chaque entrée décrit la situation à sa date. Consulter la synthèse de la release pour son état final.'
+                if lang == 'fr' else
+                'Each entry describes the state at its date. See the release summary for its final state.')
         histories[lang] = (f'# {title} — {release["after"]} → {release["version"]}\n\n{note}\n\n' +
                            '\n\n'.join(e['text'][lang].strip() for e in selected) + '\n')
     body = release['summary'].strip() + '\n\n'
+    if release.get('include_entry'):
+        for lang, label in [('fr', '🇫🇷 Français'), ('en', '🇬🇧 English')]:
+            summary = selected[0]['text'][lang].strip()
+            # Historical build status remains in the dated history, not in a published release's summary.
+            summary = re.sub(r'^!\[(?:APK construit · non publié|APK built · not published)\]\([^)]+\)\s*',
+                             '', summary, flags=re.MULTILINE)
+            body += label + '\n\n' + summary + '\n\n'
     for lang, label in [('fr', '🇫🇷 Historique complet, étape par étape'),
                         ('en', '🇬🇧 Full history, stage by stage')]:
         body += f'<details>\n<summary>{label}</summary>\n\n{histories[lang]}\n</details>\n\n'
