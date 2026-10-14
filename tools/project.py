@@ -11,6 +11,11 @@ SOURCE_OVERRIDES = {
     "system": ["js/launcher.js", "js/gaia_scheduler.js", "js/keyboard_manager.js",
                "js/core.js", "js/rocketbar.js"],
     "communications": ["dialer/js/telephony_helper.js"],
+    "settings": ["js/modules/storage_helper.js", "js/startup.js"],
+    "keyboard": ["js/settings/layout_dictionary_downloader.js"] + [
+        str(path.relative_to(ROOT / "gaia/apps/keyboard"))
+        for path in sorted((ROOT / "gaia/apps/keyboard/js/imes/latin/dictionaries").glob("*.dict"))
+    ],
 }
 
 

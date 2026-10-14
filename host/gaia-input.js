@@ -55,8 +55,15 @@
       ime.dispatchEvent(new Event('inputcontextchange'));
     };
     Object.defineProperty(navigator,'mozInputMethod',{value:ime});
-    addEventListener('vulpes-service-event',({detail})=>{if(detail.type==='input-focus')setState(detail.data);});
-    call('input.request',{operation:'state'}).then(setState).catch(console.error);
+    let focusReceived=false;
+    addEventListener('vulpes-service-event',({detail})=>{
+      if(detail.type==='input-focus') {focusReceived=true;setState(detail.data);}
+    });
+    // A focus event can arrive while the initial state request is in flight.
+    // Its older snapshot must not clear or reopen the newer input context.
+    call('input.request',{operation:'state'}).then(state=>{
+      if(!focusReceived)setState(state);
+    }).catch(console.error);
     window.resizeTo=(_width,height)=>call('input.request',{operation:'height',height}).catch(console.error);
   }
   if(app==='system') {

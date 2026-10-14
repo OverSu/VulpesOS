@@ -29,6 +29,8 @@ class RDP:
         while True:
             r = self.recv()
             self.events.append(r)
+            if str(r.get("type", "")).endswith("ListChanged"):
+                continue
             if r.get("from") == to and (r.get("type") not in ["consoleAPICall", "pageError"]):
                 return r
 

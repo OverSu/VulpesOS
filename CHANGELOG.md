@@ -4,6 +4,31 @@
 
 Les nouveautés, par date et par plateforme. Dans chaque groupe : Add, Change, Fix, Note, Test. Les entrées décrivent la situation à leur date ; une correction en développement nécessite une nouvelle version installée.
 
+<a id="2.7-preview.21"></a>
+
+## 14/10/2026 : 2.7-preview.21
+
+![APK publié](https://img.shields.io/badge/APK%20publi%C3%A9-2F855A?style=flat-square)
+
+### ![Toutes les plateformes](https://img.shields.io/badge/Toutes%20les%20plateformes-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Affichage](https://img.shields.io/badge/Affichage-475569?style=flat-square) : Messages des fonctions indisponibles plus lisibles en thèmes clair et sombre.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Clavier](https://img.shields.io/badge/Clavier-475569?style=flat-square) : Dictionnaires supplémentaires disponibles hors ligne ; activation et reprise du clavier Gaia fiabilisées. La vérification sur les appareils concernés reste nécessaire.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Journal d’appels](https://img.shields.io/badge/Journal%20d%E2%80%99appels-475569?style=flat-square) : Affichage du nom des contacts rétabli au premier chargement du journal.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Paramètres](https://img.shields.io/badge/Param%C3%A8tres-475569?style=flat-square) : Panneaux Stockage rétablis. Une erreur de chargement ne bloque plus les autres menus.
+
+### ![Android / APK](https://img.shields.io/badge/Android%20%2F%20APK-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Données Android](https://img.shields.io/badge/Donn%C3%A9es%20Android-475569?style=flat-square) : Lecture des contacts, SMS et journaux Android dans Gaia, après autorisation. Les données locales de Vulpes sont conservées.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Marketplace](https://img.shields.io/badge/Marketplace-475569?style=flat-square) : Retour vers Vulpes sans écran blanc persistant ; un catalogue fermé peut être rouvert.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Clavier](https://img.shields.io/badge/Clavier-475569?style=flat-square) : Le rectangle blanc signalé reste à reproduire sur les appareils concernés.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Données Android](https://img.shields.io/badge/Donn%C3%A9es%20Android-475569?style=flat-square) : Première étape en lecture seule, hors MMS. Envoi et édition des données Android dans les applications Android ; les nouveaux contacts Gaia restent locaux. Accès SMS et journal selon les autorisations de la ROM et de l’installateur. Essais sur Android 9 ; autres versions à confirmer.
+
+### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Les corrections communes de Gaia sont incluses dans les images complètes et les mises à jour de démarrage.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Nouvelle image d’installation construite ; démarrage et flash sur Pixel à vérifier avant publication.
+
 <a id="2.7-preview.20"></a>
 
 ## 13/10/2026 : 2.7-preview.20

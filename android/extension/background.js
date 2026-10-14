@@ -1,3 +1,4 @@
+import {AndroidPersonalData, authorizePersonal} from './personal-data.mjs';
 import {Input} from './services/input.mjs';
 import { Packages, packageURL } from './services/packages.mjs';
 import { Activities, isGaiaActivity } from './services/activities.mjs';
@@ -15,7 +16,7 @@ const input = new Input({identity:peer=>peer.app,broadcast});
 let editSequence=0;
 const nativePackages=(operation,data={})=>browser.runtime.sendNativeMessage('vulpes',{type:'packages.'+operation,...data}).then(JSON.parse);
 async function refreshInstalled(){const installed=await nativePackages('list');apps.splice(0,apps.length,...apps.filter(a=>!a.installed),...installed);}
-let apps, values, settings, dataStores, contacts, messages, connections, alarms, storage;
+let apps, values, settings, dataStores, contacts, messages, connections, alarms, storage, personal;
 const identity = (peer) => peer.app;
 function notify(peer, type, data) {
   try {
@@ -121,6 +122,7 @@ const ready = (async () => {
   contacts = new Contacts(storage, (data) => broadcast('contactchange', data));
   await contacts.init();
   messages = new Messages(storage);
+  personal = new AndroidPersonalData(params=>android("personal",params), contacts, messages, storage);
   dataStores = new DataStoreService(apps, storage, (data) => broadcast('datastorechange', data));
   connections = new Connections(identity, notify);
   alarms = new Alarms(
@@ -140,6 +142,7 @@ const ready = (async () => {
 })();
 // Java owns this port. Web pages have no access to native messaging.
 let native;
+let activeWebView;
 let systemReady = false;
 let pendingScreenLock = false;
 function deliverScreenLock() {
@@ -163,15 +166,26 @@ function connectNative() {
   native.onDisconnect.addListener(() => setTimeout(connectNative, 1000));
   native.onMessage.addListener(async (message) => {
     await ready;
+    if (message.type === 'browser-closed' && activeWebView) {
+      const {peer, contextId} = activeWebView;
+      activeWebView = null;
+      notify(peer, 'view', {contextId, type:'close', detail:{}});
+    }
     if (['home', 'holdhome'].includes(message.type)) broadcast(message.type, {}, 'system');
     if (message.type === 'android-screen-off') {
       pendingScreenLock = true;
       deliverScreenLock();
     }
+    if (message.type === 'android-data-changed') {
+      broadcast('android-data-changed', {kind:message.kind}, message.kind === 'sms' ? 'sms' : 'communications');
+    }
     if (message.type === 'android-resume') {
       deliverScreenLock();
       broadcast('screen-on', {}, 'system');
       await refreshAndroid().catch(console.warn);
+      broadcast('android-data-changed', {kind:'contacts'}, 'communications');
+      broadcast('android-data-changed', {kind:'calls'}, 'communications');
+      broadcast('android-data-changed', {kind:'sms'}, 'sms');
     }
     if (message.type === 'notification-click') {
       pendingNotification = message.data;
@@ -214,6 +228,12 @@ async function handle(peer, request) {
   if (method.startsWith('platform.')) {
     authorizePlatform(app, method.slice(9), params);
     method = 'android.' + method.slice(9);
+  }
+  if (method === 'android.personal') {
+    authorizePersonal(app, params.kind, params.operation);
+    if (params.operation === 'page') return personal.rows(params.kind);
+    if (!['status','permission','disconnect','open'].includes(params.operation)) throw Error('METHOD_NOT_SUPPORTED');
+    return android('personal', params);
   }
   if (method === 'android.capabilities') {
     const release = await (await fetch('release.json')).json();
@@ -355,8 +375,8 @@ async function handle(peer, request) {
   }
   if (method === 'datastores.list') return dataStores.list(app, params.name);
   if (method === 'datastores.run') return dataStores.run(app, params);
-  if (method === 'contacts.request') return contacts.request(app, params);
-  if (method === 'messages.request') return messages.request(app, params);
+  if (method === 'contacts.request') return personal.contactRequest(app, params);
+  if (method === 'messages.request') return personal.messageRequest(app, params);
   if (method === 'alarms.request') return alarms.request(peer, app, params);
   if (method === 'iac.subscribe') {
     connections.subscribe(peer);
@@ -397,6 +417,7 @@ async function handle(peer, request) {
       throw Error('PERMISSION_DENIED');
     if (params.operation === 'open') {
       await openWeb(params.url);
+      activeWebView = {peer, contextId:params.contextId};
       notify(peer, 'view', {
         contextId: params.contextId,
         type: 'loadend',
@@ -502,6 +523,7 @@ browser.runtime.onConnect.addListener((port) => {
     attached
       .then(() => {
         peers.delete(peer);
+        if (activeWebView?.peer === peer) activeWebView = null;
         input.cleanup(peer);
         for(const edit of peer.edits.values()) {clearTimeout(edit.timer);edit.reject(Error('INPUT_CONTEXT_EXPIRED'));}
         peer.edits.clear();

@@ -37,10 +37,8 @@
     }
     if (message.event) {
       if(message.event.type==='input-mode') {
-        gaiaKeyboard=message.event.data.enabled===true;
-        if(!gaiaKeyboard) restoreMode();
-        win.VulpesNativeInput=gaiaKeyboard;
-        win.dispatchEvent(new window.Event('vulpes-input-configured'));
+        inputConfigurationRevision++;
+        configureInput(message.event.data.enabled===true);
       }
       win.dispatchEvent(
         new window.CustomEvent('vulpes-service-event', { detail: cloneInto(message.event, win) }),
@@ -53,6 +51,8 @@
     callback.resolve(cloneInto(message.reply, win));
   }
   function onDisconnect() {
+    inputConfigurationRevision++;
+    configureInput(false);
     for (const callback of pending.values())
       callback.reject(new window.Error('VULPES_HOST_CLOSED'));
     pending.clear();
@@ -60,14 +60,15 @@
     reconnect = setTimeout(() => {
       try {
         connect();
+        refreshInputConfiguration();
       } catch (_) {
         onDisconnect();
       }
     }, 1000);
   }
-  connect();
   const editor = new InputEditor(window);
   let gaiaKeyboard = false;
+  let inputConfigurationRevision = 0;
   const originalModes = new WeakMap();
   function restoreMode() {
     const field = editor.inputElement;
@@ -77,21 +78,27 @@
     else field.setAttribute('inputmode', value);
     originalModes.delete(field);
   }
-  request({version:1,id:0,method:'input.config',params:{}}).then(reply => {
-    gaiaKeyboard = reply.result === true;
+  function configureInput(enabled) {
+    gaiaKeyboard = enabled;
+    if(!enabled) restoreMode();
     win.VulpesNativeInput = gaiaKeyboard;
     win.dispatchEvent(new window.Event('vulpes-input-configured'));
-  }).catch(error => console.error('Gaia input configuration:', error));
-  for (const type of ['focusin', 'pointerdown', 'click']) addEventListener(type, event => {
-    if (!gaiaKeyboard || editor.editing || location.hostname === 'keyboard.localhost') return;
-    let element = event.target;
+    if(enabled && !document.hidden && document.hasFocus()) reportFocus(document.activeElement);
+  }
+  function refreshInputConfiguration() {
+    const revision = inputConfigurationRevision;
+    request({version:1,id:0,method:'input.config',params:{}}).then(reply => {
+      if(revision===inputConfigurationRevision) configureInput(reply.result===true);
+    }).catch(error => console.error('Gaia input configuration:', error));
+  }
+  function reportFocus(element) {
+    if (!gaiaKeyboard || editor.editing || location.hostname === 'keyboard.localhost') return false;
     if (element?.isContentEditable) element=element.closest('[contenteditable=true]') || element;
     const editable = element?.isContentEditable ||
       (['input','textarea'].includes(element?.localName) &&
       !['button','submit','range','checkbox','radio','date','time','datetime-local','file'].includes(element.type));
     if (!editable || element.disabled || element.readOnly) {
-      if (type === 'click' && !element?.closest?.('[data-vulpes-keep-input]')) port.postMessage({inputFocus:null});
-      return;
+      return false;
     }
     if (element !== editor.inputElement) restoreMode();
     editor.focus(element);
@@ -101,9 +108,18 @@
     const state=editor.state();
     state.inputMode=originalModes.get(element) || (element.classList.contains('recipient')?'tel':'');
     port.postMessage({inputFocus:state});
+    return true;
+  }
+  connect();
+  refreshInputConfiguration();
+  for (const type of ['focusin', 'pointerdown', 'click']) addEventListener(type, event => {
+    if (!gaiaKeyboard || editor.editing || location.hostname === 'keyboard.localhost') return;
+    if (!reportFocus(event.target) && type === 'click' &&
+        !event.target?.closest?.('[data-vulpes-keep-input]')) port.postMessage({inputFocus:null});
   }, true);
   addEventListener('visibilitychange', () => {
     if (document.hidden && gaiaKeyboard) { restoreMode(); port.postMessage({inputFocus:null}); }
+    else if (gaiaKeyboard && document.hasFocus()) reportFocus(document.activeElement);
   });
   addEventListener('unload', () => clearTimeout(reconnect));
   exportFunction(request, win.navigator, { defineAs: 'vulpesRequest' });

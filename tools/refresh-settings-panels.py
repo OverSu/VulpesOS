@@ -12,6 +12,7 @@ modules = [
     ('panels/wifi/wifi_network_list', 'js/panels/wifi/panel.js'),
     ('modules/page_transitions', 'js/main.js'),
     ('modules/settings_service', 'js/main.js'),
+    ('modules/panel_cache', 'js/main.js'),
     ('modules/dialog_service', 'js/modules/dialog_service.js'),
     ('modules/dialog_manager', 'js/modules/dialog_service.js'),
     ('modules/date_time', 'js/modules/date_time.js'),

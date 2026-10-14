@@ -4,6 +4,31 @@
 
 Updates by date and platform. Within each group: Add, Change, Fix, Note, Test. Entries describe the state at their date; a fix in development requires an updated installed version.
 
+<a id="2.7-preview.21"></a>
+
+## 14/10/2026 : 2.7-preview.21
+
+![APK published](https://img.shields.io/badge/APK%20published-2F855A?style=flat-square)
+
+### ![All Platforms](https://img.shields.io/badge/All%20Platforms-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Appearance](https://img.shields.io/badge/Appearance-475569?style=flat-square) : Unavailable-feature messages are easier to read in light and dark themes.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Call history](https://img.shields.io/badge/Call%20history-475569?style=flat-square) : Contact names now appear when the call history first loads.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Keyboard](https://img.shields.io/badge/Keyboard-475569?style=flat-square) : Additional dictionaries available offline; improved Gaia keyboard activation and recovery. Verification on affected devices is still needed.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Settings](https://img.shields.io/badge/Settings-475569?style=flat-square) : Storage panels restored. A loading error no longer locks the other menus.
+
+### ![Android / APK](https://img.shields.io/badge/Android%20%2F%20APK-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Android data](https://img.shields.io/badge/Android%20data-475569?style=flat-square) : Read Android contacts, SMS and call history in Gaia after granting access. Existing local Vulpes data is preserved.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Marketplace](https://img.shields.io/badge/Marketplace-475569?style=flat-square) : Return to Vulpes without a persistent white overlay; a closed catalogue can be reopened.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Keyboard](https://img.shields.io/badge/Keyboard-475569?style=flat-square) : The reported blank keyboard still needs reproduction on the affected devices.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Android data](https://img.shields.io/badge/Android%20data-475569?style=flat-square) : First, read-only integration, excluding MMS. Sending and editing Android records use Android apps; new Gaia contacts stay local. SMS and call log access depend on ROM and installer permissions. Tested on Android 9; other versions need verification.
+
+### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Shared Gaia fixes are included in full installation images and boot updates.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : New installation image built; Pixel boot and flashing must be tested before publication.
+
 <a id="2.7-preview.20"></a>
 
 ## 13/10/2026 : 2.7-preview.20

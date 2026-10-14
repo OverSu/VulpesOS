@@ -9,10 +9,9 @@ var LayoutDictionaryDownloader = function(imEngineId, dictFilename) {
   this._xhr = null;
 };
 
-// Remote URLs to download the data. We require the remote server to have
-// CORS turned on since we are not asking for SystemXHR permission.
+// Dictionaries ship with Vulpes so adding a layout also works offline.
 LayoutDictionaryDownloader.prototype.REMOTE_URL =
-  'https://fxos.cdn.mozilla.net/dictionaries/%imEngineId/%ver/%dictFilename';
+  '/js/imes/%imEngineId/dictionaries/%dictFilename';
 
 // If the data schema changes in an incompatible way, we must bump the
 // version-to-download here.

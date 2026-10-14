@@ -2,7 +2,7 @@
 """Reject stale Android payloads and inconsistent common release metadata."""
 
 import argparse, contextlib, hashlib, io, json, re, zipfile
-from project import ROOT, release_info
+from project import ROOT, release_info, SOURCE_OVERRIDES
 
 p = argparse.ArgumentParser()
 group = p.add_mutually_exclusive_group()
@@ -72,6 +72,7 @@ with source as archive:
             assert actual == expected.encode(), "Stale Android Gaia panel: " + path
             results[app + "/" + path] = hashlib.sha256(actual).hexdigest()
         for app, path, source in [
+            ("keyboard", "gaia_build_defer_settings.js", "overrides"),
             ("calendar", "gaia_build_defer_index.js", "overrides"),
             ("calendar", "js/bundle.js", "overrides"),
             ("gallery", "js/metadata_scripts.js", "overrides"),
@@ -94,6 +95,13 @@ with source as archive:
             actual = gaia.read(app + "/" + path)
             assert actual == expected, "Stale application workflow: " + app + "/" + path
             results[app + "/" + path] = hashlib.sha256(actual).hexdigest()
+        for app in ("keyboard", "settings"):
+            for name in SOURCE_OVERRIDES[app]:
+                expected = (ROOT / "gaia/apps" / app / name).read_bytes()
+                if name.endswith(".js"):
+                    expected = translate(expected.decode()).encode()
+                assert gaia.read(app + "/" + name) == expected, "Stale shared source: " + app + "/" + name
+                results[app + "/" + name] = hashlib.sha256(expected).hexdigest()
         helper = "dialer/js/telephony_helper.js"
         expected = translate((ROOT / "gaia/apps/communications" / helper).read_text()).encode()
         assert gaia.read("communications/" + helper) == expected, "Stale call-log dial helper"

@@ -24,6 +24,7 @@ final class AndroidServices {
     CONTACT = 412;
   static final long MAX_MEDIA = 32L * 1024 * 1024;
   final VulpesApplication app;
+  final AndroidPersonalData personal;
   final ExecutorService io = Executors.newSingleThreadExecutor();
   final Handler main = new Handler(Looper.getMainLooper());
   GeckoResult<Object> pending;
@@ -31,6 +32,7 @@ final class AndroidServices {
 
   AndroidServices(VulpesApplication app) {
     this.app = app;
+    personal = new AndroidPersonalData(app);
   }
 
   GeckoResult<Object> request(JSONObject message) {
@@ -40,6 +42,30 @@ final class AndroidServices {
       JSONObject p = message.optJSONObject("params");
       if (p == null) p = new JSONObject();
       switch (op) {
+        case "android.personal":
+          JSONObject personalParams = p;
+          String operation = p.optString("operation");
+          if (operation.equals("permission")) {
+            String kind = p.getString("kind");
+            activity().permission(new String[]{AndroidPersonalData.permission(kind)}, granted -> {
+              try { personal.enable(kind, granted); result.complete(personal.status()); } catch (Exception e) { fail(result, e); }
+            });
+          } else if (operation.equals("status")) result.complete(personal.status());
+          else if (operation.equals("disconnect")) {
+            personal.enable(p.getString("kind"), false);
+            result.complete(personal.status());
+          }
+          else if (operation.equals("open")) {
+            activity().startActivity(personal.open(p));
+            result.complete(null);
+          } else if (operation.equals("page")) io.execute(() -> {
+            try {
+              JSONObject data = personal.page(personalParams);
+              main.post(() -> result.complete(data));
+            } catch (Exception e) { fail(result, e); }
+          });
+          else throw new IllegalArgumentException("METHOD_NOT_SUPPORTED");
+          break;
         case "android.notification":
           JSONObject request = p;
           if (p.optString("operation").equals("permission")) {

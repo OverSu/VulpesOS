@@ -74,7 +74,7 @@ class ChangelogTests(unittest.TestCase):
 
     def test_date_first_heading_and_platform_badges(self):
         for language in export.LANGUAGES:
-            entry = self.languages[language][0]
+            entry = next(e for e in self.languages[language] if e['id'] == '2.7-preview.20')
             self.assertEqual(entry['id'], '2.7-preview.20')
             self.assertEqual(entry['date'], '2026-10-13')
             common = next(g for g in entry['groups'] if g['common'])
@@ -98,7 +98,7 @@ class ChangelogTests(unittest.TestCase):
 
     def test_release_summary_follows_the_entry_without_copying_text(self):
         tag = 'v2.7-preview.20'
-        self.source['entries'][0]['text']['fr'] += '\nA new correction.\n'
+        next(e for e in self.source['entries'] if e['id'] == '2.7-preview.20')['text']['fr'] += '\nA new correction.\n'
         docs = export.release_documents(self.source, tag)
         self.assertIn('A new correction.', docs['release-body.md'])
 

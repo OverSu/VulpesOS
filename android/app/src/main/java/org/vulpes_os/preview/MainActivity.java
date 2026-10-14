@@ -82,8 +82,8 @@ public final class MainActivity extends Activity {
     webPanel.addView(nav, new LinearLayout.LayoutParams(-1, dp(52)));
     Button back = new Button(this);
     back.setText("‹");
-    back.setContentDescription("Retour au bureau");
-    back.setOnClickListener(v -> closeBrowser());
+    back.setContentDescription("Retour");
+    back.setOnClickListener(v -> back());
     nav.addView(back, new LinearLayout.LayoutParams(dp(55), -1));
     address = new EditText(this);
     address.setSingleLine(true);
@@ -99,6 +99,9 @@ public final class MainActivity extends Activity {
       return true;
     });
     webView = new GeckoView(this);
+    // The web panel is layered over Gaia and hidden when returning to an app.
+    // A TextureView follows that visibility without leaving a separate surface.
+    webView.setViewBackend(GeckoView.BACKEND_TEXTURE_VIEW);
     webPanel.addView(webView, new LinearLayout.LayoutParams(-1, 0, 1));
     home = new Button(this);
     home.setText("◯");
@@ -297,10 +300,12 @@ public final class MainActivity extends Activity {
   }
 
   void closeBrowser() {
+    boolean wasVisible = webPanel.getVisibility() == View.VISIBLE;
     webPanel.setVisibility(View.GONE);
     gaiaView.setVisibility(View.VISIBLE);
     setHomeSurface(app.homeVisible);
     syncActive();
+    if (wasVisible) app.browserClosed();
   }
 
   private void back() {
@@ -470,7 +475,7 @@ public final class MainActivity extends Activity {
     else callback.accept(granted);
   }
 
-  private void permission(String[] names, java.util.function.Consumer<Boolean> callback) {
+  void permission(String[] names, java.util.function.Consumer<Boolean> callback) {
     boolean granted = true;
     for (String name : names)
       granted &= checkSelfPermission(name) == PackageManager.PERMISSION_GRANTED;

@@ -223,10 +223,124 @@ break;}
 var cset={};cset[key]=value;_settings.createLock().set(cset);}};});define('modules/settings_panel',['require','modules/panel','modules/settings_cache','modules/panel_utils'],function(require){'use strict';var Panel=require('modules/panel');var SettingsCache=require('modules/settings_cache');var PanelUtils=require('modules/panel_utils');var _emptyFunc=function panel_emptyFunc(){};var SettingsPanel=function ctor_SettingsPanel(options){var _panel=null;var _settingsChangeHandler=function(event){PanelUtils.onSettingsChange(_panel,event);};var _addListeners=function panel_addListeners(panel){if(!panel){return;}
 SettingsCache.addEventListener('settingsChange',_settingsChangeHandler);panel.addEventListener('change',PanelUtils.onInputChange);panel.addEventListener('click',PanelUtils.onLinkClick);};var _removeListeners=function panel_removeListeners(panel){if(!panel){return;}
 SettingsCache.removeEventListener('settingsChange',_settingsChangeHandler);panel.removeEventListener('change',PanelUtils.onInputChange);panel.removeEventListener('click',PanelUtils.onLinkClick);};options=options||{};options.onInit=options.onInit||_emptyFunc;options.onUninit=options.onUninit||_emptyFunc;options.onShow=options.onShow||_emptyFunc;options.onHide=options.onHide||_emptyFunc;options.onBeforeShow=options.onBeforeShow||_emptyFunc;options.onBeforeHide=options.onBeforeHide||_emptyFunc;return Panel({onInit:function(panel,initOptions){if(!panel){return;}
-_panel=panel;PanelUtils.activate(panel);return options.onInit(panel,initOptions);},onUninit:function(){_removeListeners(_panel);_panel=null;options.onUninit();},onShow:function(panel,showOptions){return options.onShow(panel,showOptions);},onHide:function(){_removeListeners(_panel);return options.onHide();},onBeforeShow:function(panel,beforeShowOptions){PanelUtils.preset(panel);_addListeners(panel);return options.onBeforeShow(panel,beforeShowOptions);},onBeforeHide:function(){return options.onBeforeHide();}});};return SettingsPanel;});define('modules/panel_cache',['require','modules/settings_panel','shared/lazy_loader'],function(require){'use strict';var SettingsPanel=require('modules/settings_panel');var LazyLoader=require('shared/lazy_loader');var _panelCache={};var _panelStylesheetsLoaded=false;var _loadPanelStylesheetsIfNeeded=function loadPanelCSS(){if(_panelStylesheetsLoaded){return;}
-LazyLoader.load(['shared/style/action_menu.css','shared/style/confirm.css','shared/style/progress_activity.css','shared/elements/gaia-icons/bidi-helper.css','shared/elements/gaia_buttons/script.js','shared/elements/gaia_confirm/script.js','style/homescreens.css','style/apps.css','style/screen_lock.css','style/simcard.css','style/updates.css','style/downloads.css','style/developer_service_workers.css'],function callback(){_panelStylesheetsLoaded=true;});};navigator.addIdleObserver({time:3,onidle:_loadPanelStylesheetsIfNeeded});return{reset:function spc_reset(){_panelCache={};_panelStylesheetsLoaded=false;},get:function spc_get(panelId,callback){if(!panelId&&!callback){return;}
-if(panelId!=='root'){_loadPanelStylesheetsIfNeeded();}
-var cachedPanel=_panelCache[panelId];if(cachedPanel){if(callback){callback(cachedPanel);}}else{var panelElement=document.getElementById(panelId);if(panelElement){var pathElement=panelElement.querySelector('panel');var path=pathElement?pathElement.dataset.path:null;var panelFuncLoaded=function(panelFunc){var panel=panelFunc();_panelCache[panelId]=panel;if(callback){callback(panel);}};if(path){require([path],function(panelFunc){panelFuncLoaded(panelFunc?panelFunc:SettingsPanel);});}else{panelFuncLoaded(SettingsPanel);}}else{if(callback){callback(null);}}}}};});var ScreenLayout={defaultQueries:{tiny:'(max-width: 767px)',small:'(min-width: 768px) and (max-width: 991px)',medium:'(min-width: 992px) and (max-width: 1200px)',large:'(min-width: 1201px)',hardwareHomeButton:window.VulpesCompat?'(min-width: 0px)':'(-moz-physical-home-button)'},init:function sl_init(){this.queries=(function(qs){var result={};for(var key in qs){result[key]=window.matchMedia(qs[key]);}
+_panel=panel;PanelUtils.activate(panel);return options.onInit(panel,initOptions);},onUninit:function(){_removeListeners(_panel);_panel=null;options.onUninit();},onShow:function(panel,showOptions){return options.onShow(panel,showOptions);},onHide:function(){_removeListeners(_panel);return options.onHide();},onBeforeShow:function(panel,beforeShowOptions){PanelUtils.preset(panel);_addListeners(panel);return options.onBeforeShow(panel,beforeShowOptions);},onBeforeHide:function(){return options.onBeforeHide();}});};return SettingsPanel;});define('modules/panel_cache',["require", "modules/settings_panel", "shared/lazy_loader"],function(require) {
+    'use strict';
+
+    var SettingsPanel = require('modules/settings_panel');
+    var LazyLoader = require('shared/lazy_loader');
+
+    var _panelCache = {};
+    var _panelStylesheetsLoaded = false;
+
+    // experiment result shows
+    // load all related styles once is time saver
+    var _loadPanelStylesheetsIfNeeded = function loadPanelCSS() {
+      if (_panelStylesheetsLoaded) {
+        return;
+      }
+
+      LazyLoader.load(['shared/style/action_menu.css',
+                       'shared/style/confirm.css',
+                       'shared/style/progress_activity.css',
+                       'shared/elements/gaia-icons/bidi-helper.css',
+                       'shared/elements/gaia_buttons/script.js',
+                       'shared/elements/gaia_confirm/script.js',
+                       'style/homescreens.css',
+                       // Bug 1210284 - disabling achievements until they are on
+                       // the roadmap again or completely removed.
+                       // 'style/achievements.css',
+                       'style/apps.css',
+                       'style/screen_lock.css',
+                       'style/simcard.css',
+                       'style/updates.css',
+                       'style/downloads.css',
+                       'style/developer_service_workers.css'],
+      function callback() {
+        _panelStylesheetsLoaded = true;
+      });
+    };
+
+    // load styles in idle time after document loaded
+    navigator.addIdleObserver({
+      time: 3,
+      onidle: _loadPanelStylesheetsIfNeeded
+    });
+
+    return {
+      // this is for unit test
+      reset: function spc_reset() {
+        _panelCache = {};
+        _panelStylesheetsLoaded = false;
+      },
+
+      /**
+       * Get the panel module of a specified id. If there is no corresponding
+       * panel module of the id, it returns SettingsPanel.
+       *
+       * @alias module:PanelCache#get
+       * @param {String} panelId
+       *                 The id of the to be loaded panel.
+       * @param {Function} callback
+       *                   The function to be called when the panel is loaded.
+       */
+      get: function spc_get(panelId, callback) {
+        if (!panelId && !callback) {
+          return;
+        }
+
+        if (panelId !== 'root') {
+          _loadPanelStylesheetsIfNeeded();
+        }
+
+        var cachedPanel = _panelCache[panelId];
+        if (cachedPanel) {
+          if (callback) {
+            callback(cachedPanel);
+          }
+        } else {
+          // Get the path of the panel creation function
+          var panelElement = document.getElementById(panelId);
+          if (panelElement) {
+            var pathElement = panelElement.querySelector('panel');
+            var path = pathElement ? pathElement.dataset.path : null;
+
+            var panelFuncLoaded = function(panelFunc) {
+              var panel;
+              try {
+                panel = panelFunc();
+                if (!panel || typeof panel.beforeShow !== 'function') {
+                  throw new TypeError('Invalid settings panel: ' + panelId);
+                }
+              } catch (error) {
+                if (callback) callback(null, error);
+                return;
+              }
+              _panelCache[panelId] = panel;
+              if (callback) {
+                callback(panel);
+              }
+            };
+
+            if (path) {
+              require([path], function(panelFunc) {
+                // Create a new panel object for static panels.
+                panelFuncLoaded(panelFunc ? panelFunc : SettingsPanel);
+              }, function(error) {
+                if (callback) callback(null, error);
+              });
+            } else {
+              panelFuncLoaded(SettingsPanel);
+            }
+          } else {
+            if (callback) {
+              callback(null);
+            }
+          }
+        }
+      }
+    };
+});
+var ScreenLayout={defaultQueries:{tiny:'(max-width: 767px)',small:'(min-width: 768px) and (max-width: 991px)',medium:'(min-width: 992px) and (max-width: 1200px)',large:'(min-width: 1201px)',hardwareHomeButton:window.VulpesCompat?'(min-width: 0px)':'(-moz-physical-home-button)'},init:function sl_init(){this.queries=(function(qs){var result={};for(var key in qs){result[key]=window.matchMedia(qs[key]);}
 return result;})(this.defaultQueries);},_isOnRealDevice:undefined,isOnRealDevice:function sl_isOnRealDevice(){if(typeof(this._isOnRealDevice)!=='undefined'){return this._isOnRealDevice;}
 if(window.innerWidth===screen.availWidth){this._isOnRealDevice=true;}else{this._isOnRealDevice=false;}
 return this._isOnRealDevice;},getCurrentLayout:function sl_getCurrentLayout(type){if(type===undefined){for(var name in this.defaultQueries){if(this.queries[name]&&this.queries[name].matches){return name;}}}
@@ -443,7 +557,12 @@ define('modules/settings_service',["require", "modules/page_transitions", "modul
       }
 
       _loadPanel(panelId, function() {
-        PanelCache.get(panelId, function(panel) {
+        PanelCache.get(panelId, function(panel, loadError) {
+          if (loadError || !panel) {
+            console.error('Settings panel ' + panelId + ':', loadError);
+            callback(loadError || new Error('Missing settings panel: ' + panelId));
+            return;
+          }
           var newPanelElement = document.getElementById(panelId);
           var currentPanelId =
              _currentNavigation && _currentNavigation.panelId;

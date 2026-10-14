@@ -86,7 +86,16 @@ define(function(require) {
             var path = pathElement ? pathElement.dataset.path : null;
 
             var panelFuncLoaded = function(panelFunc) {
-              var panel = panelFunc();
+              var panel;
+              try {
+                panel = panelFunc();
+                if (!panel || typeof panel.beforeShow !== 'function') {
+                  throw new TypeError('Invalid settings panel: ' + panelId);
+                }
+              } catch (error) {
+                if (callback) callback(null, error);
+                return;
+              }
               _panelCache[panelId] = panel;
               if (callback) {
                 callback(panel);
@@ -97,6 +106,8 @@ define(function(require) {
               require([path], function(panelFunc) {
                 // Create a new panel object for static panels.
                 panelFuncLoaded(panelFunc ? panelFunc : SettingsPanel);
+              }, function(error) {
+                if (callback) callback(null, error);
               });
             } else {
               panelFuncLoaded(SettingsPanel);

@@ -265,8 +265,7 @@ var CallLog = {
     // If the contacts cache is not valid, we retrieve the contacts information
     // directly from the contacts API and update the DOM accordingly.
     if (!this._contactCache) {
-      this.updateListWithContactInfo(null, null, phoneNumbers,
-                                     logGroupContainer);
+      this.updateListWithContactInfo(null, null, logGroupContainer);
     }
   },
 

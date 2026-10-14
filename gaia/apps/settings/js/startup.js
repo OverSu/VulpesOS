@@ -408,14 +408,13 @@
 
   var appStarter = AppStarter();
 
-  if (document.readyState !== 'loading') {
+  // Deferred Gaia components contain UMD wrappers. Finish loading them before
+  // Alameda starts, otherwise an anonymous component can become a panel module.
+  if (document.readyState === 'complete') {
     appStarter.start();
   } else {
-    document.addEventListener('readystatechange', function readyStateChange() {
-      if (document.readyState == 'interactive') {
-        document.removeEventListener('readystatechange', readyStateChange);
-        appStarter.start();
-      }
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+      appStarter.start();
+    }, { once: true });
   }
 })();

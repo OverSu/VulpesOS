@@ -187,7 +187,12 @@ define(function(require) {
       }
 
       _loadPanel(panelId, function() {
-        PanelCache.get(panelId, function(panel) {
+        PanelCache.get(panelId, function(panel, loadError) {
+          if (loadError || !panel) {
+            console.error('Settings panel ' + panelId + ':', loadError);
+            callback(loadError || new Error('Missing settings panel: ' + panelId));
+            return;
+          }
           var newPanelElement = document.getElementById(panelId);
           var currentPanelId =
              _currentNavigation && _currentNavigation.panelId;

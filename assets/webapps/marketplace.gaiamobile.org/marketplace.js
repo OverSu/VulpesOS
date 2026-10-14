@@ -6,6 +6,12 @@
   function labels(){document.getElementById('browse').textContent=text('Ouvrir le catalogue','Open catalogue');document.getElementById('open').textContent=text('Ouvrir','Open');document.getElementById('install').textContent=text('Installer','Install');document.getElementById('cancel').textContent=text('Annuler','Cancel');}
   function loadFailed(){status(text('Catalogue inaccessible. Vérifiez la connexion Internet, puis réessayez.','Catalogue unavailable. Check your Internet connection, then try again.'));document.getElementById('open').hidden=true;}
   frame.addEventListener('mozbrowsererror',loadFailed);
+  frame.addEventListener('mozbrowserclose',()=>{
+    if(busy)return;
+    status(text('Le catalogue est fermé. Vous pouvez le rouvrir ci-dessous.',
+      'The catalogue is closed. You can reopen it below.'));
+    document.getElementById('open').hidden=true;
+  });
   function browse(){labels();message.hidden=true;dialog.hidden=true;frame.style.visibility='visible';frame.src='https://vulpes-os.org/marketplace/?mode=app&lang='+(fr()?'fr':'en');}
   function status(value){frame.style.visibility='hidden';message.hidden=false;document.getElementById('status').textContent=value;}
   async function prepare(url){

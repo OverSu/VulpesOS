@@ -150,6 +150,15 @@ public final class VulpesApplication extends Application {
     );
   }
 
+  void browserClosed() {
+    if (port == null) return;
+    try {
+      port.postMessage(new JSONObject().put("type", "browser-closed"));
+    } catch (Exception e) {
+      Log.w("Vulpes", "Browser close notification", e);
+    }
+  }
+
   void home(boolean held) {
     if (port == null) return;
     try {
@@ -160,6 +169,7 @@ public final class VulpesApplication extends Application {
   }
 
   void resumed() {
+    if (services != null) services.personal.observe();
     sendScreenLock();
     if (port == null) return;
     try {

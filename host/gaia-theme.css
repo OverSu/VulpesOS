@@ -103,3 +103,25 @@
   background-color: var(--vulpes-surface) !important;
   color: var(--vulpes-text) !important;
 }
+
+/* Keep the message and its surface paired, including lazily loaded Gaia dialogs. */
+:root #vulpes-gaia-notice,
+:root #vulpes-gaia-notice > section,
+:root #vulpes-gaia-notice > section > p {
+  background-color: #f4f4f4 !important;
+  color: #202b33 !important;
+}
+:root[data-vulpes-theme="dark"] #vulpes-gaia-notice,
+:root[data-vulpes-theme="dark"] #vulpes-gaia-notice > section,
+:root[data-vulpes-theme="dark"] #vulpes-gaia-notice > section > p {
+  background-color: var(--vulpes-surface) !important;
+  color: var(--vulpes-text) !important;
+}
+:root[data-vulpes-app="settings"] p[data-vulpes-unavailable] {
+  background-color: #f4f4f4 !important;
+  color: #202b33 !important;
+}
+:root[data-vulpes-theme="dark"][data-vulpes-app="settings"] p[data-vulpes-unavailable] {
+  background-color: var(--vulpes-surface) !important;
+  color: var(--vulpes-text) !important;
+}
