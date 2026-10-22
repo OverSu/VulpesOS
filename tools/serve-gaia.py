@@ -114,7 +114,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(400)
             return
         if path == "/_vulpes/platform-config.js":
-            data = (('window.VulpesPlatform='+json.dumps('tundra' if os.environ.get('VULPES_TUNDRA')=='1' else 'desktop')+';window.VulpesNativeInput='+('true' if os.environ.get('VULPES_TUNDRA')=='1' or os.environ.get('VULPES_TEST_INPUT')=='1' else 'false')+';window.VulpesNativeTelephony=') + ('true' if os.environ.get('VULPES_TUNDRA_RADIO') == '1' or os.environ.get('VULPES_TEST_TELEPHONY') == '1' else 'false') + ';window.VulpesNativeWifi=' + ('true' if os.environ.get('VULPES_TUNDRA_WIFI') == '1' else 'false') + ';').encode()
+            data = (('window.VulpesPlatform='+json.dumps('tundra' if os.environ.get('VULPES_TUNDRA')=='1' else 'desktop')+';window.VulpesNativeInput='+('true' if os.environ.get('VULPES_TUNDRA')=='1' or os.environ.get('VULPES_TEST_INPUT')=='1' else 'false')+';window.VulpesNativeTelephony=') + ('true' if os.environ.get('VULPES_TUNDRA_RADIO') == '1' or os.environ.get('VULPES_TEST_TELEPHONY') == '1' else 'false') + ';window.VulpesNativeRadioStatus=' + ('true' if os.environ.get('VULPES_TUNDRA_STATUS') == '1' else 'false') + ';window.VulpesNativeWifi=' + ('true' if os.environ.get('VULPES_TUNDRA_WIFI') == '1' else 'false') + ';').encode()
             self.send_response(200)
             self.send_header("Content-Type", "text/javascript")
             self.send_header("Content-Length", str(len(data)))

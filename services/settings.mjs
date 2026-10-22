@@ -1,6 +1,25 @@
 // No Gecko, XPCOM, DOM or filesystem imports in the service contract.
 export const API_VERSION = 1;
 
+export function migratePrivacyDefaults(values) {
+  if (values['vulpes.privacy-default.v1']) return false;
+  values['privacy.trackingprotection.enabled'] = true;
+  values['privacy.trackingprotection.shown'] = true;
+  values['privacy.donottrackheader.enabled'] = true;
+  values['privacy.donottrackheader.value'] = 1;
+  values['vulpes.privacy-default.v1'] = true;
+  return true;
+}
+
+export function migrateSearchDefaults(values) {
+  if (values['vulpes.search-default.v1']) return false;
+  // A missing/false provider means the old bundled default, not a user choice.
+  if (!values['search.provider']) values['search.provider'] = 'ddg';
+  delete values['search.cache'];
+  values['vulpes.search-default.v1'] = true;
+  return true;
+}
+
 export class ServiceError extends Error {
   constructor(code) {
     super(code);

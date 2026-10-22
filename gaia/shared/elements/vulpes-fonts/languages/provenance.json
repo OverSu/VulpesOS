@@ -1,0 +1,121 @@
+[
+  {
+    "file": "VulpesLanguageArabic-Regular.woff2",
+    "source": "NotoSansArabic-Regular.ttf",
+    "sourceSha256": "bdff3e5659d67e67def05b33f749683b9376ae819d65d3dd62ac4640b3aaef48",
+    "attribution": {
+      "0": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/arabic)",
+      "5": "Version 2.013; ttfautohint (v1.8.4.16-eb64)",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org",
+      "14": "https://openfontlicense.org"
+    },
+    "unicode": [
+      1576,
+      1585,
+      1593,
+      1610
+    ]
+  },
+  {
+    "file": "VulpesLanguageBengali-Regular.woff2",
+    "source": "NotoSansBengali-Regular.ttf",
+    "sourceSha256": "b55c62ee531e3214da6c0701daecea89a52ba42db7d8206b92e6b51f397a3193",
+    "attribution": {
+      "0": "Copyright 2025 The Noto Project Authors (https://github.com/notofonts/bengali)",
+      "5": "Version 3.011; ttfautohint (v1.8.4.16-eb64)",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org",
+      "14": "https://openfontlicense.org/"
+    },
+    "unicode": [
+      2434,
+      2470,
+      2476,
+      2482,
+      2486,
+      2494,
+      2503
+    ]
+  },
+  {
+    "file": "VulpesLanguageDevanagari-Regular.woff2",
+    "source": "NotoSansDevanagari-Regular.ttf",
+    "sourceSha256": "4e3c66638958c3e2ab5d37f47a8deb89fffeb7be9985c665a519bbc7ba762313",
+    "attribution": {
+      "0": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/devanagari)",
+      "5": "Version 2.007; ttfautohint (v1.8.4.16-eb64)",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL",
+      "14": "https://scripts.sil.org/OFL"
+    },
+    "unicode": [
+      2344,
+      2346,
+      2354,
+      2366,
+      2368,
+      2375
+    ]
+  },
+  {
+    "file": "VulpesLanguageGurmukhi-Regular.woff2",
+    "source": "NotoSansGurmukhi-Regular.ttf",
+    "sourceSha256": "658d0207da305a1411c539a8b0bbeda64d4146e54fb4827facddb890b6b90d74",
+    "attribution": {
+      "0": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/gurmukhi)",
+      "5": "Version 2.004; ttfautohint (v1.8.4.7-5d5b)",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL",
+      "14": "https://scripts.sil.org/OFL"
+    },
+    "unicode": [
+      2588,
+      2602,
+      2604,
+      2622,
+      2624,
+      2672
+    ]
+  },
+  {
+    "file": "VulpesLanguageKhmer-Regular.woff2",
+    "source": "NotoSansKhmer-Regular.ttf",
+    "sourceSha256": "e66675f2082788f0511a714bef5a1748928294b38c8e286a96ea73a864b5e605",
+    "attribution": {
+      "0": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/khmer)",
+      "5": "Version 2.004; ttfautohint (v1.8.4.7-5d5b)",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL",
+      "14": "https://scripts.sil.org/OFL"
+    },
+    "unicode": [
+      6017,
+      6040,
+      6042,
+      6082,
+      6098
+    ]
+  },
+  {
+    "file": "VulpesLanguageCJK-Regular.woff2",
+    "source": "NotoSansCJK-Regular.ttc",
+    "sourceSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+    "attribution": {
+      "0": "© 2014-2021 Adobe (http://www.adobe.com/).",
+      "5": "Version 2.004;hotconv 1.0.118;makeotfexe 2.5.65603",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This Font Software is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software.",
+      "14": "http://scripts.sil.org/OFL"
+    },
+    "unicode": [
+      20013,
+      20307,
+      25991,
+      26085,
+      26412,
+      27491,
+      31616,
+      32321,
+      35486,
+      39636,
+      44397,
+      50612,
+      54620
+    ]
+  }
+]

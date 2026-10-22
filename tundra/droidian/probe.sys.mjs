@@ -341,6 +341,18 @@ export async function run(win) {
     }
     }
     async function requestedUiChecks() {
+    const regressionMarker=`${root}/logs/test-ticket-regressions`;
+    if(await IOUtils.exists(regressionMarker)) {
+      await IOUtils.remove(regressionMarker);
+      const {auditTickets}=ChromeUtils.importESModule(`resource://vulpes/host/TicketRegressionAudit.sys.mjs?run=${Date.now()}`);
+      await auditTickets({win,evaluate,wait,tap,sleep,root});
+    }
+    const browserMarker=`${root}/logs/test-browser-visual`;
+    if(await IOUtils.exists(browserMarker)) {
+      await IOUtils.remove(browserMarker);
+      const {auditBrowserVisual}=ChromeUtils.importESModule(`resource://vulpes/host/BrowserVisualAudit.sys.mjs?run=${Date.now()}`);
+      await auditBrowserVisual({win,evaluate,sleep,root});
+    }
     const appearanceMarker = `${root}/logs/test-appearance`;
     if (await IOUtils.exists(appearanceMarker)) {
       await IOUtils.remove(appearanceMarker);
@@ -381,6 +393,14 @@ export async function run(win) {
         if(previous!==undefined) await evaluate('settings', `await navigator.mozSettings.createLock().set({"vulpes.theme":${JSON.stringify(previous)}});return true;`).catch(()=>{});
       }
       await IOUtils.writeJSON(`${root}/logs/appearance.json`,result);
+    }
+    const mediaMarker=`${root}/logs/test-media-feedback`;
+    if(await IOUtils.exists(mediaMarker)) {
+      await IOUtils.remove(mediaMarker);
+      const {auditMediaFeedback}=ChromeUtils.importESModule('resource://vulpes/host/MediaFeedbackAudit.sys.mjs');
+      const save=data=>IOUtils.writeJSON(`${root}/logs/media-feedback.json`,{bootId:report.bootId,...data});
+      try {await auditMediaFeedback({win,evaluate,wait,tap,sleep,save});}
+      catch(error){await save({passed:false,error:String(error)});}
     }
     const followupMarker=`${root}/logs/test-settings-followup`;
     if(await IOUtils.exists(followupMarker)) {

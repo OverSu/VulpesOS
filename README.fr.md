@@ -38,12 +38,13 @@ Je développe Vulpes principalement seul, sous le nom d’OverSu, avec l’aide 
 
 Sur Pixel 3a, **Tundra démarre directement Gecko et Gaia** et assure leur accès au matériel. Droidian a servi d’environnement de test au début du projet : il n’est pas inclus dans Vulpes OS et Tundra ne repose pas dessus.
 
-### Preview 20 · 13 octobre 2026
+### Preview 22 · 22 octobre 2026
 
-[Télécharger l’APK](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.20). Les corrections communes concernent les paramètres Gaia, l’enregistrement vidéo, les contacts et les médias. Les adaptations réseau natives sont incluses dans les sources. Le [changelog](CHANGELOG.md) précise les vérifications et les limites restantes.
+[Télécharger l’APK Preview 22](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.22). Les corrections Gaia concernent le partage du navigateur et la saisie web ; les contrôles PC ont réussi. La release comprend aussi les sources Tundra/Nokia actuelles. L’installation et la mise à jour ont réussi sur émulateur Android 11 ; les téléphones Android réels restent à qualifier. Le clavier T9 du Nokia demande aussi un essai physique.
 
-PC/Sargo utilisent Gecko **156.0.1** ; Android utilise GeckoView **156.0**. Android 8 / API 26 minimum déclaré, sans validation de tous les appareils. Appels et SMS ouvrent les applications Android. L’APK est un build de développement signé, avec débogage via ADB autorisé.
+L’image native du Pixel 3a reste la Preview 21. Cette release ne contient pas de nouvelle image Sargo et ses changements n’ont pas été flashés sur le Pixel. Le [changelog](CHANGELOG.md) détaille les plateformes et les points restant à vérifier.
 
+PC/Sargo utilisent Gecko **156.0.1** ; Android utilise GeckoView **156.0**. Android 8 / API 26 minimum est déclaré. L’APK est un build de développement signé, avec débogage via ADB autorisé.
 ### Linux
 
 Prérequis : Linux x86_64, Git, Python 3 et les bibliothèques système nécessaires à Firefox.

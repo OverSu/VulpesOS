@@ -94,6 +94,20 @@ function getImageSize(blob, callback, error) {
                           else {
                             metadata.type = 'jpeg';
                           }
+                          // Modern Gecko decodes EXIF orientation itself, including
+                          // canvas.drawImage(). Gaia must not rotate those pixels twice.
+                          if (metadata.rotation || metadata.mirrored) {
+                            if (metadata.rotation === 90 || metadata.rotation === 270) {
+                              var width = metadata.width;
+                              metadata.width = metadata.height;
+                              metadata.height = width;
+                            }
+                            metadata.rotation = 0;
+                            metadata.mirrored = false;
+                            // Embedded thumbnails need not carry the parent's EXIF tag.
+                            // Generate a matching preview from the oriented full image.
+                            delete metadata.preview;
+                          }
                           callback(metadata);
                         },
                         error);

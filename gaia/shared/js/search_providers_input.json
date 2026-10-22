@@ -1,69 +1,73 @@
 {
   "search_providers": {
-
     "yahoo": {
       "title": "Yahoo",
       "search": {
         "url": "https://search.yahoo.com/yhs/search",
-        "params": {"p": "{searchTerms}"}
+        "params": {
+          "p": "{searchTerms}"
+        }
       },
       "suggest": {
         "url": "https://search.yahoo.com/sugg/ff",
-        "params": {"command": "{searchTerms}", "output": "fxjson"}
+        "params": {
+          "command": "{searchTerms}",
+          "output": "fxjson"
+        }
       }
     },
-
     "ddg": {
       "title": "DuckDuckGo",
       "search": {
         "url": "https://duckduckgo.com/",
-        "params": {"t": "ffos", "q": "{searchTerms}"}
+        "params": {
+          "q": "{searchTerms}"
+        }
       },
       "suggest": {
         "url": "https://ac.duckduckgo.com/ac/",
-        "params": {"q": "{searchTerms}", "type": "list"}
+        "params": {
+          "q": "{searchTerms}",
+          "type": "list"
+        }
       }
     },
-
     "google": {
       "title": "Google",
       "search": {
         "url": "https://www.google.com/search",
-        "params": {"q": "{searchTerms}"}
+        "params": {
+          "q": "{searchTerms}"
+        }
       },
       "suggest": {
         "url": "https://www.google.com/complete/search",
-        "params": {"q": "{searchTerms}", "client": "firefox"}
+        "params": {
+          "q": "{searchTerms}",
+          "client": "firefox"
+        }
       }
     },
-
     "bing": {
       "title": "Bing",
       "search": {
         "url": "https://www.bing.com/search",
-        "params": {"q": "{searchTerms}"}
+        "params": {
+          "q": "{searchTerms}"
+        }
       },
       "suggest": {
         "url": "https://www.bing.com/osjson.aspx",
-        "params": {"query": "{searchTerms}"}
+        "params": {
+          "query": "{searchTerms}"
+        }
       }
     }
-
   },
-
-  "simConfigs": {
-    "310-000": {"en-US": {"defaultEngine": "yahoo"}},
-    "311-000": {"en-US": {"defaultEngine": "yahoo"}},
-    "312-000": {"en-US": {"defaultEngine": "yahoo"}},
-    "313-000": {"en-US": {"defaultEngine": "yahoo"}},
-    "316-000": {"en-US": {"defaultEngine": "yahoo"}}
-  },
-
-  "partnerConfig": {
-  },
-
+  "simConfigs": {},
+  "partnerConfig": {},
   "defaultEngines": {
-    "defaultEngine": "google",
+    "defaultEngine": "ddg",
     "providers": {
       "yahoo": {},
       "google": {},
@@ -71,7 +75,5 @@
       "ddg": {}
     }
   },
-
-  "locales": {
-  }
+  "locales": {}
 }

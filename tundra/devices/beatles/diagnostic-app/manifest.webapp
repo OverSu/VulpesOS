@@ -1,0 +1,10 @@
+{
+  "name": "Vulpes Diagnostic",
+  "description": "Essai d’affichage et des touches du Nokia 2720. Utilise le Gecko de KaiOS ; ce n’est pas Vulpes OS installé.",
+  "version": "0.2.0",
+  "launch_path": "/index.html",
+  "developer": {"name": "OverSu", "url": "https://vulpes-os.org"},
+  "icons": {"128": "/icon.png"},
+  "default_locale": "fr",
+  "orientation": "portrait"
+}

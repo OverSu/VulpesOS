@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "device": "beatles",
+  "name": "Nokia 2720 Flip",
+  "architecture": "armv7",
+  "abi": "armeabi-v7a",
+  "soc": "MSM8905",
+  "board": "msm8909",
+  "taVariant": null,
+  "observedFirmware": {
+    "kaios": "2.5.2.2",
+    "gecko": "48.0a2",
+    "build": "40.00.17.01",
+    "androidHardwareBase": "6.0.1",
+    "androidApi": 23,
+    "kernel": "3.10.49-g8801858442f"
+  },
+  "display": {
+    "internal": {
+      "width": 240,
+      "height": 320
+    },
+    "external": {
+      "width": 240,
+      "height": 240
+    },
+    "touchscreen": false,
+    "clamshell": {
+      "sysfs": "/sys/devices/soc.0/hall_sensor1.73/hall_status",
+      "rawOpen": 0,
+      "rawClosed": 1,
+      "evidence": "Physical inversion reported by owner on 2026-10-18; software polarity corrected"
+    }
+  },
+  "memory": {
+    "kernelVisibleKiB": 409248,
+    "zramSwapKiB": 262140
+  },
+  "access": {
+    "adb": true,
+    "adbUid": 2000,
+    "debuggerChromeProcessUid": 0,
+    "bootloaderUnlocked": null
+  },
+  "validation": {
+    "nativeArmv7UserspaceProbe": true,
+    "diagnosticAppOnExistingKaiOS": true,
+    "newGeckoRuntime": true,
+    "gaiaBoot": true,
+    "physicalKeys": true,
+    "customBootImage": true,
+    "bootPartitionBackupsVerified": true,
+    "restorationTested": false,
+    "physicalKeysEvidence": "Owner reports diagnostic works well, 2026-10-17; no exhaustive keypad matrix qualification.",
+    "predictiveT9DictionariesBuilt": true,
+    "predictiveT9DictionaryLanguages": 42,
+    "predictiveT9PhysicalQualification": false,
+    "newGeckoOffscreenHtmlCssJs": true,
+    "newGeckoInteractiveDisplay": true,
+    "nativeXorgFramebuffer": true,
+    "framebufferCaptureVerified": true,
+    "nativeKeypadEventQualification": true,
+    "nativeRilStatus": true,
+    "nativeBatteryStatus": true,
+    "gaiaSimAndSignalStatus": true,
+    "nativeSms": true,
+    "nativeCalls": true,
+    "kernelEvdevKeypadQualification": true,
+    "nativePhoneBroker": true,
+    "nativeCallList": true,
+    "nativeAudioServiceAccess": true,
+    "nativeSmsCodecTests": true,
+    "externalDisplayRendered": true,
+    "physicalClamshellCycle": true,
+    "externalDisplayRefresh": true,
+    "nativeCallAudio": true,
+    "userQualification": "2026-10-18: owner confirms call audio in both directions and SMS; previous confirmation of clamshell/backlight operation. Not an exhaustive reliability test.",
+    "customBootImageBooted": false,
+    "persistentRuntime": true,
+    "persistentRuntimeSurvivedReboot": true,
+    "nativeVolumeControls": true,
+    "nativeBacklightControl": true,
+    "boundedVibration": true,
+    "nativeRadioPower": true,
+    "gaiaAirplaneMode": true,
+    "airplaneModeQualification": "tickets/evidence-2026-10-20/nokia-airplane.json"
+  },
+  "flashReady": false,
+  "evidence": [
+    "logs/nokia2720-inventory-20261017/inventory.json",
+    "tundra/out/beatles/armv7-smoke/device-test.json",
+    "tundra/out/beatles/display-diagnostic/install-report.json",
+    "tundra/out/beatles/backups/20261017/verification.json",
+    "tundra/out/beatles/gecko-armhf/version-result.json",
+    "tundra/out/beatles/gecko-armhf/render-result.json",
+    "tundra/out/beatles/gecko-armhf/gecko.png",
+    "tundra/out/beatles/gecko-156.0.1/engine-staging.json",
+    "tundra/out/beatles/gecko-156.0.1/version-result.json",
+    "tundra/out/beatles/gecko-156.0.1/render-result.json",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261017-205052/gaia-audit.json",
+    "tundra/out/beatles/gecko-156.0.1/framebuffer-home-156.png",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261017-205433/gaia-audit.json",
+    "tundra/out/beatles/gecko-156.0.1/qualification.json",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261017-230112/gaia-audit.json",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261017-233954/gaia-audit.json",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261021-105254/camera-frame.png",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261021-105554/camera-photo.jpg",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261021-105554/camera-frame-encoded.jpg",
+    "tundra/out/beatles/gecko-156.0.1/gaia-trial-20261021-110735/display-session.log"
+  ],
+  "experimentalEngine": {
+    "version": "156.0.1",
+    "architecture": "armv7 / hard-float",
+    "source": "Mozilla release sources, locally cross-compiled",
+    "sourceRevision": "6f2c158dfc7e9693f880fad2510ceb51a158c069",
+    "sourcePatches": [],
+    "mode": "shared Gaia, Xorg/fbdev software display, bounded private session with Nokia radio and Wi-Fi adapters"
+  },
+  "limitations": [
+    "KaiOS kernel and existing firmware; no standalone boot image",
+    "KaiOS stock Camera is confirmed working by the user; Vulpes Gecko 156 still has no beatles camera adapter. The standalone QCamera diagnostic returned empty frames, so its output is not evidence of a sensor or kernel fault",
+    "Software framebuffer around 11 submissions/second; no GPU acceleration",
+    "Multi-tap input qualified; offline predictive T9 is implemented for 42 Gaia keyboard locales, pending physical qualification",
+    "Gecko runs as uid 2000; root watchdog and Xorg restore KaiOS after each trial",
+    "First SIM only; no data bearer, MMS or camera adapter; sustained radio reliability and incoming call lifecycle still need qualification",
+    "External display refresh retries driver refusals during panel transitions",
+    "Bluetooth firmware backend exists, but Vulpes has no Nokia adapter; pairing and profiles are not available",
+    "Predictive T9 lexicons are generated from Gaia keyboard wordlists; 12,000 frequent words per locale, loaded on demand. User-dictionary learning is not implemented"
+  ],
+  "privateBootBuild": {
+    "path": "tundra/out/beatles/boot-trial-20261018-r5",
+    "signed": false,
+    "bootTested": false,
+    "standalone": false,
+    "fastbootDetected": false,
+    "bootloaderLockState": null
+  },
+  "hardwareInventory": {
+    "camera": {
+      "count": 1,
+      "facing": "back",
+      "orientation": 270,
+      "moduleApi": "1.0",
+      "gaiaAdapter": false,
+      "maxPictureSize": [
+        1600,
+        1200
+      ],
+      "focusModes": [
+        "fixed"
+      ],
+      "maxDigitalZoom": 6.06,
+      "firmwareOpenReleaseVerified": true,
+      "advertisedFlashModes": [
+        "off",
+        "auto",
+        "on",
+        "torch"
+      ],
+      "flashPhysicallyVerified": false,
+      "temporaryProbe": {
+        "date": "2026-10-21",
+        "backend": "mm-qcamera-app as Android camera uid 1006",
+        "previewUi": "QCamera preview starts; frames are not yet delivered to Gaia",
+        "snapshotYuv": "NV21 1280x960 captured and visually decoded",
+        "snapshotJpeg": "invalid for use; nearly uniform gray/black",
+        "gaiaAdapter": false,
+        "evidence": "tickets/2026-10-21.md",
+        "cameraDaemon": "qcamerasvr running; /system/bin/mm-qcamera-daemon (Android camera UID) keeps /dev/video0 busy after B2G stops",
+        "v4l2Direct": "unavailable; Qualcomm interface client required"
+      }
+    },
+    "volumeKeys": {
+      "up": "event3/115",
+      "down": "event2/114"
+    },
+    "sensors": {
+      "modulePresent": true,
+      "enumeratedAsShell": 0,
+      "enumeratedAsRoot": 0,
+      "automaticBrightnessAvailable": false,
+      "accelerometerAvailable": false
+    },
+    "wifi": {
+      "interface": "wlan0",
+      "controlSocket": "wpa_wlan0",
+      "gaiaAdapter": true,
+      "qualification": "tickets/evidence-2026-10-20/nokia-wifi.json"
+    },
+    "evidence": "tundra/out/beatles/hardware-inventory-20261018",
+    "qualification": "tundra/out/beatles/hardware-qualification-20261018/controls-final.json",
+    "bluetooth": {
+      "firmwareBackend": "bluetoothd",
+      "firmwareDaemonPresent": true,
+      "firmwareServiceRunning": false,
+      "vulpesAdapter": false,
+      "evidence": "tickets/evidence-2026-10-20/nokia-media-stack.txt"
+    }
+  }
+}

@@ -33,3 +33,21 @@ const cancelled=new Packages({save:async()=>assert.fail('unexpected save'),chang
 const pending=cancelled.prepare(source);cancelled.cancel();finishDownload(new Response(bytes));
 await assert.rejects(pending,/DOWNLOAD_CANCELLED/);assert.equal(cancelled.pending.size,0);
 console.log('Cancelled download cannot be installed: OK');
+
+const archive='https://ffapps.danielherr.software/app/2048-for-firefox-os/manifest.webapp';
+const requested=[];
+const ffaa=new Packages({save:async()=>{},changed:async()=>{},fetchPackage:async(url,options)=>{
+  requested.push(url);assert.equal(options.redirect,'error');assert.equal(options.credentials,'omit');
+  return requested.length===1?Response.json({package_path:'/app/2048-for-firefox-os/game.zip'}):new Response(bytes);
+}});
+assert.equal((await ffaa.prepare(archive)).name,'Test');
+assert.deepEqual(requested,[archive,'https://ffapps.danielherr.software/app/2048-for-firefox-os/game.zip']);
+for(const value of ['https://ffapps.danielherr.software/app/game/file.zip?next=evil',
+ 'https://ffapps.danielherr.software/app/game/a%2fb.zip','https://ffapps.danielherr.software/app/game/a%5cb.zip',
+ 'https://ffapps.danielherr.software.evil.test/app/game/game.zip','file:///app/game/game.zip'])assert.throws(()=>packageURL(value));
+let reads=0;
+const escape=new Packages({save:async()=>{},changed:async()=>{},fetchPackage:async()=>{
+ reads++;return Response.json({package_path:'https://private.invalid/game.zip'});
+}});
+await assert.rejects(escape.prepare(archive),/INVALID_PACKAGE_URL/);assert.equal(reads,1);
+console.log('FFAA manifest, bounded archive download and cross-origin rejection: OK');

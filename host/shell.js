@@ -2,6 +2,8 @@
 const { Runtime } = ChromeUtils.importESModule('resource://vulpes/host/Runtime.sys.mjs');
 const { Views } = ChromeUtils.importESModule('resource://vulpes/host/Views.sys.mjs');
 const fullscreenHost = Services.env.get('VULPES_FULLSCREEN') === '1';
+const keypadHost = Services.env.get('VULPES_KEYPAD') === '1';
+if (keypadHost) document.documentElement.setAttribute('keypad', '');
 if (fullscreenHost) {
   // Set native window decoration before the Wayland surface is mapped.
   document.documentElement.setAttribute('hidechrome', 'true');
@@ -9,6 +11,7 @@ if (fullscreenHost) {
 }
 window.addEventListener('load', async () => {
   try {
+    if (keypadHost) window.resizeTo(240, 320);
     if (fullscreenHost) {
       window.fullScreen = true;
       let last = '', stableSince = performance.now();
@@ -22,6 +25,12 @@ window.addEventListener('load', async () => {
     }
     window.vulpesStartup = {width:innerWidth,height:innerHeight,dpr:devicePixelRatio,fullscreen:window.fullScreen};
     await Runtime.init();
+    if (keypadHost) ChromeUtils.registerWindowActor('Keypad', {
+      parent: {esModuleURI:'resource://vulpes/host/actors/KeypadParent.sys.mjs'},
+      child: {esModuleURI:'resource://vulpes/host/actors/KeypadChild.sys.mjs'},
+      allFrames:true, safeForUntrustedWebProcess:true,
+      matches:['http://*/*', 'https://*/*', 'about:blank', 'about:neterror?*', 'about:certerror?*', 'about:httpsonlyerror?*'],
+    });
     Services.ppmm.sharedData.set('vulpes:native-input',Services.env.get('VULPES_TUNDRA')==='1' || Services.env.get('VULPES_TEST_INPUT')==='1');
     Services.ppmm.sharedData.flush();
     if (Services.env.get('VULPES_TUNDRA') === '1') {
@@ -60,10 +69,16 @@ window.addEventListener('load', async () => {
       safeForUntrustedWebProcess: true,
       matches: Runtime.apps.filter(app=>!app.installed).map((app) => 'http://' + Services.io.newURI(app.origin).host + '/*'),
     });
+    ChromeUtils.registerWindowActor('WebInput', {
+      parent:{esModuleURI:'resource://vulpes/host/actors/WebInputParent.sys.mjs'},
+      child:{esModuleURI:'resource://vulpes/host/actors/WebInputChild.sys.mjs',
+        events:{focusin:{capture:true},pointerdown:{capture:true},mousedown:{capture:true},click:{capture:true}}},
+      allFrames:true,safeForUntrustedWebProcess:true,matches:['http://*/*','https://*/*'],
+    });
     ChromeUtils.registerWindowActor('VulpesMarketplace', {
       parent:{esModuleURI:'resource://vulpes/host/actors/MarketplaceParent.sys.mjs'},
       child:{esModuleURI:'resource://vulpes/host/actors/MarketplaceChild.sys.mjs',events:{DOMContentLoaded:{capture:true}}},
-      allFrames:true,safeForUntrustedWebProcess:true,matches:['https://vulpes-os.org/marketplace/*']
+      allFrames:true,safeForUntrustedWebProcess:true,matches:['https://vulpes-os.org/marketplace/*','https://ffapps.danielherr.software/app/*']
     });
     ChromeUtils.registerWindowActor('VulpesTouch', {
       child: {
@@ -82,6 +97,20 @@ window.addEventListener('load', async () => {
     browser.setAttribute('maychangeremoteness', 'true');
     browser.style.cssText = 'display:block;width:480px;height:800px';
     document.getElementById('screen').append(browser);
+    if (keypadHost) for (const type of ['keydown','keyup']) window.addEventListener(type, event => {
+      const direction = event.key === 'AudioVolumeUp' ? 'up' : event.key === 'AudioVolumeDown' ? 'down' : null;
+      if (!event.isTrusted || !direction) return;
+      event.preventDefault(); event.stopImmediatePropagation();
+      if (!event.repeat) Runtime.broadcast('hardware-key', {
+        type:'volume-'+direction+'-button-'+(type === 'keydown' ? 'press' : 'release')
+      }, 'system');
+    }, true);
+    if (keypadHost) window.addEventListener('keydown', event => {
+      if (!event.isTrusted || event.ctrlKey || event.altKey || event.metaKey || event.key === 'Shift') return;
+      event.preventDefault(); event.stopPropagation();
+      browser.browsingContext.currentWindowGlobal?.getActor('Keypad').sendAsyncMessage('Vulpes:Navigate',
+        {key:event.key,code:event.code,keyCode:event.keyCode,repeat:event.repeat});
+    }, true);
     // A standalone compositor owns the whole display; desktop windows retain
     // their existing phone dimensions unless the launcher requests fullscreen.
     {
@@ -89,7 +118,7 @@ window.addEventListener('load', async () => {
       const homeButton = document.getElementById('home');
       const resize = () => {
         const landscape = window.innerWidth > window.innerHeight;
-        const overlay = document.documentElement.hasAttribute('home-active');
+        const overlay = keypadHost || document.documentElement.hasAttribute('home-active');
         const width = Math.max(1, window.innerWidth - (landscape && !overlay ? 44 : 0));
         const height = Math.max(1, window.innerHeight - (!landscape && !overlay ? 44 : 0));
         screen.style.width = width + 'px';

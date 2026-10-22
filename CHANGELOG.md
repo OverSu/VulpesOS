@@ -4,6 +4,266 @@
 
 Les nouveautés, par date et par plateforme. Dans chaque groupe : Add, Change, Fix, Note, Test. Les entrées décrivent la situation à leur date ; une correction en développement nécessite une nouvelle version installée.
 
+<a id="2.7-preview.22"></a>
+
+## 22/10/2026 : 2.7-preview.22
+
+![Publié](https://img.shields.io/badge/Publi%C3%A9-334155?style=flat-square)
+
+### ![Toutes les plateformes](https://img.shields.io/badge/Toutes%20les%20plateformes-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Partage](https://img.shields.io/badge/Partage-475569?style=flat-square) : Le bouton Partager du navigateur propose Messages et Courrier ; le clavier se masque pour laisser le choix accessible.
+
+### ![PC](https://img.shields.io/badge/PC-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Saisie web](https://img.shields.io/badge/Saisie%20web-475569?style=flat-square) : Le focus des champs et listes web est rétabli dans le navigateur PC.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Premier appui, saisie, sélecteurs et partage vers un brouillon Messages contrôlés sur PC.
+
+### ![Android / APK](https://img.shields.io/badge/Android%20%2F%20APK-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) ![Mise à jour](https://img.shields.io/badge/Mise%20%C3%A0%20jour-475569?style=flat-square) : APK Preview 22 construit avec les corrections Gaia communes et une version Android incrémentée.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Démarrage](https://img.shields.io/badge/D%C3%A9marrage-475569?style=flat-square) : Un message GeckoView de restauration de session apparaît au premier lancement de l’émulateur ; Gaia atteint néanmoins l’accueil sans plantage.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Installation de la Preview 21 puis mise à jour vers la 22 réussies sur Android 11 en émulation ; Gaia démarre sur l’accueil. Les téléphones signalés restent à qualifier, dont le Pixel 4.
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) ![Clavier](https://img.shields.io/badge/Clavier-475569?style=flat-square) : Première saisie T9 hors ligne avec les lexiques Gaia. Qualification physique du clavier encore nécessaire.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Réseau](https://img.shields.io/badge/R%C3%A9seau-475569?style=flat-square) : Wi-Fi, reconnexion et cycle du mode avion vérifiés en session RAM ; les contrôles Gaia suivent l’état matériel.
+
+
+### ![Pixel 3a / Sargo](https://img.shields.io/badge/Pixel%203a%20%2F%20Sargo-2563EB?style=flat-square)
+
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Image native](https://img.shields.io/badge/Image%20native-475569?style=flat-square) : Cette release ne contient pas de nouvelle image Pixel. La Preview 21 reste la dernière image publiée ; les changements de cette Preview ne sont pas installés sur le téléphone.
+
+<a id="development-2026-10-20-web-nokia"></a>
+
+## 20/10/2026 : Correctifs en préparation pour Preview 22
+
+### ![Toutes les plateformes](https://img.shields.io/badge/Toutes%20les%20plateformes-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Le bouton Partager ouvre le choix Messages ou Courrier. Le clavier ne recouvre plus ce choix.
+
+### ![PC / Tundra](https://img.shields.io/badge/PC%20%2F%20Tundra-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Les listes déroulantes web retrouvent le focus nécessaire à leur ouverture.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Saisie](https://img.shields.io/badge/Saisie-475569?style=flat-square) : Premier appui, champs web, sélecteurs et partage vers un brouillon Messages vérifiés sur PC. Retest Pixel à faire.
+
+### ![Android / APK](https://img.shields.io/badge/APK-2563EB?style=flat-square)
+
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Mise à jour de Preview 20 vers Preview 21 réussie sur Android 11 en émulation. Le refus signalé sur Pixel 4 reste à diagnostiquer.
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-13A37D?style=flat-square) ![Clavier T9](https://img.shields.io/badge/Clavier%20T9-475569?style=flat-square) : Première implémentation Nokia hors ligne, avec les 42 lexiques Gaia. Qualification physique à faire clapet ouvert.
+- ![Change](https://img.shields.io/badge/Change-52748B?style=flat-square) ![Développement](https://img.shields.io/badge/D%C3%A9veloppement-475569?style=flat-square) : Le lanceur synchronise désormais l’ensemble des fichiers Gaia communs, en conservant les données du téléphone.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Mode avion](https://img.shields.io/badge/Mode%20avion-475569?style=flat-square) : Gaia commande maintenant la coupure et la réactivation du modem Nokia. Les anciens états réseau ne font plus annuler le mode avion.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Le lancement Nokia en mode téléphone expose bien le broker Wi-Fi à Gaia. Recherche de réseaux, coupure/réactivation, reconnexion au réseau enregistré et accès HTTPS vérifiés en session RAM.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) : La sélection des listes web avec la touche OK reste à corriger et qualifier.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Matériel](https://img.shields.io/badge/Mat%C3%A9riel-475569?style=flat-square) : Wi-Fi et reconnexion, volume avec indicateur Gaia, luminosité et arrêt du vibreur vérifiés sur le Nokia. SIM reconnue et LTE observée.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Réseau](https://img.shields.io/badge/R%C3%A9seau-475569?style=flat-square) : Cycle mode avion vérifié sur Nokia : radios et Wi-Fi coupés, puis réactivés avec retour sur le réseau LTE.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Médias](https://img.shields.io/badge/M%C3%A9dias-475569?style=flat-square) : Le lanceur copie un morceau Ogg et une vidéo WebM de test dans Musique et Vidéo à chaque démarrage RAM ; les deux fichiers sont lisibles par les applications Gaia.
+
+<a id="development-2026-10-18-nokia-radio-timeout"></a>
+
+## 18/10/2026 : Attente réseau sur Nokia
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Téléphone](https://img.shields.io/badge/T%C3%A9l%C3%A9phone-475569?style=flat-square) : Attente de l’état des appels raccourcie lorsque le modem ne répond plus ; les requêtes identiques ne s’accumulent plus. Message d’erreur clarifié.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Réseau](https://img.shields.io/badge/R%C3%A9seau-475569?style=flat-square) : La cause des silences du modem et le passage d’un nouvel appel réel restent à vérifier.
+
+<a id="development-2026-10-18-forgejo-fixes"></a>
+
+## 18/10/2026 : Correctifs Forgejo — en développement
+
+### ![Toutes les plateformes](https://img.shields.io/badge/Toutes%20les%20plateformes-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Galerie](https://img.shields.io/badge/Galerie-475569?style=flat-square) : Orientation des photos corrigée ; partage vers Messages ou Courrier et fond du panneau vide rétablis.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Langues](https://img.shields.io/badge/Langues-475569?style=flat-square) : Un changement de langue ne revient plus à une ancienne sélection. Affichage des noms de langues complété.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Marketplace](https://img.shields.io/badge/Marketplace-475569?style=flat-square) : Bouton Installer du catalogue FFAA raccordé pour les applications empaquetées, avec confirmation avant installation.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Personnalisation](https://img.shields.io/badge/Personnalisation-475569?style=flat-square) : Fonds d’écran Gaia remplacés par leurs originaux de meilleure résolution.
+
+### ![PC / Tundra](https://img.shields.io/badge/PC%20%2F%20Tundra-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Clavier](https://img.shields.io/badge/Clavier-475569?style=flat-square) : Saisie avec le clavier Gaia dans la recherche du Marketplace, y compris après une navigation web.
+
+### ![Tundra / Pixel 3a](https://img.shields.io/badge/Tundra%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Autonomie](https://img.shields.io/badge/Autonomie-475569?style=flat-square) : Échanges avec le matériel allégés au repos ; mesure d’autonomie sur une journée encore nécessaire.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Caméra](https://img.shields.io/badge/Cam%C3%A9ra-475569?style=flat-square) : Mode vidéo accessible et lisible ; flash raccordé aux capacités réelles du capteur.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Date et heure](https://img.shields.io/badge/Date%20et%20heure-475569?style=flat-square) : Heure conservée après redémarrage même quand l’horloge matérielle est incorrecte.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Vibration](https://img.shields.io/badge/Vibration-475569?style=flat-square) : Déclenchement et arrêt des impulsions corrigés.
+- ![Test](https://img.shields.io/badge/Test-8B5CF6?style=flat-square) ![Caméra](https://img.shields.io/badge/Cam%C3%A9ra-475569?style=flat-square) : Photo de 12 Mpx, changement avant/arrière et lecture d’une courte vidéo vérifiés sur le Pixel.
+
+### ![Toutes les plateformes — Tests](https://img.shields.io/badge/%C3%89tat%20des%20tests-2563EB?style=flat-square)
+
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Validation](https://img.shields.io/badge/Validation-475569?style=flat-square) : Correctifs non publiés. Les cas Motorola, l’autonomie prolongée, le son des vidéos et le réveil restent à qualifier. L’OTA complet et les applications FFAA hébergées restent à développer.
+
+<a id="development-2026-10-18-nokia-settings-keypad"></a>
+
+## 18/10/2026 : Navigation dans les Paramètres du Nokia
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Paramètres](https://img.shields.io/badge/Param%C3%A8tres-475569?style=flat-square) : Mode avion et Géolocalisation accessibles avec Haut/Bas. La touche OK actionne les interrupteurs et cases à cocher Gaia ; les commandes désactivées restent ignorées.
+
+<a id="development-2026-10-18-nokia-fluidity"></a>
+
+## 18/10/2026 : Fluidité du Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Fluidité](https://img.shields.io/badge/Fluidit%C3%A9-475569?style=flat-square) : Échanges avec le matériel allégés pour réduire la charge du processeur et laisser plus de place à l’interface.
+
+<a id="development-2026-10-18-nokia-wifi"></a>
+
+## 18/10/2026 : Wi-Fi sur Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-238636?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Recherche des réseaux, activation et connexion depuis les Paramètres Gaia. Les réseaux enregistrés peuvent être réutilisés sans ressaisir le mot de passe.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Accès Internet du navigateur et remise en place de la connexion après une coupure du Wi-Fi. L’état affiché suit les reconnexions.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Réseaux ouverts et WPA/WPA2 personnels pris en charge. Réseaux d’entreprise, WPS et partage de connexion restent à intégrer sur le Nokia.
+
+### ![Toutes les plateformes](https://img.shields.io/badge/PC%20%2F%20APK%20%2F%20Tundra-475569?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Le panneau Wi-Fi affiche les résultats même si le signal arrive avant la liste. Les réseaux enregistrés non détectés sont indiqués hors de portée.
+
+<a id="development-2026-10-18-nokia-browser-keypad"></a>
+
+## 18/10/2026 : Navigation au clavier sur Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Accès à la barre d’adresse avec Haut puis OK, saisie au pavé numérique et validation. Retour ferme la saisie ; Bas revient au contenu. La barre reste accessible sur les pages web et les erreurs réseau.
+
+<a id="development-2026-10-18-nokia-appearance-privacy"></a>
+
+## 18/10/2026 : Personnalisation du Nokia et confidentialité
+
+### ![Toutes les plateformes](https://img.shields.io/badge/Toutes%20les%20plateformes-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Protection contre le pistage activée par défaut ; suppression du rappel de présentation au lancement.
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Écran extérieur](https://img.shields.io/badge/%C3%89cran%20ext%C3%A9rieur-475569?style=flat-square) : Ajout du rouge, orange, violet, cyan, turquoise et gris.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Interface](https://img.shields.io/badge/Interface-475569?style=flat-square) : Transitions décoratives quasi instantanées sur le Nokia ; animations de chargement conservées.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Accueil](https://img.shields.io/badge/Accueil-475569?style=flat-square) : La barre d’état utilise le même assombrissement que le fond de l’accueil.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Écran extérieur](https://img.shields.io/badge/%C3%89cran%20ext%C3%A9rieur-475569?style=flat-square) : Le texte personnalisé se sauvegarde après la saisie, sans devoir quitter le champ.
+
+<a id="development-2026-10-18-nokia-closed-start"></a>
+
+## 18/10/2026 : Clapet et touches du Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Notifications](https://img.shields.io/badge/Notifications-475569?style=flat-square) : La touche dédiée ouvre et ferme le volet de notifications Gaia.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Affichage](https://img.shields.io/badge/Affichage-475569?style=flat-square) : L’écran externe est activé au lancement téléphone fermé, sans devoir ouvrir le clapet auparavant.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Volume](https://img.shields.io/badge/Volume-475569?style=flat-square) : Les touches de volume restent utilisables clapet fermé.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Clavier](https://img.shields.io/badge/Clavier-475569?style=flat-square) : Les touches d’assistance et du casque, ainsi que le menu d’arrêt par appui long, restent à raccorder.
+
+<a id="development-2026-10-18-nokia-hardware"></a>
+
+## 18/10/2026 : Commandes matérielles du Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Volume](https://img.shields.io/badge/Volume-475569?style=flat-square) : Touches latérales raccordées au panneau Gaia et au volume du téléphone.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Affichage](https://img.shields.io/badge/Affichage-475569?style=flat-square) : Réglage de la luminosité relié au rétroéclairage de l’écran.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Vibration](https://img.shields.io/badge/Vibration-475569?style=flat-square) : Vibrations courtes avec arrêt automatique et annulation.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Volume](https://img.shields.io/badge/Volume-475569?style=flat-square) : Au démarrage, Gaia reprend le volume réel du téléphone.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Caméra](https://img.shields.io/badge/Cam%C3%A9ra-475569?style=flat-square) : Caméra arrière de 2 Mpx identifiée, à mise au point fixe. Son raccordement à Vulpes reste en chantier.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Matériel](https://img.shields.io/badge/Mat%C3%A9riel-475569?style=flat-square) : Volume, panneau Gaia, luminosité et arrêt du vibreur contrôlés sur le Nokia. Aucun nouveau flash ni APK publié.
+
+<a id="development-2026-10-18-nokia-build"></a>
+
+## 18/10/2026 : Build expérimental Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Build](https://img.shields.io/badge/Build-475569?style=flat-square) : Premier paquet de démarrage privé construit avec Gecko 156.0.1 et Gaia commun.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Les fichiers du prototype sont conservés après redémarrage du Nokia.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Validation](https://img.shields.io/badge/Validation-475569?style=flat-square) : Image non signée, pas encore démarrée ni qualifiée pour le flash. Le téléphone reste dépendant de ses services matériels installés ; aucune ROM autonome publiée.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Build](https://img.shields.io/badge/Build-475569?style=flat-square) : Format de l’image, archives et retour de secours contrôlés localement. Gaia et réseau vérifiés depuis le nouvel emplacement persistant.
+
+<a id="development-2026-10-18-nokia-phone"></a>
+
+## 18/10/2026 : En développement — Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Écran extérieur](https://img.shields.io/badge/%C3%89cran%20ext%C3%A9rieur-475569?style=flat-square) : Texte personnalisé et couleurs du titre et de la batterie dans Affichage, avec aperçu.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Téléphone](https://img.shields.io/badge/T%C3%A9l%C3%A9phone-475569?style=flat-square) : Appels et SMS simples raccordés aux applications Gaia.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Clapet](https://img.shields.io/badge/Clapet-475569?style=flat-square) : Écrans et éclairage des touches corrigés à l’ouverture et à la fermeture ; fonctionnement confirmé sur le téléphone.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Réseau](https://img.shields.io/badge/R%C3%A9seau-475569?style=flat-square) : Reconnexions espacées après une erreur radio pour éviter une boucle de tentatives.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Touches](https://img.shields.io/badge/Touches-475569?style=flat-square) : Touche rouge raccordée au bouton Raccrocher de Gaia et au retour Accueil.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Prototype](https://img.shields.io/badge/Prototype-475569?style=flat-square) : Session temporaire sur le matériel KaiOS existant ; aucune image autonome ni nouvelle publication. Stabilité prolongée à vérifier.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Communications](https://img.shields.io/badge/Communications-475569?style=flat-square) : Appel, son dans les deux sens et SMS confirmés par le propriétaire du Nokia.
+
+### ![Toutes les plateformes](https://img.shields.io/badge/Toutes%20les%20plateformes-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Appels](https://img.shields.io/badge/Appels-475569?style=flat-square) : Les appuis répétés sur Appeler ne lancent plus plusieurs requêtes pendant la connexion. Une erreur audio ne bloque plus l’écran d’appel.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Mode compact](https://img.shields.io/badge/Mode%20compact-475569?style=flat-square) : Pavé, bouton Appeler et onglets Téléphone ajustés aux petits écrans, sans chevauchement.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Ressources communes synchronisées ; aucun nouvel APK compilé.
+
+<a id="development-2026-10-17-nokia-cover"></a>
+
+## 17/10/2026 : En développement — Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Clapet](https://img.shields.io/badge/Clapet-475569?style=flat-square) : Gestion de l'écran intérieur à la fermeture et à la réouverture, en cours de validation sur le téléphone.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Écran extérieur](https://img.shields.io/badge/%C3%89cran%20ext%C3%A9rieur-475569?style=flat-square) : Horloge, date, opérateur et batterie ; extinction après 15 secondes.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Prototype](https://img.shields.io/badge/Prototype-475569?style=flat-square) : Essai temporaire uniquement. La fermeture physique du clapet et l'autonomie restent à valider ; aucune nouvelle image publiée.
+
+<a id="2.7-preview.21-sargo.1"></a>
+
+## 15/10/2026 : 2.7-preview.21-sargo.1
+
+![Image expérimentale publiée](https://img.shields.io/badge/Image%20exp%C3%A9rimentale%20publi%C3%A9e-75658A?style=flat-square)
+
+### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Paquet complet Pixel 3a disponible avec installateur, instructions FR/EN et sommes de contrôle. Bootloader déverrouillé requis ; installation avec effacement des données.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Correctifs de recherche DuckDuckGo, validation au clavier et affichage des pages inclus.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Expérimental](https://img.shields.io/badge/Exp%C3%A9rimental-475569?style=flat-square) : Le binaire public exact reste à tester sur le téléphone. Appels, audio, veille et autonomie restent à valider ; limites de provenance détaillées dans la release.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Sources](https://img.shields.io/badge/Sources-475569?style=flat-square) : Sources Vulpes et collection des sources amont jointes. La correspondance complète de certains composants reste à établir.
+
+[Téléchargement et instructions](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.21-sargo.1)
+
+<a id="development-2026-10-14-browser"></a>
+
+## 14/10/2026 : Navigateur et vidéo
+
+![En développement](https://img.shields.io/badge/En%20d%C3%A9veloppement-334155?style=flat-square)
+
+### ![Toutes les plateformes](https://img.shields.io/badge/Toutes%20les%20plateformes-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Recherche](https://img.shields.io/badge/Recherche-475569?style=flat-square) : DuckDuckGo devient le moteur par défaut. Les choix explicites de moteur restent conservés.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Clavier](https://img.shields.io/badge/Clavier-475569?style=flat-square) : La barre d’adresse rouvre le clavier dès le premier appui, même après sa fermeture.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Clavier](https://img.shields.io/badge/Clavier-475569?style=flat-square) : La validation au clavier ferme correctement celui-ci avant d’afficher la page, sans bloquer l’interface.
+
+### ![Desktop](https://img.shields.io/badge/Desktop-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Photo](https://img.shields.io/badge/Photo-475569?style=flat-square) : L’autorisation du micro utilise le panneau Gaia, au lieu d’une fenêtre Firefox séparée.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Recherche DuckDuckGo et retour à l’accueil vérifiés dans le profil de test.
+
+### ![Android / APK](https://img.shields.io/badge/Android%20%2F%20APK-2563EB?style=flat-square)
+
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Ressources communes actualisées ; aucun nouvel APK distribué pour ces corrections.
+
+### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Navigateur](https://img.shields.io/badge/Navigateur-475569?style=flat-square) : Les zones de geste latérales de Gaia ne masquent plus la page web sur le petit écran du Pixel.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Photo](https://img.shields.io/badge/Photo-475569?style=flat-square) : L’autorisation du micro s’affiche dans Gaia pour démarrer la vidéo.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Validation](https://img.shields.io/badge/Validation-475569?style=flat-square) : Clignotement disparu après redémarrage à froid ; recherche et adresse directe vérifiées visuellement sur le Pixel. Qualité audio des vidéos à écouter ; aucune nouvelle release publiée.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Navigation et vidéo](https://img.shields.io/badge/Navigation%20et%20vid%C3%A9o-475569?style=flat-square) : Recherche, clavier, retour Accueil et courte vidéo lisible avec miniature vérifiés sur le Pixel en RAM, sans débogueur. Boutons d’autorisation accessibles au-dessus de Home.
+
+### ![Web](https://img.shields.io/badge/Web-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Pixel 3a](https://img.shields.io/badge/Pixel%203a-475569?style=flat-square) : Fiche de compatibilité FR/EN actualisée : installation autonome, Bluetooth, vidéo, navigateur et limites des fonctions encore en cours. Image publique toujours en préparation.
+
 <a id="2.7-preview.21"></a>
 
 ## 14/10/2026 : 2.7-preview.21
@@ -26,8 +286,10 @@ Les nouveautés, par date et par plateforme. Dans chaque groupe : Add, Change, F
 
 ### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
 
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Démarrage](https://img.shields.io/badge/D%C3%A9marrage-475569?style=flat-square) : Image de démarrage allégée ; écran noir au lancement corrigé sur Pixel 3a.
 - ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Les corrections communes de Gaia sont incluses dans les images complètes et les mises à jour de démarrage.
-- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Nouvelle image d’installation construite ; démarrage et flash sur Pixel à vérifier avant publication.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Vérification](https://img.shields.io/badge/V%C3%A9rification-475569?style=flat-square) : Appels, audio, SMS/MMS, caméra, heure automatique et autonomie restent à valider sur cette installation.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Installation complète et redémarrages vérifiés sur Pixel 3a ; données personnelles restaurées. Image pas encore publiée.
 
 <a id="2.7-preview.20"></a>
 

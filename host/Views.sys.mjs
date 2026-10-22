@@ -2,6 +2,21 @@
 // real top-level browser, never by removing CSP or frame-ancestors protection.
 export const Views = {
   entries: new Map(),
+  syncContext(entry) {
+    const context=entry.browser.browsingContext;
+    if (!context || context.id===entry.topContextId) return;
+    // Site isolation may replace the top-level context on navigation.
+    const contexts=Services.ppmm.sharedData.get('vulpes:host-contexts') || [];
+    Services.ppmm.sharedData.set('vulpes:host-contexts',
+      [...new Set(contexts.filter(id=>id!==entry.topContextId).concat(context.id))]);
+    Services.ppmm.sharedData.flush();
+    entry.topContextId=context.id;
+    if (!Services.ppmm.sharedData.get('vulpes:native-touch')) {
+      context.inRDMPane=true;
+      context.setRDMPaneMaxTouchPoints(1);
+      context.touchEventsOverride='enabled';
+    }
+  },
   remove(id, entry) {
     const contextId = entry.topContextId;
     try {
@@ -44,9 +59,13 @@ export const Views = {
     Object.assign(entry.browser.style,{left:(left-x)+'px',top:(top-y)+'px',
       width:Math.max(0,right-left)+'px',height:Math.max(0,bottom-top)+'px',
       visibility:visible && right>left && bottom>top?'visible':'hidden'});
+    // Remote Wayland surfaces need the same layout flush as the Gaia browser.
+    entry.browser.getBoundingClientRect();
+    entry.browser.frameLoader?.requestUpdatePosition?.();
   },
   prune() {
     for (const [id, entry] of this.entries) {
+      this.syncContext(entry);
       if (!BrowsingContext.get(id)?.parent) {
         this.remove(id, entry);
         continue;
@@ -149,6 +168,7 @@ export const Views = {
           ]),
           onLocationChange(progress, request, location) {
             if (!progress.isTopLevel) return;
+            if (entry) Views.syncContext(entry);
             if (location.spec === 'about:blank') return; // Initial, uncommitted context.
             emit('locationchange', {
               url: location.spec,

@@ -600,7 +600,8 @@
 
     refreshGridSize: function() {
       var children = this.icons.children;
-      var cols = this.settings.small ? 4 : 3;
+      var cols = document.documentElement.dataset.vulpesLayout === 'compact' ?
+        3 : (this.settings.small ? 4 : 3);
 
       var visibleChildren = 0;
       var firstVisibleChild = -1;

@@ -1,0 +1,22 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body { background: #07182c; color: #edf6ff; font: 14px/1.35 sans-serif; }
+header { display: flex; align-items: center; padding: 10px 12px; border-bottom: 1px solid #24405c; }
+header img { width: 32px; height: 32px; margin-right: 9px; object-fit: contain; }
+h1 { font-size: 19px; letter-spacing: 3px; margin: 0; }
+header p { margin: 0; font-size: 10px; color: #a8c3db; }
+main { padding: 12px; }
+.page { display: none; }
+.page.active { display: block; }
+.eyebrow { color: #75c7ff; font-size: 10px; letter-spacing: 1px; }
+h2 { margin: 6px 0 9px; font-size: 23px; line-height: 1.1; }
+p { margin: 8px 0; }
+.notice { padding: 9px; margin-top: 12px; background: #14304a; border-left: 3px solid #60baff; font-size: 12px; }
+dl { margin: 8px 0; }
+dt { color: #a8c3db; font-size: 10px; }
+dd { margin: 0 0 2px; }
+output { display: block; padding: 10px; border: 1px solid #60baff; border-radius: 5px; overflow-wrap: break-word; }
+.small { font-size: 11px; color: #a8c3db; }
+.proof { text-align: center; }
+.proof img { display: block; width: 96px; height: 128px; margin: 6px auto; }
+footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 6px 10px; background: #102b45; font-size: 11px; }

@@ -1,4 +1,5 @@
 /* Navigation matches the Android preview; Gaia owns the application theme. */
+[keypad] #home { display: none; }
 #home {
   appearance: none;
   box-sizing: border-box;

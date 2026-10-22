@@ -15,6 +15,17 @@ spec.loader.exec_module(image)
 
 
 class SystemImageTests(unittest.TestCase):
+    def test_editable_gaia_overrides_are_in_the_system_image(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            product = Path(temporary)
+            image.copy_source_overrides(product)
+            project = image.module('test_project', image.PROJECT/'tools/project.py')
+            for app, names in project.SOURCE_OVERRIDES.items():
+                for name in names:
+                    relative = Path('gaia/apps')/app/name
+                    self.assertEqual((product/relative).read_bytes(),
+                                     (image.PROJECT/relative).read_bytes())
+
     def test_hardware_reference_requires_services_not_just_display(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

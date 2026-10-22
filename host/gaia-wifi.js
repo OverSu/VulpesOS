@@ -1,4 +1,4 @@
-// Tundra's NetworkManager broker, exposed through Gaia's legacy Wi-Fi interface.
+// Tundra's native Wi-Fi broker, exposed through Gaia's legacy Wi-Fi interface.
 (() => {
   if (!window.VulpesNativeWifi || !['system','settings'].includes(location.hostname.split('.')[0])) return;
   const {call, request} = VulpesCompat;
@@ -7,6 +7,8 @@
     connectionInformation:null, macAddress:'',
   });
   let networks = [], connectionInfo = {};
+  const securityTypes = value => value === 'open' ? [] :
+    [['wpa-psk','sae'].includes(value) ? 'WPA-PSK' : 'WPA-EAP'];
   function emit(type, values = {}) {
     const event = Object.assign(new Event(type), values);
     manager.dispatchEvent(event); manager['on' + type]?.(event);
@@ -27,6 +29,19 @@
     // disconnected must not announce connection information for a missing AP.
     if (network) emit('connectioninfoupdate', {network, ...manager.connectionInformation});
   }
+  function applyState(state) {
+    power(state.enabled === true);
+    manager.macAddress=state.macAddress || manager.macAddress;
+    if (state.state) {
+      connectionInfo=state.connectionInformation || {};
+      const network=state.state==='connected' && state.network;
+      update(network ? {
+        ...networks.find(n=>n.ssid===network.ssid),ssid:network.ssid,
+        security:securityTypes(network.security),
+        relSignalStrength:network.signal,savedId:network.savedId,connected:true
+      } : null);
+    }
+  }
   let scanPending;
   function scan() {
     if (scanPending) return scanPending;
@@ -36,9 +51,10 @@
   async function scanNetworks() {
     const result = await call('platform.wifi',{operation:'scan'});
     power(result.enabled !== false);
+    manager.macAddress=result.macAddress || manager.macAddress;
     connectionInfo=result.connectionInformation || {};
     networks = result.networks.map(n => ({ssid:n.ssid, relSignalStrength:n.signal,
-      security:n.security === 'open' ? [] : [['wpa-psk','sae'].includes(n.security) ? 'WPA-PSK' : 'WPA-EAP'],
+      security:securityTypes(n.security),
       known:n.known === true, connected:n.connected, vulpesId:n.id, savedId:n.savedId}));
     update(networks.find(n => n.connected) || null);
     return networks;
@@ -46,7 +62,7 @@
   manager.getNetworks = () => request(scan());
   let knownPending;
   manager.getKnownNetworks = () => {
-    if (!knownPending) knownPending = call('platform.wifi',{operation:'known'}).then(r=>r.networks.map(n=>({ssid:n.ssid,security:n.security==='open'?[]:['WPA-PSK'],known:true,savedId:n.id}))).finally(()=>{knownPending=null;});
+    if (!knownPending) knownPending = call('platform.wifi',{operation:'known'}).then(r=>r.networks.map(n=>({ssid:n.ssid,security:securityTypes(n.security),relSignalStrength:0,known:true,savedId:n.id}))).finally(()=>{knownPending=null;});
     return request(knownPending);
   };
   manager.associate = network => request((async () => {
@@ -148,7 +164,7 @@
   addEventListener('DOMContentLoaded', async () => {
     try {
       const state = await call('platform.wifi',{operation:'status'});
-      power(state.enabled);
+      applyState(state);
       if (location.hostname.startsWith('system.')) {
         let queue=Promise.resolve();
         navigator.mozSettings.addObserver('wifi.enabled', event => {
@@ -158,6 +174,8 @@
             try {
               const result=await call('platform.wifi',{operation:'setEnabled',enabled});
               power(result.enabled,true);
+              applyState(result);
+              if(result.enabled) await scan();
               if(!result.enabled)await call('settings.set',{values:{'tethering.wifi.enabled':false}});
             } catch(error) {
               await call('settings.set',{values:{'wifi.enabled':manager.enabled}});
@@ -168,20 +186,20 @@
         await call('settings.set',{values:{'wifi.enabled':state.enabled}});
       } else {
         navigator.mozSettings.addObserver('wifi.enabled', () => {
-          call('platform.wifi',{operation:'status'}).then(s=>power(s.enabled)).catch(console.warn);
+          call('platform.wifi',{operation:'status'}).then(applyState).catch(console.warn);
         });
       }
-      // Settings may receive the preference before the radio operation completes.
-      // Refresh while visible so its panel also follows hardware power changes.
-      if(location.hostname.startsWith('settings.')) {
+      // Settings follows delayed power changes. Adapters with live association
+      // state also refresh System, so reconnects update the status-bar icon.
+      if(location.hostname.startsWith('settings.') || state.state) {
         let pending=false;
         const refresh=setInterval(async()=>{
-          if(document.hidden || pending) return;
+          if((location.hostname.startsWith('settings.') && document.hidden) || pending) return;
           pending=true;
-          try {power((await call('platform.wifi',{operation:'status'})).enabled);}
+          try {applyState(await call('platform.wifi',{operation:'status'}));}
           catch(error) {console.warn('Wi-Fi status refresh failed',error);}
           finally {pending=false;}
-        },2000);
+        },location.hostname.startsWith('settings.') ? 2000 : 5000);
         addEventListener('pagehide',()=>clearInterval(refresh),{once:true});
       }
       if(manager.enabled) await scan();

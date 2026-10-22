@@ -20,6 +20,7 @@ public final class VulpesApplication extends Application {
   boolean pendingScreenLock;
   boolean homeVisible;
   boolean homeAtBottom;
+  boolean trackingProtection = true;
 
   @Override
   public void onCreate() {
@@ -66,6 +67,8 @@ public final class VulpesApplication extends Application {
         .locales(new String[] { "fr", "en-US" })
         .automaticFontSizeAdjustment(false)
         .fontInflation(false)
+        .contentBlocking(new ContentBlocking.Settings.Builder()
+          .antiTracking(ContentBlocking.AntiTracking.DEFAULT).build())
         .build()
     );
     services = new AndroidServices(this);
@@ -104,6 +107,12 @@ public final class VulpesApplication extends Application {
                   return GeckoResult.fromException(new SecurityException("EXTENSION_REQUIRED"));
                 }
                 JSONObject json = (JSONObject) message;
+                if (json.optString("type").equals("privacy.configure")) {
+                  trackingProtection = json.optBoolean("enabled", true);
+                  if (gaiaSession != null) gaiaSession.getSettings().setUseTrackingProtection(trackingProtection);
+                  if (activity != null) activity.updateTrackingProtection(trackingProtection);
+                  return GeckoResult.fromValue(null);
+                }
                 if (json.optString("type").equals("marketplace.return") && activity!=null) {activity.runOnUiThread(()->activity.closeBrowser());return GeckoResult.fromValue(null);}
                 if (json.optString("type").startsWith("packages.")) {
                   GeckoResult<Object> result=new GeckoResult<>();

@@ -5,6 +5,8 @@ from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('mobile',Path(__file__).parents[1]/'runtime/mobile-settings.py')
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 class NetworkClock(unittest.TestCase):
+ def setUp(self):
+  self.checkpoint=patch.object(m,'checkpoint_clock');self.checkpoint.start();self.addCleanup(self.checkpoint.stop)
  def test_monotonic_age_is_added_to_nitz(self):
   payload={'data':[{'UTC':{'data':1791836110},'Received':{'data':530}}]}
   with patch.object(m.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout=json.dumps(payload))),patch.object(m.time,'monotonic',return_value=550):

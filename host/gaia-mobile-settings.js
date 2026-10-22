@@ -1,7 +1,107 @@
+// Native status and radio power use the original Gaia SIM and signal components.
+// Other control APIs stay unavailable until the device adapter implements them.
+(() => {
+  if (!window.VulpesNativeRadioStatus || !['system.localhost','settings.localhost'].includes(location.hostname)) return;
+  const requestFrom = task => {
+    // Gaia uses DOMRequest callbacks; newer consumers can await the same request.
+    const request=Object.assign(new EventTarget(),{readyState:'pending',result:null,error:null});
+    const promise=Promise.resolve().then(task);
+    request.then=(resolve,reject)=>promise.then(resolve,reject);
+    promise.then(result=>{
+      request.result=result;request.readyState='done';
+      const event=new Event('success');request.dispatchEvent(event);request.onsuccess?.(event);
+    },error=>{
+      request.error=error;request.readyState='done';
+      const event=new Event('error');request.dispatchEvent(event);request.onerror?.(event);
+    });
+    return request;
+  };
+  const unsupported = () => requestFrom(()=>{
+    throw new DOMException('Not supported by this adapter','RequestNotSupported');
+  });
+  const emit = (object,type,detail={}) => {
+    const event=Object.assign(new Event(type),detail);
+    object.dispatchEvent(event);object['on'+type]?.(event);
+  };
+  const emptyInfo=()=>({connected:false,state:'unknown',type:null,network:null,relSignalStrength:null,roaming:false,emergencyCallsOnly:false});
+  const powerChangedAt=[0,0];
+  const connections=Array.from({length:2},(_,index)=>Object.assign(new EventTarget(),{
+    serviceId:index,iccId:null,radioState:'unknown',voice:emptyInfo(),data:emptyInfo(),
+    supportedNetworkTypes:[],networkSelectionMode:'automatic',
+    getNetworks:unsupported,selectNetwork:unsupported,selectNetworkAutomatically:unsupported,
+    setRadioEnabled(enabled) {
+      return requestFrom(async()=>{
+        const state=await VulpesCompat.call('platform.radioPower',{slot:index,enabled});
+        powerChangedAt[index]=Date.now()/1000;
+        const changed=this.radioState!==state.radioState;
+        this.radioState=state.radioState;
+        if(changed)emit(this,'radiostatechange');
+        return null;
+      });
+    },getCallForwardingOption:unsupported,setCallForwardingOption:unsupported,
+    getCallWaitingOption:unsupported,setCallWaitingOption:unsupported,
+    getCallingLineIdRestriction:unsupported,setCallingLineIdRestriction:unsupported,
+    getVoicePrivacyMode:unsupported,setVoicePrivacyMode:unsupported,
+    getRoamingPreference:unsupported,setRoamingPreference:unsupported,
+    getPreferredNetworkType:unsupported,setPreferredNetworkType:unsupported,
+    exitEmergencyCbMode:unsupported,
+  }));
+  const cards=new Map();
+  const manager=Object.assign(new EventTarget(),{iccIds:[],getIccById:id=>cards.get(id)||null});
+  Object.defineProperty(navigator,'mozMobileConnections',{value:connections});
+  Object.defineProperty(navigator,'mozIccManager',{value:manager});
+  async function refresh() {
+    let slots=[],recordedAt=0;
+    try { const snapshot=await VulpesCompat.call('platform.snapshot',{});slots=snapshot.radio || [];recordedAt=snapshot.recordedAt || 0; } catch (_) {}
+    document.documentElement.toggleAttribute('data-vulpes-radio-unavailable',
+      !connections.every((_,index)=>slots[index]?.available && typeof slots[index]?.sim?.present==='boolean'));
+    connections.forEach((conn,index)=>{
+      const slot=slots[index];
+      const previous=conn.iccId;
+      // An opaque slot handle is sufficient here; no ICCID/IMSI is requested.
+      conn.iccId=slot?.available && slot.sim?.present ? 'tundra-slot-'+index : null;
+      const previousRadio=conn.radioState;
+      // A cached snapshot must not undo a just-confirmed power command.
+      if(recordedAt>=powerChangedAt[index]) conn.radioState=slot?.available ? slot.radioState : 'unknown';
+      for(const kind of ['voice','data']) {
+        conn[kind]=Object.assign(emptyInfo(),slot?.available ? slot[kind] : {},{
+          network:slot?.operator || null,relSignalStrength:slot?.signal ?? null,
+        });
+      }
+      if(previous!==conn.iccId && previous) {
+        cards.delete(previous);manager.iccIds=[...cards.keys()];
+        emit(manager,'iccundetected',{iccId:previous});
+      }
+      if(conn.iccId) {
+        if(!cards.has(conn.iccId)) {
+          const card=Object.assign(new EventTarget(),{cardState:'unknown',iccInfo:null});
+          for(const name of ['getCardLock','unlockCardLock','setCardLock','getCardLockRetryCount','readContacts','updateContact',
+            'iccOpenChannel','iccExchangeAPDU','iccCloseChannel','sendStkResponse','sendStkMenuSelection','sendStkTimerExpiration','sendStkEventDownload'])card[name]=unsupported;
+          card.getServiceState=unsupported;cards.set(conn.iccId,card);
+        }
+        const card=cards.get(conn.iccId);
+        card.cardState=slot.sim.cardState;
+        card.iccInfo={iccid:conn.iccId,spn:slot.operator?.longName || '',iccType:'sim'};
+        manager.iccIds=[...cards.keys()];
+        if(previous!==conn.iccId)emit(manager,'iccdetected',{iccId:conn.iccId});
+        emit(card,'cardstatechange');emit(card,'iccinfochange');
+      }
+      manager.iccIds=[...cards.keys()];
+      if(previousRadio!==conn.radioState)emit(conn,'radiostatechange');
+      for(const type of ['voicechange','datachange','iccchange'])emit(conn,type);
+    });
+  }
+  document.documentElement.setAttribute('data-vulpes-radio-unavailable','');
+  const style=document.createElement('style');
+  style.textContent='[data-vulpes-radio-unavailable] #statusbar-mobile-connection{display:none!important}';
+  document.documentElement.append(style);
+  addEventListener('DOMContentLoaded',()=>{refresh();setInterval(refresh,5000);},{once:true});
+})();
+
 // Expose the single native SIM to the original Gaia Settings controllers.
 // Other applications retain their existing telephony/message adapters.
 (() => {
-  if (location.hostname !== 'settings.localhost' || !window.VulpesNativeTelephony) return;
+  if (location.hostname !== 'settings.localhost' || !window.VulpesNativeTelephony || window.VulpesNativeRadioStatus) return;
   const {call} = VulpesCompat;
   const read = action => call('platform.mobileSettings', {action});
   const unavailable = () => Promise.reject(new DOMException('Not supported by this adapter', 'NotSupportedError'));

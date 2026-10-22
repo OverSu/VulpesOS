@@ -102,7 +102,10 @@
     async function refreshCalls() {
       try {
         const current = await call('platform.calls',{});
-        if (location.hostname === 'callscreen.localhost') Object.assign(audioState,await call('platform.callAudio',{operation:'status'}));
+        if (location.hostname === 'callscreen.localhost' && current.some(c=>c.state!=='disconnected')) {
+          // Audio routing may be unavailable while modem call control still works.
+          try { Object.assign(audioState,await call('platform.callAudio',{operation:'status'})); } catch (_) {}
+        }
         const live = current.filter(c=>c.state!=='disconnected');
         const old = telephony.calls;
         let changed = false;
@@ -188,6 +191,7 @@
     return r;
   }
   let language = navigator.language;
+  let languageRevision = 0;
   function setLanguage(value) {
     if (typeof value !== 'string' || !/^[a-z]{2,3}(?:-[a-zA-Z0-9]{2,8})*$/.test(value)) return;
     const changed = language !== value;
@@ -196,7 +200,10 @@
   }
   Object.defineProperty(navigator, 'language', {get:() => language});
   Object.defineProperty(navigator, 'languages', {get:() => Object.freeze([language])});
-  call('locale.current').then(setLanguage).catch(() => {});
+  const initialLanguageRevision = languageRevision;
+  call('locale.current').then(value => {
+    if (languageRevision === initialLanguageRevision) setLanguage(value);
+  }).catch(() => {});
   const observers = new Map();
   const settings = new EventTarget();
   settings.createLock = () => ({
@@ -228,7 +235,10 @@
   addEventListener('vulpes-service-event', (event) => {
     const { type, data } = event.detail;
     if (type === 'settingchange') {
-      if (data.key === 'language.current') setLanguage(data.value);
+      if (data.key === 'language.current') {
+        languageRevision++;
+        setLanguage(data.value);
+      }
       const change = {
         settingName: data.key,
         settingValue: settingsCodec ? settingsCodec.decode(data.value) : data.value,
@@ -238,7 +248,17 @@
     }
     if (type === 'callscreen-closed') document.querySelector('iframe[name="call_screen"]')?.dispatchEvent(new CustomEvent('mozbrowserclose',{bubbles:true}));
     if (type === 'hardware-key') dispatchEvent(new CustomEvent('softwareButtonEvent', {detail:data}));
-    if (type === 'activity-choice') dispatchEvent(new CustomEvent('mozChromeEvent', {detail:{...data,type:'activity-choice'}}));
+    if (type === 'keypad-notifications' && location.hostname === 'system.localhost') {
+      const tray = window.UtilityTray;
+      if (tray?.motion) {
+        if (['open', 'opening'].includes(tray.motion.state)) tray.hide(true);
+        else if (!window.Service?.query('locked')) tray.show(true);
+      }
+    }
+    if (type === 'activity-choice') {
+      dispatchEvent(new CustomEvent('activityrequesting'));
+      dispatchEvent(new CustomEvent('mozChromeEvent', {detail:{...data,type:'activity-choice'}}));
+    }
     if (type === 'activity-launch') dispatchEvent(new CustomEvent('open-app', {detail:{...data,showApp:true,onlyShowApp:false}}));
     if (type === 'launch') dispatchEvent(new CustomEvent('webapps-launch', { detail: data }));
     if (type === 'screen-off') {

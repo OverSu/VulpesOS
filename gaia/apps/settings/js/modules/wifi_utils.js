@@ -268,8 +268,14 @@ define(function(require) {
      * @param {Integer} networkSignal
      */
     updateNetworkSignal: function(network, networkSignal) {
-      var li = document.querySelector('li[data-ssid="' + network.ssid + '"]');
-      var icon = li.querySelector('aside');
+      if (!network) { return; }
+      var items = document.querySelectorAll('li[data-ssid]');
+      var li = Array.prototype.find.call(items, function(item) {
+        return item.dataset.ssid === network.ssid;
+      });
+      // Signal updates can arrive before the scan has populated the list.
+      var icon = li && li.querySelector('aside');
+      if (!icon) { return; }
       // Clean previous state
       icon.className = icon.className.replace(/level-\w*/, '');
       var level = Math.min(Math.floor(networkSignal / 20), 4);

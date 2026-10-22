@@ -76,16 +76,37 @@
       if(event.source===frame?.contentWindow && event.origin==='http://keyboard.localhost:8765' &&
           event.data?.type==='vulpes-keyboard-ready') sendViewport();
     });
+    let resizeSequence=0;
     const resize=next=>{
       if(next===height) return;
       height=next;
+      const sequence=++resizeSequence, pending=[];
       if(frame) {frame.style.height=height+'px';frame.hidden=!height;}
-      dispatchEvent(new CustomEvent(height?'keyboardchange':'keyboardhide',{detail:{height,waitUntil:()=>{}}}));
+      dispatchEvent(new CustomEvent(height?'keyboardchange':'keyboardhide',{
+        detail:{height,waitUntil:promise=>pending.push(Promise.resolve(promise))}
+      }));
+      // AppWindowManager waits for this completion before opening the next app.
+      // A refocus while layout settles must not complete an obsolete hide.
+      if(!height) Promise.allSettled(pending).then(()=>{
+        if(sequence===resizeSequence && !height)
+          dispatchEvent(new CustomEvent('keyboardhidden'));
+      });
     };
     const attach=setInterval(()=>{
       if(!window.Service) return;
       clearInterval(attach);
-      Service.registerState('getHeight',{name:'InputWindowManager',getHeight:()=>height});
+      const hide=()=>call('input.request',{operation:'hide'});
+      const provider=window.inputWindowManager || {name:'InputWindowManager'};
+      provider.getHeight=()=>height;
+      provider.hideInputWindow=hide;
+      provider.hideInputWindowImmediately=hide;
+      Service.registerState('getHeight',provider);
+      // KeyboardManager is disabled with the host input API, so its original
+      // InputWindowManager may never exist. Register the replacement explicitly.
+      if(!window.inputWindowManager) {
+        Service.register('hideInputWindow',provider);
+        Service.register('hideInputWindowImmediately',provider);
+      }
     },100);
     addEventListener('vulpes-service-event',({detail})=>{
       if(detail.type==='input-height') {if(frame && !frame.hidden) resize(detail.data.height);return;}
@@ -102,7 +123,7 @@
       frame.hidden=false;
       resize(height || 260);
     });
-    for(const type of ['home','lockscreen-appopened','appwillclose'])
+    for(const type of ['home','lockscreen-appopened','appwillclose','activityrequesting'])
       addEventListener(type,()=>call('input.request',{operation:'hide'}).catch(console.error));
   }
   }

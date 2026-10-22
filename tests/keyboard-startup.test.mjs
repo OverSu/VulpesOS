@@ -38,3 +38,50 @@ test('focus received before viewport measurement survives a stale initial reply'
   k.viewport();
   assert.equal(k.ime.inputcontext.text,'pending');
 });
+
+function systemKeyboard({legacy=true}={}) {
+  const events=new EventTarget(), intervals=[], calls=[], states=new Map();
+  const frame={style:{},hidden:true,contentWindow:{postMessage(){}},addEventListener(){}};
+  const context={VulpesNativeInput:true,location:{hostname:'system.localhost'},
+    VulpesCompat:{call:(method,params)=>{calls.push({method,params});return Promise.resolve();}},
+    document:{documentElement:{lang:'fr'},createElement:()=>frame,body:{append(){}}},navigator:{language:'fr'},
+    inputWindowManager:legacy?{}:undefined,Service:{registerState:(name,provider)=>states.set(name,provider),register:(name,provider)=>states.set(name,provider)},
+    console,Event,EventTarget,CustomEvent:class extends Event {constructor(name,options={}){super(name);this.detail=options.detail;}},
+    setInterval:fn=>{intervals.push(fn);return intervals.length;},clearInterval(){},
+    addEventListener:events.addEventListener.bind(events),dispatchEvent:events.dispatchEvent.bind(events)};
+  context.window=context;vm.runInNewContext(source,context);intervals.forEach(fn=>fn());
+  const focus=value=>events.dispatchEvent(new context.CustomEvent('vulpes-service-event',{detail:{type:'input-focus',data:value}}));
+  return {events,context,frame,calls,focus,states};
+}
+test('Gaia hide commands target the host keyboard',async()=>{
+  const s=systemKeyboard();
+  await s.context.inputWindowManager.hideInputWindow();
+  await s.context.inputWindowManager.hideInputWindowImmediately();
+  assert.equal(s.calls.length,2);
+  assert.ok(s.calls.every(c=>c.method==='input.request' && c.params.operation==='hide'));
+});
+test('keyboardhidden follows layout completion so app switching can resume',async()=>{
+  const s=systemKeyboard(), seen=[];let finish;
+  s.events.addEventListener('keyboardhide',e=>{seen.push('hide');e.detail.waitUntil(new Promise(r=>finish=r));});
+  s.events.addEventListener('keyboardhidden',()=>seen.push('hidden'));
+  s.focus({id:1});s.focus(null);
+  assert.equal(s.frame.hidden,true);assert.deepEqual(seen,['hide']);
+  finish();await new Promise(r=>setImmediate(r));
+  assert.deepEqual(seen,['hide','hidden']);
+});
+test('refocus cancels stale keyboardhidden completion',async()=>{
+  const s=systemKeyboard();let finish,hidden=0;
+  s.events.addEventListener('keyboardhide',e=>e.detail.waitUntil(new Promise(r=>finish=r)));
+  s.events.addEventListener('keyboardhidden',()=>hidden++);
+  s.focus({id:1});s.focus(null);s.focus({id:2});finish();
+  await new Promise(r=>setImmediate(r));
+  assert.equal(hidden,0);assert.equal(s.frame.hidden,false);
+});
+
+test('standalone host registers hide services without the legacy KeyboardManager',async()=>{
+  const s=systemKeyboard({legacy:false});
+  for(const name of ['hideInputWindow','hideInputWindowImmediately'])
+    await s.states.get(name)[name]();
+  assert.equal(s.calls.length,2);
+  s.focus({id:1});assert.equal(s.states.get('getHeight').getHeight(),260);
+});

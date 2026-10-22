@@ -8,7 +8,7 @@ test('Wi-Fi bursts share one scan, cache errors, and retry after cooldown', asyn
   let reply = {result:{networks:[]}};
   let gate = new Promise(resolve => {release = resolve;});
   Date.now = () => now;
-  globalThis.Services = {env:{get:() => '1'}};
+  globalThis.Services = {env:{get:key => key==='VULPES_TUNDRA_WIFI'?'1':''}};
   globalThis.ChromeUtils = {importESModule:() => ({Subprocess:{call:async () => {
     starts++;
     let read = false;
@@ -135,4 +135,62 @@ test('scan without an association does not send Gaia an invalid signal event', a
   connected=true;await manager.getNetworks();
   assert.equal(signals,1);assert.equal(manager.connection.status,'connected');
   connected=false;await manager.getNetworks();assert.equal(signals,1);
+});
+
+test('live native association updates Gaia after reconnect without a scan', async () => {
+  const {readFile}=await import('node:fs/promises');
+  const vm=await import('node:vm');
+  let refresh, state={enabled:true,state:'disconnected',networks:[]}, signals=0;
+  const events={},navigator={mozSettings:{addObserver(){}}};
+  const context=vm.createContext({navigator,console,Event,EventTarget,DOMException,
+    window:{VulpesNativeWifi:true},location:{hostname:'system.localhost'},
+    document:{hidden:true},setInterval:fn=>{refresh=fn;return 1;},clearInterval(){},
+    addEventListener:(name,fn)=>{events[name]=fn;},
+    VulpesCompat:{request:p=>p,call:async()=>state}});
+  vm.runInContext(await readFile(new URL('../host/gaia-wifi.js',import.meta.url),'utf8'),context);
+  await events.DOMContentLoaded();
+  const manager=navigator.mozWifiManager;
+  manager.onconnectioninfoupdate=()=>signals++;
+  state={enabled:true,state:'connected',macAddress:'00:11:22:33:44:55',
+    network:{ssid:'Test',security:'wpa-psk',signal:72,savedId:'0'},
+    connectionInformation:{ipAddress:'192.0.2.3',linkSpeed:72}};
+  await refresh();
+  assert.equal(manager.connection.status,'connected');
+  assert.equal(manager.connectionInformation.ipAddress,'192.0.2.3');
+  assert.equal(manager.connectionInformation.relSignalStrength,72);
+  assert.equal(manager.macAddress,state.macAddress);
+  assert.equal(signals,1);
+  state={enabled:false,state:'disabled'};await refresh();
+  assert.equal(manager.connection.status,'disconnected');
+  assert.equal(manager.connectionInformation,null);
+});
+
+test('Gaia signal update tolerates a pending list and SSIDs with selector characters', async () => {
+  const {readFile}=await import('node:fs/promises');
+  const vm=await import('node:vm');
+  let utils,items=[],level;
+  const icon={className:'wifi-icon level-0',classList:{add:value=>{level=value;}}};
+  const context=vm.createContext({console,define:factory=>{utils=factory(()=>({getWifiManager:()=>({})}));},
+    document:{querySelectorAll:selector=>{assert.equal(selector,'li[data-ssid]');return items;}}});
+  vm.runInContext(await readFile(new URL('../gaia/apps/settings/js/modules/wifi_utils.js',import.meta.url),'utf8'),context);
+  const network={ssid:'Cafe "[wifi]"'};
+  assert.doesNotThrow(()=>utils.updateNetworkSignal(network,80));
+  assert.doesNotThrow(()=>utils.updateNetworkSignal(null,80));
+  items=[{dataset:{ssid:network.ssid},querySelector:()=>icon}];
+  utils.updateNetworkSignal(network,80);
+  assert.equal(level,'level-4');
+});
+
+test('saved networks outside the scan have zero signal and retain security type', async () => {
+  const {readFile}=await import('node:fs/promises');
+  const vm=await import('node:vm');
+  const navigator={};
+  const context=vm.createContext({navigator,console,Event,EventTarget,DOMException,
+    window:{VulpesNativeWifi:true},location:{hostname:'system.localhost'},addEventListener(){},
+    VulpesCompat:{request:p=>p,call:async()=>({networks:[{id:'4',ssid:'Office',security:'unsupported'}]})}});
+  vm.runInContext(await readFile(new URL('../host/gaia-wifi.js',import.meta.url),'utf8'),context);
+  const [network]=await navigator.mozWifiManager.getKnownNetworks();
+  assert.equal(network.relSignalStrength,0);
+  assert.equal(network.security[0],'WPA-EAP');
+  assert.equal(network.savedId,'4');
 });

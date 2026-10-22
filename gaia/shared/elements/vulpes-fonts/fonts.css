@@ -61,3 +61,59 @@
   font-style: italic;
   font-display: swap;
 }
+
+/* Native language names missing from Fira Sans. Subsets retain shaping tables. */
+
+@font-face {
+  font-family: FiraSans;
+  src: url("languages/VulpesLanguageArabic-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0628,U+0631,U+0639,U+064A;
+}
+
+@font-face {
+  font-family: FiraSans;
+  src: url("languages/VulpesLanguageBengali-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0982,U+09A6,U+09AC,U+09B2,U+09B6,U+09BE,U+09C7;
+}
+
+@font-face {
+  font-family: FiraSans;
+  src: url("languages/VulpesLanguageDevanagari-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0928,U+092A,U+0932,U+093E,U+0940,U+0947;
+}
+
+@font-face {
+  font-family: FiraSans;
+  src: url("languages/VulpesLanguageGurmukhi-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0A1C,U+0A2A,U+0A2C,U+0A3E,U+0A40,U+0A70;
+}
+
+@font-face {
+  font-family: FiraSans;
+  src: url("languages/VulpesLanguageKhmer-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+1781,U+1798,U+179A,U+17C2,U+17D2;
+}
+
+@font-face {
+  font-family: FiraSans;
+  src: url("languages/VulpesLanguageCJK-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+4E2D,U+4F53,U+6587,U+65E5,U+672C,U+6B63,U+7B80,U+7E41,U+8A9E,U+9AD4,U+AD6D,U+C5B4,U+D55C;
+}

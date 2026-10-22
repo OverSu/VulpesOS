@@ -125,3 +125,177 @@
   background-color: var(--vulpes-surface) !important;
   color: var(--vulpes-text) !important;
 }
+
+
+/* Shared compact home: three columns, original icons, reversible wallpaper veil. */
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] {
+  --compact-cell: round(down, calc((100vw - 12px) / 3), 1px);
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] body {
+  background-color: rgba(5, 15, 31, .72);
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] #apps .icon-container {
+  width: var(--compact-cell);
+  height: 74px;
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] #apps gaia-app-icon {
+  width: 52px;
+  left: round(down, calc((var(--compact-cell) - 52px) / 2), 1px);
+  border: 2px solid transparent;
+  --vulpes-label-width: calc(var(--compact-cell) - 4px);
+  --vulpes-label-offset: round(down, calc((48px - var(--vulpes-label-width)) / 2), 1px);
+  --vulpes-icon-display: block;
+  --vulpes-icon-title-position: absolute;
+  --vulpes-icon-title-clip: inset(50%);
+  font-size: 12px;
+  line-height: 16px;
+  transform: none;
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] #apps-panel > .scrollable {
+  padding-top: 2px;
+  padding-bottom: 0;
+}
+
+/* A single applications panel; saved pinned pages remain available in classic mode. */
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] :is(#page-indicator-header, #pages-panel, #shadow) {
+  display: none;
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] #panels {
+  height: calc(100vh - 52px);
+  overflow-x: hidden;
+  scroll-snap-type: none;
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="system"] #homescreen {
+  --rocketbar-urlbar-height: 0px;
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="system"] #homescreen > .chrome {
+  display: none;
+}
+/* Gaia finishes opening/closing on animationend: retain that event, skip the effect. */
+html[data-vulpes-motion="reduced"][data-vulpes-app="system"] .appWindow,
+html[data-vulpes-motion="reduced"][data-vulpes-app="homescreen"] :is(gaia-app-icon, .gaia-container-child, .icon-container, .scrollable, #panels) {
+  animation-duration: .001s !important;
+  animation-delay: 0s !important;
+  transition-duration: .001s !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Enabled by the Nokia adapter, independent of the shared compact layout.
+ * Keep a nonzero duration so Gaia's transitionend navigation still completes. */
+html[data-vulpes-motion="reduced"],
+html[data-vulpes-motion="reduced"] *,
+html[data-vulpes-motion="reduced"] *::before,
+html[data-vulpes-motion="reduced"] *::after {
+  transition-duration: .001s !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-vulpes-motion="reduced"][data-vulpes-layout="compact"][data-vulpes-app="system"]
+  #screen:has(#homescreen.active):not(.rocketbar-focused):not(.utility-tray):not(.locked) #statusbar {
+  background: rgba(5, 15, 31, .72) !important;
+}
+
+
+#vulpes-compact-app-name {
+  display: none;
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] #vulpes-compact-app-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 52px;
+  padding: 2px 10px;
+  color: white;
+  font: 500 20px/24px FiraSans, sans-serif;
+  text-align: center;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-shadow: 0 1px 2px #000;
+}
+html[data-vulpes-layout="compact"][data-vulpes-app="homescreen"] gaia-app-icon[data-vulpes-compact-selected] {
+  outline: 2px solid #00aaff !important;
+  outline-offset: -2px !important;
+  border-radius: 8px;
+}
+
+/* Keep Gaia's dial pad and controls inside a feature-phone viewport. */
+@media (max-width: 320px) and (max-height: 400px) {
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] #phone-number-view-container {
+    height: 48px;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] #phone-number-view-container .phone-number-view-wrapper-input {
+    margin-bottom: 0;
+    padding: 0 8px;
+    min-width: 0;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] #phone-number-view {
+    font-size: 24px !important;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] #keypad-delete {
+    margin-bottom: 0;
+    padding: 0 8px 0 0;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] #keyboard-container {
+    height: calc(100% - 48px);
+    display: flex;
+    flex-direction: column;
+    padding: 0 6px;
+    box-sizing: border-box;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] #keypad {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] .keypad-row { display: contents; }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] .keypad-key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0;
+    height: auto;
+    font-size: 30px;
+    line-height: 1;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] .keypad-key :is(span,em) {
+    width: auto;
+    margin: 0;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] .keypad-key em { font-size: 10px; }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] .keypad-key .sharp { font-size: 30px; line-height: 1; }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] #keypad-callbar {
+    flex: 0 0 40px;
+    height: 40px;
+  }
+  html[data-vulpes-layout="compact"][data-vulpes-app="communications"] :is(.keypad-callbar-button,#keypad-callbar-call-action) {
+    height: 32px;
+    background-size: 32px;
+  }
+}
+#keypad-callbar-call-action[aria-busy="true"] { opacity: .5; }
+
+#vulpes-cover-settings {
+  display: block !important; height: auto !important; padding: 0 0 1rem;
+}
+#vulpes-cover-settings h2 { margin: 1rem 0; height: auto; overflow: visible; }
+#vulpes-cover-settings label {
+  display: block; height: auto !important; padding: .4rem 0; overflow: visible;
+}
+#vulpes-cover-settings label > span {
+  display: block; margin: 0; width: auto; line-height: 1.5;
+  white-space: normal; font-size: 1.6rem; overflow: visible;
+}
+#vulpes-cover-settings :is(input,select) {
+  position: static; width: 100%; box-sizing: border-box; margin: 0;
+}
+#vulpes-cover-settings .vulpes-cover-preview {
+  background: #04060b; padding: 1rem; text-align: center; overflow-wrap: anywhere;
+  height: auto; font-size: 1.4rem; line-height: 1.5;
+}

@@ -37,6 +37,38 @@ def prepare(root, network=None, hardware=None, diagnostics=False):
 ExecStartPre=/usr/bin/fc-cache -f /usr/share/fonts/opentype/vulpes
 ''')
     write('etc/os-release','NAME="Tundra"\nID=tundra\nPRETTY_NAME="Tundra Sargo development trial"\n')
+    (root/'etc/tundra').mkdir(parents=True, exist_ok=True)
+    shutil.copy2(Path(__file__).with_name('clock-state.py'), root/'etc/tundra/clock-state.py')
+    write('etc/systemd/system/tundra-clock-restore.service', """[Unit]
+Description=Restore Tundra clock from persistent state and RTC elapsed time
+DefaultDependencies=no
+After=local-fs.target
+Before=time-set.target tundra-display.service tundra-radio.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /etc/tundra/clock-state.py --restore
+RemainAfterExit=yes
+ExecStop=/usr/bin/python3 /etc/tundra/clock-state.py --save
+StateDirectory=tundra/clock
+""")
+    write('etc/systemd/system/tundra-clock-save.service', """[Unit]
+Description=Checkpoint Tundra clock
+After=tundra-clock-restore.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /etc/tundra/clock-state.py --save
+StateDirectory=tundra/clock
+""")
+    write('etc/systemd/system/tundra-clock-save.timer', """[Unit]
+Description=Checkpoint Tundra clock once per minute
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=60
+""")
+    wants = root/'etc/systemd/system/tundra.target.wants'
+    wants.mkdir(parents=True, exist_ok=True)
+    for unit in ('tundra-clock-restore.service', 'tundra-clock-save.timer'):
+        (wants/unit).symlink_to('../'+unit)
     write('etc/hostname','vulpes-sargo\n')
     write('etc/shells','/bin/sh\n/bin/bash\n/usr/bin/bash\n')
     write('etc/pam.d/tundra','auth required pam_permit.so\naccount required pam_permit.so\nsession required pam_systemd.so\n')
@@ -177,6 +209,7 @@ NoNewPrivileges=yes
         write('etc/NetworkManager/conf.d/80-vulpes-hotspot.conf',Path(__file__).with_name('hotspot-firewall.conf').read_text())
         for name in ('iptables','ip6tables'):
             alias=root/'usr/sbin'/name
+            alias.parent.mkdir(parents=True, exist_ok=True)
             if not alias.exists() and not alias.is_symlink():alias.symlink_to(name+'-legacy')
         write('etc/tundra/network-enabled', 'sargo\n')
         display = root/'etc/systemd/system/tundra-display.service'

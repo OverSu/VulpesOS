@@ -85,7 +85,7 @@ export class Platform {
     if (Services.env.get('VULPES_TUNDRA_RADIO') === '1') {
       const poll = async () => {
         try { await this.radio('calls'); } catch (_) {}
-        setTimeout(poll, 500);
+        setTimeout(poll, Services.env.get('VULPES_DEVICE') === 'beatles' ? 1000 : 500);
       };
       poll();
       const inbox = async()=>{
@@ -103,7 +103,7 @@ export class Platform {
           }
         } catch(error) {console.error('SMS inbox:',error.message);}
         try {
-          const rows=await tundraMms('incoming');
+          const rows=Services.env.get('VULPES_DEVICE') === 'beatles' ? [] : await tundraMms('incoming');
           const app=this.runtime.apps.find(a=>a.id==='sms');
           for(const row of rows) {
             const message=await this.runtime.messages.receive(receivedMms(row));
@@ -124,7 +124,13 @@ export class Platform {
       if (operation === 'ackCallHistory') this.journal.acknowledge(params.ids);
       else {
         const result = await tundraRadio(operation, params);
-        if (operation === 'dial') this.journal.start({path:result.path,number:params.number,state:'dialing'}, Date.now(), 'outgoing');
+        if (operation === 'dial') {
+          const call = {path:result.path,number:params.number,state:'dialing',direction:'outgoing'};
+          this.journal.start(call, Date.now(), 'outgoing');
+          // The modem has confirmed this call; do not serve the pre-dial cache.
+          this.lastCalls = [...(this.lastCalls || []).filter(c=>c.path!==result.path),call];
+          this.lastCallsAt = Date.now();
+        }
         if (operation === 'calls') {
           const previous = new Set(this.journal.completed.map(c=>c.id));
           this.journal.update(result); this.lastCalls = result; this.lastCallsAt = Date.now();
@@ -175,16 +181,21 @@ export class Platform {
     }
     const principal = global.documentPrincipal;
     const video = request.videoInputDevices?.[0], audio = request.audioInputDevices?.[0];
-    for (const [device, kind, message] of [
-      [video, 'camera', 'Autoriser Photo à utiliser la caméra ? / Allow Camera to use your camera?'],
-      [audio, 'microphone', 'Autoriser Photo à enregistrer le son ? / Allow Camera to record audio?']
+    for (const [device, kind] of [
+      [video, 'camera'],
+      [audio, 'microphone']
     ]) {
       if (!device) continue;
       let permission = Services.perms.testExactPermissionFromPrincipal(principal, kind);
       if (permission === Ci.nsIPermissionManager.UNKNOWN_ACTION) {
-        permission = Services.prompt.confirm(browser.ownerDocument.defaultView, 'Vulpes — Photo', message)
-          ? Ci.nsIPermissionManager.ALLOW_ACTION : Ci.nsIPermissionManager.DENY_ACTION;
-        Services.perms.addFromPrincipal(principal, kind, permission);
+        let decision;
+        try {
+          decision = await browser.browsingContext.currentWindowGlobal.getActor('Vulpes').sendQuery('Vulpes:MediaPermission', {
+            id:Services.uuid.generateUUID().toString(), origin:app.origin, manifestURL:app.manifestURL, kind,
+          });
+        } catch (_) { deny(); return; }
+        permission = decision?.allowed ? Ci.nsIPermissionManager.ALLOW_ACTION : Ci.nsIPermissionManager.DENY_ACTION;
+        if (decision?.remember) Services.perms.addFromPrincipal(principal, kind, permission);
       }
       if (permission !== Ci.nsIPermissionManager.ALLOW_ACTION) { deny(); return; }
     }
@@ -229,6 +240,24 @@ export class Platform {
       if (operation === 'notification') return this.gaiaNotification(app,params);
       if (['settings', 'capture', 'alarms', 'notification'].includes(operation))
         throw Error('NOT_SUPPORTED');
+    }
+    if (Services.env.get('VULPES_TUNDRA_STATUS') === '1') {
+      if (operation === 'wifi') return tundraWifi(params);
+      const radio = Services.env.get('VULPES_TUNDRA_RADIO') === '1';
+      if (radio && operation === 'radioPower') return tundraRadio('radioPower',params);
+      if (radio && operation === 'calls' && Date.now()-this.lastCallsAt<1500) return this.lastCalls;
+      if (radio && ['calls','dial','callHistory','ackCallHistory'].includes(operation)) return this.radio(operation,params);
+      if (radio && ['hangup','answer','sms'].includes(operation)) return tundraRadio(operation,params);
+      if (radio && operation === 'callAudio') return tundraCallAudio(params);
+      if (operation === 'snapshot') return tundraSnapshot();
+      if (operation === 'capabilities') return {
+        platform:'tundra', platformName:'Tundra', model:'Nokia 2720 Flip',
+        adapter:{version:'0.1.0-dev',device:'beatles'}, tundra:'0.1.0-dev',
+        version:this.runtime.release.version, gaia:this.runtime.release.gaia,
+        gecko:Services.appinfo.platformVersion, hardwareStatus:true,
+        radioStatus:true, wifiControl:Services.env.get('VULPES_TUNDRA_WIFI') === '1', camera:false, media:true, contacts:true,
+        notifications:true, dial:radio, callControl:radio, sms:radio, mms:false, callAudio:radio, alarms:false,
+      };
     }
     if (operation === 'capabilities')
       return {

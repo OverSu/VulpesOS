@@ -20,6 +20,11 @@ authorizePlatform(camera, 'capture');
 authorizePlatform(camera, 'cameraPreview', {action:'start',camera:'back'});
 authorizePlatform(camera, 'cameraPreview', {action:'frame'});
 authorizePlatform(camera, 'cameraPreview', {action:'stop'});
+for (const mode of ['off','auto','on','torch']) {
+  authorizePlatform(camera,'cameraPreview',{action:'flash',mode});
+  rejects(gallery,'cameraPreview',{action:'flash',mode});
+}
+assert.throws(()=>authorizePlatform(camera,'cameraPreview',{action:'flash',mode:'invalid'}), /INVALID_VALUE/);
 rejects(gallery, 'cameraPreview', {action:'frame'});
 rejects(settings, 'cameraPreview', {action:'start',camera:'back'});
 assert.throws(() => authorizePlatform(camera, 'cameraPreview', {action:'start',camera:'../../device'}), /INVALID_VALUE/);
@@ -86,3 +91,8 @@ for(const operation of ['hotspotStatus','hotspotSave','hotspotPower']) {
   authorizePlatform(settings,'wifi',{operation});
   for(const id of ['system','communications','marketplace'])rejects(app(id),'wifi',{operation});
 }
+
+for (const id of ['system','settings']) authorizePlatform(app(id),'radioPower',{slot:0,enabled:false});
+for (const id of ['communications','search','sms']) rejects(app(id),'radioPower',{slot:0,enabled:false});
+for (const params of [{slot:2,enabled:true},{slot:0,enabled:1},{slot:'0',enabled:true}])
+  assert.throws(()=>authorizePlatform(settings,'radioPower',params),/INVALID_VALUE/);

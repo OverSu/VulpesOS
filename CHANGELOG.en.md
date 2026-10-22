@@ -4,6 +4,266 @@
 
 Updates by date and platform. Within each group: Add, Change, Fix, Note, Test. Entries describe the state at their date; a fix in development requires an updated installed version.
 
+<a id="2.7-preview.22"></a>
+
+## 22/10/2026 : 2.7-preview.22
+
+![Published](https://img.shields.io/badge/Published-334155?style=flat-square)
+
+### ![All Platforms](https://img.shields.io/badge/All%20platforms-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Sharing](https://img.shields.io/badge/Sharing-475569?style=flat-square) : Browser Share offers Messages and Email; the keyboard hides so the chooser remains accessible.
+
+### ![Desktop](https://img.shields.io/badge/Desktop-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Web input](https://img.shields.io/badge/Web%20input-475569?style=flat-square) : Focus is restored for fields and dropdowns in the desktop browser.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : First-click input, typing, selectors and sharing to a Messages draft checked on desktop.
+
+### ![Android / APK](https://img.shields.io/badge/Android%20%2F%20APK-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) ![Update](https://img.shields.io/badge/Update-475569?style=flat-square) : Preview 22 APK built with shared Gaia fixes and an incremented Android version.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Startup](https://img.shields.io/badge/Startup-475569?style=flat-square) : GeckoView logs a session-restore message on the emulator first launch; Gaia still reaches Home without crashing.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Preview 21 installation and upgrade to Preview 22 succeeded in Android 11 emulation; Gaia reached Home. Reported phones still need qualification, including Pixel 4.
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-487768?style=flat-square) ![Keyboard](https://img.shields.io/badge/Keyboard-475569?style=flat-square) : Initial offline T9 input using Gaia dictionaries. Physical keyboard qualification is still needed.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Network](https://img.shields.io/badge/Network-475569?style=flat-square) : Wi-Fi, reconnection and airplane-mode cycle checked in a RAM session; Gaia controls follow hardware state.
+
+
+### ![Pixel 3a / Sargo](https://img.shields.io/badge/Pixel%203a%20%2F%20Sargo-2563EB?style=flat-square)
+
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Native image](https://img.shields.io/badge/Native%20image-475569?style=flat-square) : This release does not include a new Pixel image. Preview 21 remains the latest published image; this Preview's changes are not installed on the phone.
+
+<a id="development-2026-10-20-web-nokia"></a>
+
+## 20/10/2026 : Fixes being prepared for Preview 22
+
+### ![All Platforms](https://img.shields.io/badge/All%20platforms-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : Share opens the Messages or Email chooser. The keyboard no longer covers this menu.
+
+### ![Desktop / Tundra](https://img.shields.io/badge/Desktop%20%2F%20Tundra-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : Web dropdowns regain the focus needed to open.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Input](https://img.shields.io/badge/Input-475569?style=flat-square) : First-click input, web fields, selectors and sharing to a Messages draft checked on desktop. Pixel retesting remains pending.
+
+### ![Android / APK](https://img.shields.io/badge/APK-2563EB?style=flat-square)
+
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Preview 20 to Preview 21 upgrade succeeded in Android 11 emulation. The reported Pixel 4 installation failure still needs diagnosis.
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-13A37D?style=flat-square) ![T9 keyboard](https://img.shields.io/badge/T9%20keyboard-475569?style=flat-square) : Initial offline Nokia implementation using all 42 Gaia dictionaries. Physical qualification remains pending with the flip open.
+- ![Change](https://img.shields.io/badge/Change-52748B?style=flat-square) ![Development](https://img.shields.io/badge/Development-475569?style=flat-square) : The launcher now synchronizes the complete shared Gaia payload while keeping phone data.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Airplane mode](https://img.shields.io/badge/Airplane%20mode-475569?style=flat-square) : Gaia now turns the Nokia modem off and back on. Stale network states no longer cancel airplane mode.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Nokia phone-mode startup now exposes the Wi-Fi broker to Gaia. Network scanning, radio toggle, saved-network reconnection and HTTPS access passed in a RAM session.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) : Web dropdown selection with the OK key still needs correction and qualification.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Hardware](https://img.shields.io/badge/Hardware-475569?style=flat-square) : Wi-Fi and reconnection, volume with Gaia indicator, brightness and vibration stop checked on Nokia. SIM recognized and LTE registration observed.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Network](https://img.shields.io/badge/Network-475569?style=flat-square) : Nokia airplane-mode cycle verified: radios and Wi-Fi off, then back on with LTE registration restored.
+- ![Test](https://img.shields.io/badge/Test-6B7280?style=flat-square) ![Media](https://img.shields.io/badge/Media-475569?style=flat-square) : Each RAM launch copies a test Ogg track and WebM video into Music and Video; both files are readable by the Gaia apps.
+
+<a id="development-2026-10-18-nokia-radio-timeout"></a>
+
+## 18/10/2026 : Nokia network timeouts
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Phone](https://img.shields.io/badge/Phone-475569?style=flat-square) : Shorter call-status wait when the modem stops responding; identical unanswered requests no longer accumulate. Clearer error message.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Network](https://img.shields.io/badge/Network-475569?style=flat-square) : The cause of modem stalls and a new real call still need verification.
+
+<a id="development-2026-10-18-forgejo-fixes"></a>
+
+## 18/10/2026 : Forgejo fixes — in development
+
+### ![All Platforms](https://img.shields.io/badge/All%20platforms-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Gallery](https://img.shields.io/badge/Gallery-475569?style=flat-square) : Corrected photo orientation, sharing to Messages or Email, and the empty gallery background.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Languages](https://img.shields.io/badge/Languages-475569?style=flat-square) : Language changes no longer revert to an earlier selection. Added missing characters in language names.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Marketplace](https://img.shields.io/badge/Marketplace-475569?style=flat-square) : Connected the FFAA Install button for packaged apps, with confirmation before installation.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Customization](https://img.shields.io/badge/Customization-475569?style=flat-square) : Gaia wallpapers now use their higher-resolution originals.
+
+### ![Desktop / Tundra](https://img.shields.io/badge/Desktop%20%2F%20Tundra-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Keyboard](https://img.shields.io/badge/Keyboard-475569?style=flat-square) : Gaia keyboard input in Marketplace search, including after web navigation.
+
+### ![Tundra / Pixel 3a](https://img.shields.io/badge/Tundra%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Battery](https://img.shields.io/badge/Battery-475569?style=flat-square) : Reduced hardware communication overhead while idle; day-long battery testing is still needed.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Camera](https://img.shields.io/badge/Camera-475569?style=flat-square) : Video recording is accessible and playable; flash controls follow the sensor’s actual capabilities.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Date and time](https://img.shields.io/badge/Date%20and%20time-475569?style=flat-square) : Time survives a reboot even when the hardware clock is incorrect.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Vibration](https://img.shields.io/badge/Vibration-475569?style=flat-square) : Corrected vibration start and stop.
+- ![Test](https://img.shields.io/badge/Test-8B5CF6?style=flat-square) ![Camera](https://img.shields.io/badge/Camera-475569?style=flat-square) : Verified a 12 MP photo, front/rear switching and playback of a short video on Pixel.
+
+### ![All Platforms — Tests](https://img.shields.io/badge/Test%20status-2563EB?style=flat-square)
+
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Validation](https://img.shields.io/badge/Validation-475569?style=flat-square) : Unreleased fixes. Motorola-specific issues, long-term battery use, video audio and wake behavior still need qualification. Full OTA updates and hosted FFAA apps remain unfinished.
+
+<a id="development-2026-10-18-nokia-settings-keypad"></a>
+
+## 18/10/2026 : Nokia Settings navigation
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Settings](https://img.shields.io/badge/Settings-475569?style=flat-square) : Airplane mode and Geolocation are reachable with Up/Down. OK activates Gaia switches and checkboxes; disabled controls remain skipped.
+
+<a id="development-2026-10-18-nokia-fluidity"></a>
+
+## 18/10/2026 : Nokia 2720 Flip responsiveness
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Performance](https://img.shields.io/badge/Performance-475569?style=flat-square) : Lighter hardware communication reduces CPU load, leaving more room for the interface.
+
+<a id="development-2026-10-18-nokia-wifi"></a>
+
+## 18/10/2026 : Nokia 2720 Flip Wi-Fi
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-238636?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Find networks, switch Wi-Fi on or off and connect from Gaia Settings. Saved networks can be reused without entering their password again.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Browser Internet access and reconnection after switching Wi-Fi off. The displayed status follows reconnections.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Open and WPA/WPA2 Personal networks are supported. Enterprise networks, WPS and hotspot sharing still need integration on the Nokia.
+
+### ![Shared fixes](https://img.shields.io/badge/PC%20%2F%20APK%20%2F%20Tundra-475569?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Wi-Fi](https://img.shields.io/badge/Wi--Fi-475569?style=flat-square) : Wi-Fi results remain visible when a signal update arrives before the list. Saved networks that are not detected are marked out of range.
+
+<a id="development-2026-10-18-nokia-browser-keypad"></a>
+
+## 18/10/2026 : Nokia 2720 Flip keypad browsing
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : Press Up then OK to access the address bar, type with the keypad and submit. Back closes address entry; Down returns to page content. The bar remains reachable on web pages and network error pages.
+
+<a id="development-2026-10-18-nokia-appearance-privacy"></a>
+
+## 18/10/2026 : Nokia customization and privacy
+
+### ![All Platforms](https://img.shields.io/badge/All%20platforms-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : Tracking protection enabled by default; introductory popup no longer shown on launch.
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Cover screen](https://img.shields.io/badge/Cover%20screen-475569?style=flat-square) : Added red, orange, purple, cyan, turquoise and grey.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Interface](https://img.shields.io/badge/Interface-475569?style=flat-square) : Decorative transitions are nearly instant on Nokia; loading animations remain active.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Cover screen](https://img.shields.io/badge/Cover%20screen-475569?style=flat-square) : Custom text saves after typing without leaving the field.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Home](https://img.shields.io/badge/Home-475569?style=flat-square) : The status bar uses the same dimming as the home background.
+
+<a id="development-2026-10-18-nokia-closed-start"></a>
+
+## 18/10/2026 : Nokia 2720 Flip lid and keys
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Notifications](https://img.shields.io/badge/Notifications-475569?style=flat-square) : The dedicated key opens and closes the Gaia notification tray.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Display](https://img.shields.io/badge/Display-475569?style=flat-square) : The cover display is activated when starting with the phone closed, without opening the lid first.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Volume](https://img.shields.io/badge/Volume-475569?style=flat-square) : Volume keys remain usable with the lid closed.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Keypad](https://img.shields.io/badge/Keypad-475569?style=flat-square) : The assistance and headset keys, and the long-press power menu, still need integration.
+
+<a id="development-2026-10-18-nokia-hardware"></a>
+
+## 18/10/2026 : Nokia 2720 Flip hardware controls
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Volume](https://img.shields.io/badge/Volume-475569?style=flat-square) : Side keys connected to the Gaia volume panel and native phone volume.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Display](https://img.shields.io/badge/Display-475569?style=flat-square) : Brightness control now adjusts the screen backlight.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Vibration](https://img.shields.io/badge/Vibration-475569?style=flat-square) : Short vibration patterns with automatic stop and cancellation.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Volume](https://img.shields.io/badge/Volume-475569?style=flat-square) : Gaia starts with the phone’s actual volume level.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Camera](https://img.shields.io/badge/Camera-475569?style=flat-square) : A fixed-focus 2 MP rear camera has been identified. Connecting it to Vulpes remains in progress.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Hardware](https://img.shields.io/badge/Hardware-475569?style=flat-square) : Volume, Gaia panel, brightness and vibration stop checked on the Nokia. No new flash or APK published.
+
+<a id="development-2026-10-18-nokia-build"></a>
+
+## 18/10/2026 : Experimental Nokia 2720 Flip build
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Build](https://img.shields.io/badge/Build-475569?style=flat-square) : First private boot package built with Gecko 156.0.1 and shared Gaia.
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Prototype files now survive a Nokia reboot.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Validation](https://img.shields.io/badge/Validation-475569?style=flat-square) : Unsigned image, not yet boot-tested or qualified for flashing. The phone still relies on its installed hardware services; no standalone ROM published.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Build](https://img.shields.io/badge/Build-475569?style=flat-square) : Image format, archives and fallback logic checked locally. Gaia and network verified from the new persistent location.
+
+<a id="development-2026-10-18-nokia-phone"></a>
+
+## 18/10/2026 : In development — Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Cover screen](https://img.shields.io/badge/Cover%20screen-475569?style=flat-square) : Custom text and title/battery colours in Display settings, with a preview.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Phone](https://img.shields.io/badge/Phone-475569?style=flat-square) : Calls and simple SMS connected to the Gaia applications.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Flip](https://img.shields.io/badge/Flip-475569?style=flat-square) : Displays and keypad backlight corrected when opening and closing; operation confirmed on the phone.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Network](https://img.shields.io/badge/Network-475569?style=flat-square) : Radio reconnections are spaced out after errors to avoid a retry loop.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Keys](https://img.shields.io/badge/Keys-475569?style=flat-square) : Red key connected to Gaia’s Hang up button and return to Home.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Prototype](https://img.shields.io/badge/Prototype-475569?style=flat-square) : Temporary session on the existing KaiOS hardware stack; no standalone image or new release. Long-term reliability still needs testing.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Communications](https://img.shields.io/badge/Communications-475569?style=flat-square) : Call, two-way voice audio and SMS confirmed by the Nokia owner.
+
+### ![All Platforms](https://img.shields.io/badge/All%20Platforms-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Calls](https://img.shields.io/badge/Calls-475569?style=flat-square) : Repeated presses of Call no longer send multiple requests while connecting. An audio error no longer blocks the call screen.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Compact mode](https://img.shields.io/badge/Compact%20mode-475569?style=flat-square) : Phone keypad, Call button and tabs fit small screens without overlap.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Shared resources synchronized; no new APK compiled.
+
+<a id="development-2026-10-17-nokia-cover"></a>
+
+## 17/10/2026 : In development — Nokia 2720 Flip
+
+### ![Tundra / Nokia 2720 Flip](https://img.shields.io/badge/Tundra%20%2F%20Nokia%202720%20Flip-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Flip](https://img.shields.io/badge/Flip-475569?style=flat-square) : Inner display power management when closing and reopening the phone, under hardware validation.
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Cover display](https://img.shields.io/badge/Cover%20display-475569?style=flat-square) : Clock, date, operator and battery; turns off after 15 seconds.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Prototype](https://img.shields.io/badge/Prototype-475569?style=flat-square) : Temporary trial only. Physical flip behavior and battery life still need validation; no new image published.
+
+<a id="2.7-preview.21-sargo.1"></a>
+
+## 15/10/2026 : 2.7-preview.21-sargo.1
+
+![Experimental image published](https://img.shields.io/badge/Experimental%20image%20published-75658A?style=flat-square)
+
+### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Add](https://img.shields.io/badge/Add-2F855A?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Full Pixel 3a package available with installer, FR/EN instructions and checksums. Unlocked bootloader required; installation erases data.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : Includes fixes for DuckDuckGo search, keyboard submission and web page rendering.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Experimental](https://img.shields.io/badge/Experimental-475569?style=flat-square) : The exact public binary still needs a hardware boot test. Calls, audio, suspend and battery life need validation; provenance limitations are detailed in the release.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Sources](https://img.shields.io/badge/Sources-475569?style=flat-square) : Vulpes sources and collected upstream sources attached. Complete correspondence for some components remains to be established.
+
+[Download and instructions](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.21-sargo.1)
+
+<a id="development-2026-10-14-browser"></a>
+
+## 14/10/2026 : Browser and video
+
+![In development](https://img.shields.io/badge/In%20development-334155?style=flat-square)
+
+### ![All Platforms](https://img.shields.io/badge/All%20Platforms-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Search](https://img.shields.io/badge/Search-475569?style=flat-square) : DuckDuckGo becomes the default search engine. Explicit engine choices are preserved.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Keyboard](https://img.shields.io/badge/Keyboard-475569?style=flat-square) : The address bar reopens the keyboard on the first tap, even after dismissal.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Keyboard](https://img.shields.io/badge/Keyboard-475569?style=flat-square) : Submitting from the keyboard now closes it before displaying the page, without freezing the interface.
+
+### ![Desktop](https://img.shields.io/badge/Desktop-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Camera](https://img.shields.io/badge/Camera-475569?style=flat-square) : Microphone permission uses the Gaia panel instead of a separate Firefox window.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : DuckDuckGo navigation and return to Home checked in the test profile.
+
+### ![Android / APK](https://img.shields.io/badge/Android%20%2F%20APK-2563EB?style=flat-square)
+
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Shared resources updated; no new APK distributed for these fixes.
+
+### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
+
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Browser](https://img.shields.io/badge/Browser-475569?style=flat-square) : Gaia edge gesture zones no longer hide web pages on the Pixel’s narrow screen.
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Camera](https://img.shields.io/badge/Camera-475569?style=flat-square) : Microphone permission appears inside Gaia to start video recording.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Validation](https://img.shields.io/badge/Validation-475569?style=flat-square) : Flicker cleared after a cold restart; search results and a direct address visually checked on the Pixel. Video audio quality still needs listening tests; no new release published.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Navigation and video](https://img.shields.io/badge/Navigation%20and%20video-475569?style=flat-square) : Search, keyboard, return to Home and a short playable video with thumbnail checked on the Pixel in RAM without the debugger. Permission buttons remain accessible above Home.
+
+### ![Web](https://img.shields.io/badge/Web-2563EB?style=flat-square)
+
+- ![Change](https://img.shields.io/badge/Change-64748B?style=flat-square) ![Pixel 3a](https://img.shields.io/badge/Pixel%203a-475569?style=flat-square) : FR/EN compatibility page updated: standalone installation, Bluetooth, video, browser and remaining feature limitations. Public image still in preparation.
+
 <a id="2.7-preview.21"></a>
 
 ## 14/10/2026 : 2.7-preview.21
@@ -26,8 +286,10 @@ Updates by date and platform. Within each group: Add, Change, Fix, Note, Test. E
 
 ### ![Sargo / Pixel 3a](https://img.shields.io/badge/Sargo%20%2F%20Pixel%203a-2563EB?style=flat-square)
 
+- ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Boot](https://img.shields.io/badge/Boot-475569?style=flat-square) : Smaller boot image; fixed the black screen at startup on Pixel 3a.
 - ![Fix](https://img.shields.io/badge/Fix-52677D?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Shared Gaia fixes are included in full installation images and boot updates.
-- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : New installation image built; Pixel boot and flashing must be tested before publication.
+- ![Note](https://img.shields.io/badge/Note-6B7280?style=flat-square) ![Testing](https://img.shields.io/badge/Testing-475569?style=flat-square) : Calls, audio, SMS/MMS, camera, automatic time and battery life still need testing on this installation.
+- ![Test](https://img.shields.io/badge/Test-75658A?style=flat-square) ![Installation](https://img.shields.io/badge/Installation-475569?style=flat-square) : Full installation and reboots verified on Pixel 3a; personal data restored. Image not yet published.
 
 <a id="2.7-preview.20"></a>
 

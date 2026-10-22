@@ -15,6 +15,11 @@ import org.mozilla.geckoview.*;
 
 public final class MainActivity extends Activity {
 
+  void updateTrackingProtection(boolean enabled) {
+    if (gaia != null) gaia.getSettings().setUseTrackingProtection(enabled);
+    if (web != null) web.getSettings().setUseTrackingProtection(enabled);
+  }
+
   private VulpesApplication app;
   private GeckoSession gaia, web;
   private GeckoView gaiaView, webView;
@@ -130,6 +135,7 @@ public final class MainActivity extends Activity {
         ? app.gaiaSession
         : new GeckoSession(
             new GeckoSessionSettings.Builder()
+              .useTrackingProtection(app.trackingProtection)
               .displayMode(GeckoSessionSettings.DISPLAY_MODE_STANDALONE)
               .build()
           );
@@ -216,7 +222,8 @@ public final class MainActivity extends Activity {
       return;
     }
     if (web == null) {
-      web = new GeckoSession();
+      web = new GeckoSession(new GeckoSessionSettings.Builder()
+        .useTrackingProtection(app.trackingProtection).build());
       web.setContentDelegate(content);
       web.setPromptDelegate(prompts);
       web.setPermissionDelegate(permissions);

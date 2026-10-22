@@ -17,6 +17,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa, ec
 from cryptography.hazmat.primitives import serialization
 from ramdisk_reference import read_newc, select_helpers
 from storage_layout import mount_table
+from shared_ui import compress_archive
 from tundra import ROOT, cpio, checked_source, digest, save, linker
 
 
@@ -34,6 +35,7 @@ def main():
                         help='Private per-phone workspace; never use the development inventory')
     parser.add_argument('--native',action='store_true',help='Switch to the staged native root with a ten-minute watchdog')
     parser.add_argument('--system-image',type=Path,help='system.json for a self-contained image staged at /tundra/images/<sha256>.ext4')
+    parser.add_argument('--differential-ui', action='store_true', help='Bundle only UI files differing from the verified immutable system image')
     parser.add_argument('--hold-hal',action='store_true',help='Boot basic.target first so HAL startup can be traced over USB')
     parser.add_argument('--runtime-config', action='store_true', help='Apply the current runtime recipe to the RAM overlay')
     parser.add_argument('--network', action='store_true', help='Enable experimental WLAN and isolated Qualcomm NV copies; requires --runtime-config')
@@ -45,6 +47,7 @@ def main():
     args=parser.parse_args()
     if args.hold_hal and not args.native:parser.error('--hold-hal requires --native')
     if args.system_image and not args.native:parser.error('--system-image requires --native')
+    if args.differential_ui and not args.system_image:parser.error('--differential-ui requires --system-image')
     if args.runtime_config and not args.native:parser.error('--runtime-config requires --native')
     if args.hardware and not args.network:parser.error('--hardware requires --network')
     if args.network and not args.runtime_config:parser.error('--network requires --runtime-config')
@@ -169,7 +172,7 @@ def main():
                     config_dir = configroot/directory
                     if config_dir.exists():
                         archive.add(config_dir, arcname=directory, filter=owned)
-            files['native-config.tar']=(0o600,buffer.getvalue())
+            files['native-config.tar']=(0o600,compress_archive(buffer.getvalue()))
         sources += list(sorted((ROOT/'runtime').glob('*.py')))
         files['sbin/tundra-watchdog']=(0o755,binary.read_bytes())
         native_init=(ROOT/'boot/native-root.sh').read_bytes().replace(b'# BUILD_TIME_FLOOR', ('BUILD_EPOCH='+str(built_at)).encode())
@@ -181,8 +184,17 @@ def main():
                 ('SYSTEM_IMAGE=/installed/tundra/images/'+sha+'.ext4\nSYSTEM_IMAGE_SHA='+sha+'\n# A kernel fallback').encode())
             # Bundle UI changes with the boot trial rather than retransferring
             # the entire immutable system image for each CSS/JS adjustment.
-            from shared_ui import build_payload
+            from shared_ui import build_payload, differential_payload
             payload, shared_ui = build_payload()
+            if args.differential_ui:
+                with tempfile.TemporaryDirectory() as directory:
+                    extracted = Path(directory)/'opt'
+                    extracted.mkdir()
+                    subprocess.run(['debugfs', '-R', 'rdump /opt/vulpes '+str(extracted), str(image_path)],
+                                   check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    if not (extracted/'vulpes/release.json').is_file():
+                        raise ValueError('Cannot inspect the immutable Gaia filesystem')
+                    payload, omitted_ui = differential_payload(payload, Path(directory))
             files['shared-ui.tar'] = (0o600, payload)
             sources.append(ROOT/'tools/shared_ui.py')
         if state:
@@ -233,6 +245,7 @@ def main():
         'ramdiskSha256':digest(ramdisk),'roundtripPassed':True,'flashReady':False,'localDebugger':args.local_debugger,'watchdogSeconds':None if args.no_deadline else (600 if args.native else 480),'persistentState':state,'storageWrites':bool(state),'nativeRootRequested':args.native,'halHeldForDiagnostics':args.hold_hal,
         'layout':layout,'layoutSha256':digest(args.layout),'systemImage':system,'sharedUiHashes':shared_ui,'sourceSnapshot':True,'sources':{str(p.relative_to(ROOT)):digest(p) for p in sources},
         'helpers':{n:__import__('hashlib').sha256(b).hexdigest() for n,b in helpers.items()},
+        'sharedUiFilesAlreadyInSystem':omitted_ui if args.differential_ui else 0,
         'containsPrivateTrialHostKey':True,'installedKeysCopied':False})
     print(image)
 

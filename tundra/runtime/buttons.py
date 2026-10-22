@@ -39,6 +39,9 @@ class Vibration:
             raise ValueError('INVALID_VIBRATION')
         self.steps = list(enumerate(pattern))
         self.deadline = None
+        trigger = VIBRATOR/'trigger'
+        if trigger.exists():
+            trigger.write_text('none')
         (VIBRATOR/'brightness').write_text('0')
         self.advance(time.monotonic())
 
@@ -60,11 +63,27 @@ class Vibration:
 
 vibration = Vibration()
 
+class WakeRecovery:
+    def __init__(self):
+        self.deadline = None
+
+    def arm(self, now):
+        self.deadline = now + 1.5
+
+    def advance(self, now):
+        if self.deadline is not None and now >= self.deadline:
+            self.deadline = None
+            if int((BACKLIGHT/'brightness').read_text()) == 0:
+                control({'operation':'screen', 'enabled':True, 'level':0.5})
+
+wake_recovery = WakeRecovery()
+
 def control(p):
     if p.get('operation') == 'screen':
         enabled, level = p.get('enabled'), p.get('level')
         if type(enabled) is not bool or type(level) not in (int, float) or not 0 <= level <= 1:
             raise ValueError('INVALID_SCREEN')
+        wake_recovery.deadline = None
         maximum = int((BACKLIGHT/'max_brightness').read_text())
         (BACKLIGHT/'brightness').write_text(str(max(1, round(maximum * level)) if enabled else 0))
     elif p.get('operation') == 'vibrate':
@@ -125,15 +144,16 @@ def serve():
                         _, _, kind, code, value = INPUT.unpack_from(data, offset)
                         event = key_event(kind, code, value)
                         if event:
-                            # Always allow a physical press to recover a black display,
-                            # even if Gaia has stopped responding.
+                            # Let Gaia restore the lock screen before lighting it.
+                            # Recover independently only if its screen command never arrives.
                             if code == 116 and value == 1 and int((BACKLIGHT/'brightness').read_text()) == 0:
-                                control({'operation':'screen', 'enabled':True, 'level':0.5})
+                                wake_recovery.arm(time.monotonic())
                             state['sequence'] += 1
                             state['events'].append({'id':state['sequence'], 'type':event})
                             state['events'] = state['events'][-64:]
             if vibration.deadline is not None:
                 vibration.advance(time.monotonic())
+            wake_recovery.advance(time.monotonic())
             publish()
 
 def client():

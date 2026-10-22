@@ -1,21 +1,40 @@
 # SPDX-License-Identifier: MPL-2.0
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tarfile
 import unittest
 from unittest.mock import patch
 
 TOOLS=Path(__file__).resolve().parents[1]/'tools'
 sys.path.insert(0,str(TOOLS))
 from standalone_volume import checked_volume
+from shared_ui import differential_payload
 spec=importlib.util.spec_from_file_location('standalone_boot',TOOLS/'build-standalone-boot.py')
 boot=importlib.util.module_from_spec(spec);spec.loader.exec_module(boot)
 
 
 class StandaloneBootTests(unittest.TestCase):
+    def test_shared_payload_keeps_changed_missing_and_different_mode_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            for name in ('same','changed','mode'):
+                (root/name).write_bytes(b'old');(root/name).chmod(0o644)
+            source=io.BytesIO()
+            with tarfile.open(fileobj=source,mode='w') as archive:
+                for name,data,mode in [('same',b'old',0o644),('changed',b'new',0o644),('mode',b'old',0o755),('missing',b'new',0o644)]:
+                    item=tarfile.TarInfo(name);item.size=len(data);item.mode=mode
+                    archive.addfile(item,io.BytesIO(data))
+            result,count=differential_payload(source.getvalue(),root)
+            self.assertEqual(count,1)
+            with tarfile.open(fileobj=io.BytesIO(result)) as archive:
+                self.assertEqual(archive.getnames(),['changed','mode','missing'])
+                self.assertEqual(archive.extractfile('changed').read(),b'new')
+
     def setUp(self):
         self.volume={'schema':1,'device':'sargo','storage':'raw-userdata-ext4','image':'userdata.ext4',
                      'uuid':'12345678-1234-1234-1234-123456789abc','bytes':8*1024**3,

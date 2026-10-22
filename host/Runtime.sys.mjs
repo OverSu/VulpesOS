@@ -4,7 +4,7 @@ import {Input} from 'resource://vulpes/host/Input.sys.mjs';
 import { ScreenPower } from 'resource://vulpes/services/screen-power.mjs';
 import { Packages } from 'resource://vulpes/services/packages.mjs';
 import { Activities, isGaiaActivity } from 'resource://vulpes/services/activities.mjs';
-import { SettingsService } from 'resource://vulpes/services/settings.mjs';
+import { SettingsService, migrateSearchDefaults, migratePrivacyDefaults } from 'resource://vulpes/services/settings.mjs';
 import { DataStoreService } from 'resource://vulpes/services/datastores.mjs';
 import { DataStoresIndexedDB } from 'resource://vulpes/adapters/datastores-indexeddb.mjs';
 import { Views } from 'resource://vulpes/host/Views.sys.mjs';
@@ -16,6 +16,7 @@ import { Platform } from 'resource://vulpes/host/Platform.sys.mjs';
 import { Media } from 'resource://vulpes/host/Media.sys.mjs';
 import { tundraCallAudio, tundraHardware, tundraRadio, tundraMms } from 'resource://vulpes/host/Tundra.sys.mjs';
 Cu.importGlobalProperties(['indexedDB']);
+const beatlesHardware = () => Services.env.get('VULPES_DEVICE') === 'beatles' && Services.env.get('VULPES_TUNDRA_RADIO') === '1';
 
 // This is the only privileged owner of application identity and settings data.
 // Application messages are never allowed to supply their own permissions.
@@ -46,6 +47,7 @@ export const Runtime = {
     this.idleListeners.delete(actor);
   },
   async init() {
+    this.hardwareKeyboard = Services.env.get('VULPES_KEYPAD') === '1';
     this.input = new Input(this);
     const root = Services.env.get('VULPES_WORKSPACE_ROOT');
     this.apps = await IOUtils.readJSON(PathUtils.join(root, 'assets', 'registry.json'));
@@ -106,6 +108,12 @@ export const Runtime = {
       'deviceinfo.platform_version': Services.appinfo.platformVersion,
       'deviceinfo.platform_build_id': Services.appinfo.platformBuildID,
     };
+    const privacyChanged = migratePrivacyDefaults(this.values);
+    if (migrateSearchDefaults(this.values) || privacyChanged) {
+      await IOUtils.writeJSON(path, this.values, {tmpPath:path+'.tmp'});
+    }
+    for (const pref of ['privacy.trackingprotection.enabled', 'privacy.donottrackheader.enabled'])
+      Services.prefs.setBoolPref(pref, this.values[pref] === true);
     if (!saved['vulpes.gaia-restoration.v1']) {
       this.values['lockscreen.enabled'] = true;
       this.values['vulpes.gaia-restoration.v1'] = true;
@@ -117,6 +125,15 @@ export const Runtime = {
       notify:(actor,type,data)=>actor.sendAsyncMessage('Vulpes:Event',{type,data}),
       launch:(target,path,{reload=false,entryPoint}={})=>this.broadcast(reload?'activity-launch':'launch',{manifestURL:target.manifestURL,origin:target.origin,
         entryPoint,url:new URL(path || target.manifest.launch_path || '/index.html',target.origin).href,timestamp:Date.now()},'system')});
+    if (beatlesHardware()) {
+      try {
+        const volumes = await tundraRadio('volumeState');
+        for (const [stream,level] of Object.entries(volumes)) {
+          if (!['content','notification','alarm','telephony','bt_sco'].includes(stream) || !Number.isFinite(level) || level<0 || level>1) continue;
+          this.values['audio.volume.'+stream]=Math.round(level*(['telephony','bt_sco'].includes(stream)?5:15));
+        }
+      } catch (error) { console.warn('Nokia volume state:',error.message); }
+    }
     this.writeQueue = Promise.resolve();
     this.settings = new SettingsService({
       get: async (key) => this.values[key],
@@ -130,6 +147,7 @@ export const Runtime = {
             'accessibility.monoaudio.enable':'accessibility.monoaudio.enable',
             'geolocation.enabled':'geo.enabled',
             'privacy.donottrackheader.enabled':'privacy.donottrackheader.enabled',
+            'privacy.trackingprotection.enabled':'privacy.trackingprotection.enabled',
             'debug.paint-flashing.enabled':'nglayout.debug.paint_flashing',
             'apz.overscroll.enabled':'apz.overscroll.enabled'
           };
@@ -140,12 +158,14 @@ export const Runtime = {
           }
           if (entries.some(([key]) => key === 'language.current'))
             Services.prefs.setStringPref('intl.accept_languages', values['language.current']);
-          if (Services.env.get('VULPES_TUNDRA') === '1') {
+          if (Services.env.get('VULPES_TUNDRA') === '1' || beatlesHardware()) {
             const volume = entries.find(([key, value]) => /^audio\.volume\.(content|notification|alarm|telephony|bt_sco)$/.test(key) && Number.isFinite(value));
             if (volume) {
               const maximum = /\.(telephony|bt_sco)$/.test(volume[0]) ? 5 : 15;
               const level = Math.max(0,Math.min(1,volume[1]/maximum));
-              const control = maximum === 5 ? tundraCallAudio({operation:'set',volume:level}) : tundraHardware({operation:'volume',level});
+              const control = beatlesHardware()
+                ? tundraRadio('volume',{stream:volume[0].split('.').pop(),level})
+                : maximum === 5 ? tundraCallAudio({operation:'set',volume:level}) : tundraHardware({operation:'volume',level});
               await control.catch(error => console.error(error.message));
             }
           }
@@ -171,7 +191,7 @@ export const Runtime = {
         : null,
       (type, message) => this.broadcast('sms-' + type, message, 'sms'),
       path => tundraRadio('messageState', {path}),
-      Services.env.get('VULPES_TUNDRA_RADIO') === '1' ? {validate:mmsPayload,
+      Services.env.get('VULPES_TUNDRA_RADIO') === '1' && Services.env.get('VULPES_DEVICE') !== 'beatles' ? {validate:mmsPayload,
         send:message=>tundraMms('send',mmsPayload(message)), status:path=>tundraMms('state',{path})} : null,
     );
     this.media = new Media((data) => this.broadcast('mediachange', data));
@@ -184,6 +204,14 @@ export const Runtime = {
         'deviceinfo.product_manufacturer': 'Google',
         'deviceinfo.hardware': 'Tundra / Sargo',
         'deviceinfo.firmware_revision': 'Android 9 / API 28 (vendor)',
+      });
+    } else if (Services.env.get('VULPES_DEVICE') === 'beatles') {
+      Object.assign(this.values, {
+        'deviceinfo.product_model': 'Nokia 2720 Flip',
+        'deviceinfo.product_device': 'beatles',
+        'deviceinfo.product_manufacturer': 'Nokia',
+        'deviceinfo.hardware': 'ARMv7 — prototype framebuffer',
+        'deviceinfo.firmware_revision': 'KaiOS 2.5.2.2 — session temporaire',
       });
     }
     const alarmPath = PathUtils.join(PathUtils.profileDir, 'vulpes-alarms-v1.json');
@@ -227,6 +255,16 @@ export const Runtime = {
       return null;
     return this.apps.find((app) => app.origin === origin) || null;
   },
+  inputIdentity(actor) {
+    const app = this.identity(actor);
+    if (app) return app;
+    const context = actor.browsingContext.top;
+    for (const entry of Views.entries.values()) {
+      if (entry.browser.browsingContext === context && entry.browser.isConnected &&
+          entry.browser.style.visibility === 'visible') return this.identity(entry.actor);
+    }
+    return null;
+  },
   grants(app) {
     const access = app.manifest.permissions?.settings?.access || '';
     return [
@@ -254,11 +292,15 @@ export const Runtime = {
       return {error:{code:'METHOD_NOT_SUPPORTED'}};
     }
     if(method==='hardware.vibrate') {
-      if(app.id!=='system' || Services.env.get('VULPES_TUNDRA')!=='1') return {error:{code:'NOT_SUPPORTED'}};
+      if(app.id!=='system' || (Services.env.get('VULPES_TUNDRA')!=='1' && !beatlesHardware())) return {error:{code:'NOT_SUPPORTED'}};
       const pattern=params?.pattern;
       if(!Array.isArray(pattern) || pattern.length>32 || pattern.some(n=>!Number.isInteger(n) || n<0 || n>10000) || pattern.reduce((a,b)=>a+b,0)>10000)
         return {error:{code:'INVALID_VALUE'}};
-      try {await tundraHardware({operation:'vibrate',pattern});return {result:true};}
+      try {
+        if (beatlesHardware()) await tundraRadio('hardware',{settings:{operation:'vibrate',pattern}});
+        else await tundraHardware({operation:'vibrate',pattern});
+        return {result:true};
+      }
       catch(error) {return {error:{code:error.message}};}
     }
     if(method==='input.request') {
@@ -388,6 +430,12 @@ export const Runtime = {
         return {result:await this.downloads.request(app,params)};
       } catch(error) {return {error:{code:error.message || 'DOWNLOAD_ERROR'}};}
     }
+    if (method === 'layout.current') return { result: {
+      mode: this.values['vulpes.layout'] || 'auto',
+      compactDefault: Services.env.get('VULPES_KEYPAD') === '1',
+      coverScreen: Services.env.get('VULPES_DEVICE') === 'beatles',
+      reducedMotion: Services.env.get('VULPES_DEVICE') === 'beatles',
+    } };
     if (method === 'appearance.current') return { result: this.values['vulpes.theme'] || 'light' };
     if (method === 'locale.current') return { result: this.values['language.current'] || 'en-US' };
     if (method === 'settings.snapshot')
@@ -466,13 +514,15 @@ export const Runtime = {
       )
         return { error: { code: 'INVALID_VALUE' } };
       this.screenPower ||= new ScreenPower(this.power, async (next, changed) => {
-        if (Services.env.get('VULPES_TUNDRA') === '1' && ['screenEnabled','screenBrightness'].includes(changed))
+        if (beatlesHardware() && ['screenEnabled','screenBrightness'].includes(changed))
+          await tundraRadio('hardware',{settings:{operation:'screen',enabled:next.screenEnabled,level:next.screenBrightness}});
+        else if (Services.env.get('VULPES_TUNDRA') === '1' && ['screenEnabled','screenBrightness'].includes(changed))
           await tundraHardware({operation:'screen', enabled:next.screenEnabled, level:next.screenBrightness});
       });
       await this.screenPower.set(name, value);
       const screen =
         actor.browsingContext.top.embedderElement.ownerDocument.getElementById('screen');
-      screen.style.filter = Services.env.get('VULPES_TUNDRA') === '1' ? '' : `brightness(${this.power.screenEnabled ? this.power.screenBrightness : 0})`;
+      screen.style.filter = (Services.env.get('VULPES_TUNDRA') === '1' || beatlesHardware()) ? '' : `brightness(${this.power.screenEnabled ? this.power.screenBrightness : 0})`;
       screen.inert = !this.power.screenEnabled;
       return { result: { ...this.power } };
     }
@@ -552,7 +602,7 @@ export const Runtime = {
       try {
         const app = this.identity(actor);
         if (!app || (target && app.id !== target)) continue;
-        if (type === 'settingchange' && !['language.current', 'vulpes.theme'].includes(data.key) && !this.grants(app).includes('settings.read')) continue;
+        if (type === 'settingchange' && !['language.current', 'vulpes.theme', 'vulpes.layout'].includes(data.key) && !this.grants(app).includes('settings.read')) continue;
         if (
           type === 'mediachange' &&
           !app.manifest.permissions?.['device-storage:' + data.type]?.access?.includes('read')

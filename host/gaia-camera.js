@@ -328,8 +328,8 @@
     return request;
   }
   async function openCamera(name, config, ticket) {
-    if (config.mode && config.mode !== 'picture')
-      throw new DOMException('Video capture is not ported yet', 'NotSupportedError');
+    if (config.mode && !['picture', ...(videoMime ? ['video'] : [])].includes(config.mode))
+      throw new DOMException('Unsupported capture mode', 'NotSupportedError');
     if (current) await releaseStream(current);
     await closing;
     if (document.hidden || ticket !== generation)
@@ -406,7 +406,8 @@
 
       const pictureSizes = native?.pictureSizes || [size];
       let pictureSize = pictureSizes.reduce((a,b)=>a.width*a.height>b.width*b.height?a:b);
-      let focusArea = null, zoom = 1, mode = 'picture', recording, startingRecording = false;
+      let flashMode = 'off', flashUpdate = Promise.resolve();
+      let focusArea = null, zoom = 1, mode = config.mode || 'picture', recording, startingRecording = false;
       const profile = {containerFormat:'webm',video:{width:size.width,height:size.height,codec:'vp8',bitrate:1500000,framerate:30},audio:{codec:'opus',samplerate:48000,channels:1,bitrate:64000}};
       const configuration = () => ({
         mode,
@@ -420,7 +421,7 @@
           previewSizes: [size],
           thumbnailSizes: [],
           recorderProfiles: videoMime ? {webm:profile} : {},
-          flashModes: ['off'],
+          flashModes: native?.flashModes?.length ? native.flashModes : ['off'],
           focusModes: native ? (native.focusModes.includes('auto') ? ['auto','infinity'] : ['fixed']) : ['fixed'],
           sceneModes: ['auto'],
           whiteBalanceModes: ['auto'],
@@ -472,6 +473,7 @@
         },
         setThumbnailSize() {},
         async takePicture() {
+          await flashUpdate;
           if (native) {
             const result=await stream.vulpesCameraControl({action:'picture',size:pictureSize});
             emit(stream,'shutter');
@@ -555,6 +557,16 @@
           const done=recording.done;stream.stopRecording();await done;
         },
       });
+      if (native) Object.defineProperty(stream,'flashMode',{
+        configurable:true, get:()=>flashMode,
+        set(value) {
+          if (!stream.capabilities.flashModes.includes(value) || value===flashMode) return;
+          const previous=flashMode;
+          flashMode=value;
+          flashUpdate=flashUpdate.catch(()=>{}).then(()=>stream.vulpesCameraControl({action:'flash',mode:value}));
+          flashUpdate.catch(error=>{if(flashMode===value)flashMode=previous;recordError(error);});
+        }
+      });
       if (native) Object.defineProperty(stream,'zoom',{
         configurable:true, get:()=>zoom,
         set(value) {
@@ -568,7 +580,7 @@
       });
       dispatchEvent(
         new CustomEvent('vulpes-camera-capabilities', {
-          detail: { cameras: [...cameras], flash: false, video: !!videoMime },
+          detail: { cameras: [...cameras], flash: stream.capabilities.flashModes.length > 1, video: !!videoMime },
         }),
       );
       return { camera: stream, configuration: configuration() };
@@ -602,7 +614,7 @@
     const controls = [
       [
         '.js-flash',
-        true,
+        !current || current.capabilities?.flashModes?.length < 2,
         'Flash indisponible dans cette Preview',
         'Flash unavailable in this Preview',
         'flash-off',

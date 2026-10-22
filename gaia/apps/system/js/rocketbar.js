@@ -441,6 +441,11 @@
      */
     focus: function() {
       if (this.active) {
+        // The keyboard may have been dismissed while this input kept focus.
+        // Refocusing must also notify the host input-method adapter.
+        if (window.VulpesNativeInput && document.activeElement === this.input) {
+          this.input.blur();
+        }
         this.input.focus();
       }
     },

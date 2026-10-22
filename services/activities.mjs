@@ -1,5 +1,5 @@
 export function isGaiaActivity(source) {
-  return source?.name === 'pick' ||
+  return source?.name === 'pick' || source?.name === 'share' ||
     (source?.name === 'moz_configure_window' && source.data?.target === 'device') ||
     (source?.name === 'configure' && source.data?.target === 'ringtone') ||
     (source?.name === 'dial' && source.data?.type === 'webtelephony/number') ||
@@ -22,9 +22,9 @@ export class Activities {
     this.listeners = new Map();
     this.choices = new Map();
   }
-  route(source, caller) {
+  route(source, caller, shareProvider) {
     const types = [].concat(source?.data?.type || []), name=source?.name;
-    let id;
+    let id = name === 'share' && ['sms','email'].includes(shareProvider) ? shareProvider : undefined;
     if (name === 'pick') {
       if (types.some(t=>['ringtone','alerttone'].includes(t))) id='ringtones';
       else if (types.includes('wallpaper')) id='wallpaper';
@@ -41,14 +41,16 @@ export class Activities {
     const definition = candidates.find(d=>{
       const filter=d.filters?.type;
       const accepted=[].concat(filter?.value || filter || []);
-      return !accepted.length || types.some(t=>accepted.includes(t));
+      const matches = !accepted.length || types.some(t=>typeof t==='string' && accepted.some(a=>a===t || (typeof a==='string' && a.endsWith('/*') && t.startsWith(a.slice(0,-1)))));
+      const count=source.data?.blobs?.length || source.data?.number || 0;
+      return matches && (!d.filters?.number?.max || count<=d.filters.number.max);
     });
     if (!app || !definition?.href) throw Error('ACTIVITY_NOT_SUPPORTED');
     const url=new URL(definition.href,app.origin);
     if (url.origin!==new URL(app.origin).origin) throw Error('ACTIVITY_NOT_SUPPORTED');
     // SMS handles the activity after startup; its old manifest fragment is
     // not a Navigation view in the packaged Gaia build.
-    if (id==='sms' && name==='new') url.hash='';
+    if (id==='sms' && ['new','share'].includes(name)) url.hash='';
     const entryPoint=entryPointFor(app,url.href);
     return {app,definition,url,entryPoint};
   }
@@ -62,18 +64,18 @@ export class Activities {
       this.launch(settings,settings.manifest.launch_path || '/index.html',{});
       return Promise.resolve(null);
     }
-    if (!app || !['settings','system','homescreen','verticalhome','ringtones','sms','communications','email','calendar'].includes(app.id))
+    if (!app || !['settings','system','homescreen','verticalhome','ringtones','sms','communications','email','calendar','gallery','video','music','camera'].includes(app.id))
       throw Error('PERMISSION_DENIED');
     const types = [].concat(source?.data?.type || []);
-    if (source?.name==='pick' && types.length>1 && this.choose) {
+    if (source?.name==='share' || (source?.name==='pick' && types.length>1 && this.choose)) {
       const routes=[];
-      for (const type of types) {
+      for (const candidate of (source.name==='share' ? ['sms','email'] : types)) {
         try {
-          const route=this.route({...source,data:{...source.data,type}},app);
+          const route=source.name==='share' ? this.route(source,app,candidate) : this.route({...source,data:{...source.data,type:candidate}},app);
           if (!routes.some(r=>r.app.id===route.app.id)) routes.push(route);
         } catch (error) { if (error.message!=='ACTIVITY_NOT_SUPPORTED') throw error; }
       }
-      if (routes.length>1) {
+      if (routes.length>1 && this.choose) {
         if (this.choices.size) throw Error('ACTIVITY_BUSY');
         const id=this.uuid();
         return new Promise((resolve,reject)=>{
@@ -87,6 +89,7 @@ export class Activities {
         });
       }
       if (routes.length===1) return this.open(caller,app,source,routes[0]);
+      if(source.name==='share')throw Error('NO_PROVIDER');
     }
     return this.open(caller,app,source,this.route(source,app));
   }

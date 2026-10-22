@@ -45,7 +45,7 @@ try:
     const values={};window.nativeCalls=[];window.events=[];
     window.browser={storage:{local:{get:async key=>({[key]:structuredClone(values[key])}),set:async data=>Object.assign(values,structuredClone(data))}},runtime:{
       connectNative:()=>({onMessage:{addListener(fn){window.nativeEvent=fn;}},onDisconnect:{addListener(){}},postMessage(){}}),
-      sendNativeMessage:async(app,message)=>{nativeCalls.push(message);return message.type==='android.snapshot'?{}:null;},onConnect:{addListener(fn){window.connectPort=fn;}}
+      sendNativeMessage:async(app,message)=>{nativeCalls.push(message);if(message.type==='packages.list')return '[]';return message.type==='android.snapshot'?{}:null;},onConnect:{addListener(fn){window.connectPort=fn;}},onMessage:{addListener(){}}
     }};
     window.makePort=url=>{
       let receive,seq=0;const waiting=new Map();

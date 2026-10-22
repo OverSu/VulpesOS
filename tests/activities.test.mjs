@@ -119,3 +119,24 @@ assert.equal(launches.at(-1)[0].id,'settings');
 assert.equal(broker.pending.size,0);
 assert.throws(()=>broker.start({app:{id:'untrusted'}},configure),/PERMISSION_DENIED/);
 console.log('Keyboard returns to Settings without a pending activity: OK');
+
+// Gallery shares use the same chooser and ownership checks as Gaia pickers.
+sms.manifest.activities.share={href:'/index.html#/activity-share',filters:{type:['image/*'],number:{max:5}},disposition:'inline',returnValue:true};
+const email={id:'email',origin:'http://email.localhost',manifest:{activities:{share:{href:'/index.html',filters:{type:['image/*']},disposition:'window'}}}};
+apps.push(email);
+let choice;
+const sharing=new Activities({identity:p=>p.app,apps:()=>apps,launch:(...a)=>launches.push(a),notify:(...a)=>events.push(a),uuid:()=>String(++serial),choose:v=>{choice=v;}});
+const blob={__vulpesBlobV1:true,type:'image/jpeg',base64:'YWJj'};
+const shared=sharing.start(normalGallery,{name:'share',data:{type:'image/jpeg',blobs:[blob],filenames:['photo.jpg']}});
+assert.equal(choice.choices.length,2);
+assert.throws(()=>sharing.select(normalGallery,{id:choice.id,value:0}),/PERMISSION_DENIED/);
+sharing.select({app:{id:'system'}},{id:choice.id,value:0});
+assert.equal(new URL(launches.at(-1)[1]).hash,'');
+sharing.subscribe(smsPeer);
+const delivered=events.at(-1)[2];
+assert.equal(delivered.source.data.blobs[0],blob);
+sharing.finish(smsPeer,{id:delivered.id,result:null});await shared;
+assert.throws(()=>sharing.route({name:'share',data:{type:'image/jpeg',blobs:Array(6).fill(blob)}},gallery,'sms'),/ACTIVITY_NOT_SUPPORTED/);
+assert.throws(()=>sharing.start({app:{id:'untrusted'}},{name:'share',data:{type:'image/jpeg'}}),/PERMISSION_DENIED/);
+assert.equal(isGaiaActivity({name:'share'}),true);
+console.log('Gallery share chooser, MIME matching, provider limits and cancellation: OK');

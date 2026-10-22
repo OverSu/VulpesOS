@@ -45,7 +45,7 @@ test('call audio collects split replies and rejects oversized output', async () 
 });
 
 test('radio preserves modem errors and separates a broken transport', async () => {
-  globalThis.Services = {env: {get: () => '1'}};
+  globalThis.Services = {env: {get: key => key==='VULPES_TUNDRA_RADIO'?'1':''}};
   let response = {ok:false, error:'RADIO_NOT_REGISTERED'}, exitCode = 0;
   globalThis.ChromeUtils = {importESModule: () => ({Subprocess: {call: async () => {
     let read = false;
@@ -60,4 +60,35 @@ test('radio preserves modem errors and separates a broken transport', async () =
   await assert.rejects(tundraRadio('status'), /RADIO_REQUEST_FAILED/);
   exitCode = 1;
   await assert.rejects(tundraRadio('status'), /RADIO_UNAVAILABLE/);
+});
+
+test('Nokia uses its private broker and parameters cannot replace the authorized operation', async () => {
+  globalThis.Services={env:{get:key=>key==='VULPES_DEVICE'?'beatles':key==='VULPES_TUNDRA_RADIO'?'1':''}};
+  let command,envelope;
+  globalThis.ChromeUtils={importESModule:()=>({Subprocess:{call:async options=>{
+    command=options;let read=false;
+    return {stdin:{write:async text=>{envelope=JSON.parse(text);},close:async()=>{}},
+      stdout:{readString:async()=>read?null:(read=true,'{"ok":true,"result":[]}')},
+      wait:async()=>({exitCode:0})};
+  }}})};
+  await tundraRadio('calls',{operation:'sms',version:99});
+  assert.equal(command.command,'/work/control-client');
+  assert.deepEqual(command.arguments,['--radio']);
+  assert.deepEqual(envelope,{operation:'calls',version:1});
+  await tundraCallAudio({operation:'status'});
+  assert.deepEqual(envelope,{settings:{operation:'status'},version:1,operation:'callAudio'});
+});
+
+test('direct socket transport preserves authorization envelopes and masks modem details',async()=>{
+ globalThis.Services={env:{get:key=>['VULPES_TUNDRA_RADIO','VULPES_SOCKET_CONTROL'].includes(key)?'1':''}};
+ let request,reply={ok:true,result:[]};
+ globalThis.ChromeUtils={importESModule:()=>({unixControl:async(kind,params)=>{request={kind,params};return reply;}})};
+ assert.deepEqual(await tundraRadio('calls',{operation:'sms',version:99}),[]);
+ assert.deepEqual(request,{kind:'radio',params:{operation:'calls',version:1}});
+ reply={ok:false,error:'RADIO_NOT_REGISTERED'};
+ await assert.rejects(tundraRadio('calls'),/RADIO_NOT_REGISTERED/);
+ reply={ok:false,error:'private backend detail'};
+ await assert.rejects(tundraRadio('calls'),/RADIO_REQUEST_FAILED/);
+ reply={result:{active:false}};
+ assert.deepEqual(await tundraCallAudio({operation:'status'}),{active:false});
 });

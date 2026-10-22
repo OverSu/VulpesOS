@@ -1,0 +1,6 @@
+# Private boot trial: keep the vendor services, replace only the foreground UI.
+service vulpes-trial /system/bin/sh /vulpes-boot.sh
+    class late_start
+    user root
+    group root
+    oneshot

@@ -10,7 +10,7 @@ function deferred() {
 }
 
 // Execute the shared adapter, with controllable media promises instead of a sensor.
-function setup(native = false, platformName = 'desktop') {
+function setup(native = false, platformName = 'desktop', videoSupported = false) {
   const videos = [], streams = [], requests = [], events = new EventTarget();
   const nativeRequests=[], wakeLocks=[];
   let hidden = false, captureGate, playGate, labels = true, requireStopped = false;
@@ -68,6 +68,7 @@ function setup(native = false, platformName = 'desktop') {
     Event, DOMException, MediaStream:class extends EventTarget {getTracks(){return [];}getVideoTracks(){return [];}}, CustomEvent:class extends Event {constructor(type,opts){super(type);this.detail=opts.detail;}},
     setTimeout, clearTimeout, queueMicrotask, setInterval:()=>0, clearInterval(){},
     addEventListener:events.addEventListener.bind(events), dispatchEvent:events.dispatchEvent.bind(events),
+    MediaRecorder:class {static isTypeSupported(){return videoSupported;}},
     VulpesCompat:{async call(method,params) {
       if(method==='platform.capabilities')return {platform:native?'tundra':platformName,camera:true};
       nativeRequests.push(params);
@@ -254,3 +255,20 @@ test('native preview attaches inside Gaia and detaches on camera release',async(
   await new Promise(resolve=>setImmediate(resolve));s.hide();await checked;
   assert.equal(s.requests.length,1);
  });
+
+test('video mode survives reopening and switching sensors', async()=>{
+  const s=setup(false,'desktop',true);
+  for(const name of ['back','front','back']) {
+    const result=await s.api.getCamera(name,{mode:'video'});
+    assert.equal(result.configuration.mode,'video');
+    assert.equal(result.configuration.recorderProfile,'webm');
+    assert.ok(result.camera.capabilities.recorderProfiles.webm);
+    await result.camera.release();
+  }
+});
+
+test('unavailable recording mode is rejected before acquiring a sensor',async()=>{
+  const s=setup();
+  await assert.rejects(s.api.getCamera('back',{mode:'video'}),{name:'NotSupportedError'});
+  assert.equal(s.requests.length,0);
+});

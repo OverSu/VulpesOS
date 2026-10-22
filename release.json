@@ -1,15 +1,15 @@
 {
   "gaia": "2.7.0",
   "channel": "preview",
-  "revision": 21,
-  "androidVersionCode": 21,
+  "revision": 22,
+  "androidVersionCode": 22,
   "geckoview": "156.0.20260921121718",
   "engineAlignment": {
     "family": "156",
     "patchParity": false,
     "reason": "Firefox desktop 156.0.1; Mozilla's GeckoView release repository currently offers 156.0 only. Keep the desktop patch and report actual engine versions."
   },
-  "version": "2.7-preview.21",
+  "version": "2.7-preview.22",
   "adapters": {
     "desktop": "0.1.0-dev",
     "android": "0.1.0-dev"

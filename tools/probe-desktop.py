@@ -30,6 +30,14 @@ target.currentWindowGlobal.getActor('VulpesProbe').sendQuery('Evaluate',CODE).th
 
 def register(client):
     assert client.execute("return PathUtils.profileDir;").split("/")[-1].startswith("host-")
+    # Marionette initially selects its auxiliary Firefox window. Keep focus in
+    # Gaia while testing carets, software-keyboard input and visible overlays.
+    for handle in client.call('WebDriver:GetWindowHandles'):
+        client.call('WebDriver:SwitchToWindow', {'handle': handle})
+        if client.execute('return document.documentURI;') == 'chrome://vulpes/content/shell.xhtml':
+            break
+    else:
+        raise RuntimeError('Vulpes test window not found')
     client.execute(
         "try{ChromeUtils.registerWindowActor('VulpesProbe',{child:{esModuleURI:'resource://vulpes/tests/ProbeChild.sys.mjs'},allFrames:true,safeForUntrustedWebProcess:true});}catch(_){}"
     )

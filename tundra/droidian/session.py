@@ -70,6 +70,8 @@ def main():
                MOZ_ENABLE_WAYLAND='1', EGL_PLATFORM='wayland', GDK_GL='gles',
                VULPES_FULLSCREEN='1', VULPES_NATIVE_TOUCH='1',
                VULPES_WORKSPACE_ROOT=str(ROOT))
+    if env.get('VULPES_TUNDRA') == '1':
+        env['VULPES_SOCKET_CONTROL'] = '1'
     if args.hybris_egl:
         import hashlib
         graphics = ROOT/'trial/graphics'
@@ -174,8 +176,8 @@ Services.obs.addObserver({observe(win) {
             raise RuntimeError('Gaia server startup timeout')
         with (logs/'gecko.log').open('w') as output:
             debug_args=['--remote-allow-system-access','-marionette','-new-window','about:blank'] if env.get('TUNDRA_LOCAL_DEBUGGER')=='1' else []
-            firefox = subprocess.Popen([str(runtime/'firefox'), *debug_args, '-purgecaches', '-no-remote',
-                '-profile', str(profile), '-chrome', 'chrome://vulpes/content/shell.xhtml'],
+            firefox = subprocess.Popen([str(runtime/'firefox'), '-purgecaches', '-no-remote',
+                '-profile', str(profile), '-chrome', 'chrome://vulpes/content/shell.xhtml', *debug_args],
                 env=env, stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
         processes.append(firefox)
         result = firefox.wait()

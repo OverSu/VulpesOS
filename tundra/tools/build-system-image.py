@@ -78,6 +78,17 @@ def module(name, path):
     return result
 
 
+def copy_source_overrides(product):
+    """Include the editable Gaia files used by the desktop and APK."""
+    project = module('vulpes_project', PROJECT/'tools/project.py')
+    for app, names in project.SOURCE_OVERRIDES.items():
+        for name in names:
+            relative = Path('gaia/apps')/app/name
+            target = product/relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(PROJECT/relative, target)
+
+
 def pack(root, image):
     if not os.environ.get('FAKEROOTKEY'):
         raise RuntimeError('Image ownership must be prepared under fakeroot')
@@ -126,6 +137,7 @@ def main():
     for name in ('assets', 'host', 'services', 'adapters', 'overrides', 'gaia/shared', 'gaia/apps/system'):
         shutil.copytree(PROJECT/name, product/name, symlinks=True,
                         ignore=shutil.ignore_patterns('__pycache__', 'test', 'tests'))
+    copy_source_overrides(product)
     for name in ('tools', 'tests', 'logs', 'profiles'):
         (product/name).mkdir(exist_ok=True)
     for name in ('serve-gaia.py', 'project.py', 'run-host.py', 'installed_apps.py'):

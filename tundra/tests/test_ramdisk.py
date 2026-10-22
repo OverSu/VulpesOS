@@ -129,6 +129,18 @@ on boot
                      'mount ext4 /dev/mmcblk0p72 /data','mount tmpfs /dev/block/x /data'):
             self.assertFalse(policy.command_allowed(line.split()),line)
 
+    def test_network_config_on_empty_overlay_creates_firewall_aliases(self):
+        import tempfile
+        spec = importlib.util.spec_from_file_location('native_prepare', ROOT/'runtime/prepare-native.py')
+        native = importlib.util.module_from_spec(spec); spec.loader.exec_module(native)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root/'opt/vulpes/trial').mkdir(parents=True)
+            (root/'opt/vulpes/trial/session.py').touch()
+            native.prepare(root, network=True, hardware=True)
+            for name in ('iptables', 'ip6tables'):
+                self.assertEqual((root/'usr/sbin'/name).readlink(), Path(name+'-legacy'))
+
     def test_interactive_boot_checks_are_opt_in(self):
         import tempfile
         spec = importlib.util.spec_from_file_location('native_prepare', ROOT/'runtime/prepare-native.py')

@@ -222,6 +222,8 @@ def release_documents(source, tag):
             summary = re.sub(r'^!\[(?:APK construit · non publié|APK built · not published)\]\([^)]+\)\s*',
                              '', summary, flags=re.MULTILINE)
             body += label + '\n\n' + summary + '\n\n'
+    if release.get('appendix'):
+        body += release['appendix'].strip() + '\n\n'
     for lang, label in [('fr', '🇫🇷 Historique complet, étape par étape'),
                         ('en', '🇬🇧 Full history, stage by stage')]:
         body += f'<details>\n<summary>{label}</summary>\n\n{histories[lang]}\n</details>\n\n'

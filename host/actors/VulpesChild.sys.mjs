@@ -1,4 +1,6 @@
 import {InputEditor} from 'resource://vulpes/services/input-editor.mjs';
+import {frameUnobscured} from 'resource://vulpes/services/view-visibility.mjs';
+import {requestMediaPermission} from 'resource://vulpes/services/media-permission.mjs';
 export class VulpesChild extends JSWindowActorChild {
   handleEvent(event) {
     if(['focusin','pointerdown','click'].includes(event.type)) {
@@ -41,20 +43,7 @@ export class VulpesChild extends JSWindowActorChild {
         params.contextId = native.browsingContext.id;
         if (params.operation === 'geometry') {
           const rect = native.getBoundingClientRect();
-          const samples = [
-            [0.5, 0.5],
-            [0.05, 0.05],
-            [0.95, 0.05],
-            [0.05, 0.95],
-            [0.95, 0.95],
-          ];
-          const unobscured = samples.every(
-            ([x, y]) =>
-              this.document.elementFromPoint(
-                rect.left + rect.width * x,
-                rect.top + rect.height * y,
-              ) === native,
-          );
+          const unobscured = frameUnobscured(this.document, native, rect);
           params.geometry = {
             left: rect.left + win.mozInnerScreenX,
             top: rect.top + win.mozInnerScreenY,
@@ -84,6 +73,11 @@ export class VulpesChild extends JSWindowActorChild {
   inputState() { return this.editor.state(); }
   edit(params) { return this.editor.edit(params); }
   receiveMessage(message) {
+    if (message.name === 'Vulpes:MediaPermission') {
+      if (this.document.location.hostname !== 'system.localhost' || this.browsingContext.parent)
+        throw new Error('Invalid permission UI');
+      return requestMediaPermission(this.contentWindow, message.data, value => Cu.cloneInto(value, this.contentWindow));
+    }
     if(message.name==='Vulpes:Edit') return this.edit(message.data);
     if (message.name === 'Vulpes:ViewState') {
       const frame = Array.from(this.document.querySelectorAll('iframe')).find(

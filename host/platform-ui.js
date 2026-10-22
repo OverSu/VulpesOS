@@ -68,6 +68,8 @@
         'The modem is not ready yet. Try again shortly.'],
       RADIO_BUSY: ['Une opération téléphonique est déjà en cours.',
         'A phone operation is already in progress.'],
+      RADIO_TIMEOUT: ['Le modem ne répond pas. Attendez le retour du réseau avant de réessayer.',
+        'The modem is not responding. Wait for the network to recover before trying again.'],
       RADIO_REQUEST_FAILED: ['Le modem a refusé la demande. Vérifiez la SIM et le réseau mobile.',
         'The modem rejected the request. Check the SIM and mobile network.'],
       INVALID_NUMBER: ['Numéro invalide.', 'Invalid phone number.'],
@@ -88,14 +90,25 @@
   };
   if (app === 'communications') {
     // All Gaia call entry points use the same authorized host operation.
-    window.VulpesPlatformDial = async number => {
-      try {
-        return navigator.mozTelephony ? await navigator.mozTelephony.dial(number) :
-          await call('platform.dial', {number});
-      } catch (error) {
-        failure(error);
-        throw error;
-      }
+    let dialing = null;
+    window.VulpesPlatformDial = number => {
+      if (dialing) return dialing;
+      const button = document.getElementById('keypad-callbar-call-action');
+      const disabled = button?.disabled;
+      if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); }
+      dialing = (async () => {
+        try {
+          return navigator.mozTelephony ? await navigator.mozTelephony.dial(number) :
+            await call('platform.dial', {number});
+        } catch (error) {
+          failure(error);
+          throw error;
+        } finally {
+          dialing = null;
+          if (button) { button.disabled = disabled; button.removeAttribute('aria-busy'); }
+        }
+      })();
+      return dialing;
     };
   }
   function button(id, french, english, action) {

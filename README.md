@@ -38,12 +38,13 @@ I’m OverSu, and I develop Vulpes mostly on my own, with help from people who t
 
 On the Pixel 3a, **Tundra boots Gecko and Gaia directly** and provides access to the hardware. Droidian was used as a testing environment early in development. It is not included in Vulpes OS, and Tundra is not based on it.
 
-### Preview 20 · 13 October 2026
+### Preview 22 · 22 October 2026
 
-[Download the APK](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.20). Shared updates cover Gaia settings, camera recording, contacts and media. Native network changes are included in the sources. See the [changelog](CHANGELOG.en.md) for checks and remaining limitations.
+[Download the Preview 22 APK](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.22). Shared Gaia fixes cover browser sharing and web input; PC checks passed. The release also includes the current Tundra/Nokia sources. Android 11 emulator installation and upgrade passed; physical Android devices still need qualification. The Nokia T9 keyboard also needs physical qualification.
 
-Desktop/Sargo use Gecko **156.0.1**; Android uses GeckoView **156.0**. Android 8 / API 26 minimum is declared; not every device is tested. Calls and SMS open Android applications. The APK is a signed development build, with debugging through authorized ADB.
+The Pixel 3a native image remains Preview 21. This release contains no new Sargo image, and its changes have not been flashed to the Pixel. See the [changelog](CHANGELOG.en.md) for platform details and remaining issues.
 
+Desktop/Sargo use Gecko **156.0.1**; Android uses GeckoView **156.0**. Android 8 / API 26 minimum is declared. The APK is a signed development build with debugging available through authorized ADB.
 ### Linux
 
 You’ll need Linux x86_64, Git, Python 3 and the system libraries required by Firefox.

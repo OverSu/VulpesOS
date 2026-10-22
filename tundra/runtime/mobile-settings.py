@@ -8,6 +8,11 @@ from pathlib import Path
 
 CLOCK_CONFIG = Path("/var/lib/tundra/clock/settings.json")
 
+def checkpoint_clock():
+    import runpy
+    runpy.run_path(str(Path(__file__).with_name('clock-state.py')))['save']()
+
+
 def clock_automatic():
     try:
         return json.loads(CLOCK_CONFIG.read_text())["automatic"] is True
@@ -43,6 +48,7 @@ def sync_network_clock():
     if abs(time.time() - seconds) > 2:
         # oFono timestamps use CLOCK_MONOTONIC, not wall time or boot time.
         time.clock_settime(time.CLOCK_REALTIME, seconds)
+    checkpoint_clock()
 
 
 
@@ -159,6 +165,8 @@ def device_request(value):
         result = subprocess.run(['/usr/bin/timedatectl', *args], capture_output=True, text=True, timeout=10)
         if result.returncode:
             raise RuntimeError('CLOCK_REQUEST_FAILED')
+    if action == 'setTime':
+        checkpoint_clock()
     result = subprocess.run(['/usr/bin/timedatectl', 'show', '-p', 'Timezone', '-p', 'NTP', '-p', 'CanNTP'],
                             capture_output=True, text=True, timeout=5)
     if result.returncode:

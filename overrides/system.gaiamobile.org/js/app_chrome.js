@@ -1191,6 +1191,18 @@
     ModalDialog.selectOne(title, options, selected);
   };
 
+  AppChrome.prototype.onShare = function ac_onShare() {
+    this.hideOverflowMenu();
+    var url = this._currentURL;
+    if (!url || !/^https?:\/\//i.test(url)) {
+      return;
+    }
+    return new MozActivity({
+      name: 'share',
+      data: { type: 'url', url: url }
+    });
+  };
+
   AppChrome.prototype.showWindows = function ac_showWindows() {
     window.dispatchEvent(
       new CustomEvent('taskmanagershow',

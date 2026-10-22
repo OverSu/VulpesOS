@@ -429,7 +429,8 @@ var CallHandler = (function callHandler() {
 // Listening to the keyboard being shown
 // Waiting for issue 787444 being fixed
 window.onresize = function(e) {
-  if (window.innerHeight < 440) {
+  if (window.innerHeight < 440 &&
+      document.documentElement.dataset.vulpesLayout !== 'compact') {
     NavbarManager.hide();
   } else {
     NavbarManager.show();

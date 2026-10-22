@@ -127,6 +127,7 @@ class Camera:
     def metadata(self):
         return {'ready': True, 'width': self.width, 'height': self.height,
                 'orientation': self.orientation, 'format': 'nv21',
+                'flashModes': [m for m in self.parameters.get('flash-mode-values', 'off').split(',') if m in ('off','auto','on','torch')],
                 'pictureSizes': [{'width':w,'height':h} for w,h in self.picture_sizes],
                 'focusModes': self.parameters.get('focus-mode-values', 'fixed').split(','),
                 'maxFocusAreas': min(1,int(self.parameters.get('max-num-focus-areas', 0))),
@@ -135,6 +136,16 @@ class Camera:
     def control(self, command):
         P, I = C.c_void_p, C.c_int
         action = command.get('action')
+        if action == 'flash':
+            mode = command.get('mode')
+            modes = ('off', 'auto', 'on', 'torch')
+            if mode not in modes or mode not in self.metadata()['flashModes']:
+                raise ValueError('CAMERA_FLASH_UNAVAILABLE')
+            function(self.lib, 'android_camera_set_flash_mode', [P,I])(self.camera,modes.index(mode))
+            actual = self.read_parameters().get('flash-mode', 'off')
+            if actual != mode:
+                raise RuntimeError('CAMERA_FLASH_READBACK_FAILED')
+            return {'mode':actual}
         if action == 'zoom':
             ratio = command.get('zoom')
             if not isinstance(ratio, (int,float)) or not self.zoom_ratios[0] <= ratio <= self.zoom_ratios[-1]:

@@ -13,7 +13,8 @@
     "nativeMessaging",
     "geckoViewAddons",
     "http://*.localhost/*",
-    "https://vulpes-os.org/*"
+    "https://vulpes-os.org/*",
+    "https://ffapps.danielherr.software/*"
   ],
   "background": {
     "page": "background.html",
@@ -33,7 +34,8 @@
     },
     {
       "matches": [
-        "https://vulpes-os.org/marketplace/*"
+        "https://vulpes-os.org/marketplace/*",
+        "https://ffapps.danielherr.software/app/*"
       ],
       "js": [
         "marketplace-page.js",

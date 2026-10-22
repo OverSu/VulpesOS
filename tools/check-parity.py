@@ -57,6 +57,7 @@ with source as archive:
             ("settings", "js/panels/display/panel.js"),
             ("settings", "js/panels/wifi/panel.js"),
             ("system", "js/screen_manager.js"),
+            ("system", "js/app_chrome.js"),
             ("system", "js/notification_screen.js"),
             ("system", "style/system/system.css"),
             ("communications", "dialer/style/call_log.css"),

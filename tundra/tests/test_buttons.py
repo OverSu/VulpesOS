@@ -22,7 +22,9 @@ class Buttons(unittest.TestCase):
 
  def test_vibration_pattern_progresses_without_blocking_and_can_be_cancelled(self):
   with tempfile.TemporaryDirectory() as d,patch.object(b,'VIBRATOR',Path(d)),patch.object(b.time,'monotonic',return_value=10):
+   (Path(d)/'trigger').write_text('[transient]')
    v=b.Vibration();v.start([200,100,300])
+   self.assertEqual((Path(d)/'trigger').read_text(),'none')
    self.assertEqual((Path(d)/'brightness').read_text(),'255')
    self.assertEqual(v.deadline,10.2)
    v.advance(10.1);self.assertEqual((Path(d)/'brightness').read_text(),'255')
@@ -32,3 +34,18 @@ class Buttons(unittest.TestCase):
    v.start([200]);v.start([]);self.assertIsNone(v.deadline);self.assertEqual((Path(d)/'brightness').read_text(),'0')
    for pattern in [None,[-1],[True],[10001],[5000,5001],[1]*33]:
     with self.assertRaises(ValueError):v.start(pattern)
+
+ def test_wake_recovery_waits_for_gaia_and_recovers_if_unresponsive(self):
+  with tempfile.TemporaryDirectory() as d,patch.object(b,'BACKLIGHT',Path(d)):
+   (Path(d)/'max_brightness').write_text('1000')
+   (Path(d)/'brightness').write_text('0')
+   recovery=b.WakeRecovery()
+   with patch.object(b,'wake_recovery',recovery):
+    recovery.arm(10);recovery.advance(11)
+    self.assertEqual((Path(d)/'brightness').read_text(),'0')
+    b.control({'operation':'screen','enabled':True,'level':.3})
+    recovery.advance(12)
+    self.assertEqual((Path(d)/'brightness').read_text(),'300')
+    b.control({'operation':'screen','enabled':False,'level':.3})
+    recovery.arm(20);recovery.advance(21.6)
+    self.assertEqual((Path(d)/'brightness').read_text(),'500')

@@ -13,6 +13,7 @@ export function authorizePlatform(app, operation, params = {}) {
     settings: ['settings', 'system', 'costcontrol'].includes(app.id),
     snapshot: ['settings', 'system', 'costcontrol'].includes(app.id),
     wifi: ['settings', 'system'].includes(app.id),
+    radioPower: ['system', 'settings'].includes(app.id),
     mobileSettings: app.id === 'settings',
     deviceSettings: app.id === 'settings',
     bluetooth: ['settings', 'system', 'bluetooth'].includes(app.id),
@@ -34,15 +35,18 @@ export function authorizePlatform(app, operation, params = {}) {
   if (!Object.hasOwn(allowed, operation)) throw Error('METHOD_NOT_SUPPORTED');
   if (!allowed[operation]) throw Error('PERMISSION_DENIED');
   if (operation === 'wifi' && ['hotspotStatus','hotspotSave','hotspotPower'].includes(params.operation) && app.id !== 'settings') throw Error('PERMISSION_DENIED');
+  if (operation === 'radioPower' && (!Number.isInteger(params.slot) || ![0,1].includes(params.slot) || typeof params.enabled !== 'boolean')) throw Error('INVALID_VALUE');
   if (operation === 'mobileSettings' && !['sim','smsc','calls','messages','deliveryReports','network','dataEnabled','roaming','radioMode','setRadioMode','apns','editApn','setCallWaiting','setCallerId','forwarding','setForwarding'].includes(params.action)) throw Error('INVALID_VALUE');
   if (operation === 'mobileSettings' && ['deliveryReports','dataEnabled','roaming','setCallWaiting','setForwarding'].includes(params.action) && typeof params.enabled !== 'boolean') throw Error('INVALID_VALUE');
   if (operation === 'mobileSettings' && JSON.stringify(params).length > 6144) throw Error('INVALID_VALUE');
   if (operation === 'deviceSettings' && (!['clock','setTime','setTimezone','setAutomatic'].includes(params.action) || JSON.stringify(params).length > 1024)) throw Error('INVALID_VALUE');
   if (operation === 'cameraPreview' &&
-      (!['start', 'frame', 'stop', 'focus', 'zoom', 'picture'].includes(params.action) ||
+      (!['start', 'frame', 'stop', 'focus', 'zoom', 'picture', 'flash'].includes(params.action) ||
        (params.action === 'start' && !['back', 'front'].includes(params.camera))))
     throw Error('INVALID_VALUE');
   if (operation === 'cameraPreview') {
+    if (params.action === 'flash' && !['off','auto','on','torch'].includes(params.mode))
+      throw Error('INVALID_VALUE');
     if (params.action === 'zoom' && (!Number.isFinite(params.zoom) || params.zoom<1 || params.zoom>100))
       throw Error('INVALID_VALUE');
     if (params.action === 'focus' && params.area != null) {

@@ -175,6 +175,12 @@ html[data-vulpes-app='video'] #in-use-overlay-content {
   min-width: 0;
   overflow-y: auto;
 }
+/* The old one-pixel tile produces moiré at fractional phone scale factors. */
+html[data-vulpes-app='gallery'] #overlay-content {
+  background-image: url('/style/images/ui/gradient.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
 html[data-vulpes-app='video'] #overlay-text,
 html[data-vulpes-app='video'] #in-use-overlay-text {
   width: auto;

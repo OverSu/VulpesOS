@@ -2,6 +2,10 @@
 const MAX_ZIP = 16 * 1024 * 1024, MAX_FILES = 2048, MAX_EXPANDED = 48 * 1024 * 1024;
 export function packageURL(value) {
   const url = new URL(value);
+  if (url.username || url.password) throw Error('INVALID_PACKAGE_URL');
+  if (url.origin === 'https://ffapps.danielherr.software' && !url.search && !url.hash &&
+      /^\/app\/[^/]+\/(?:manifest\.webapp|[^/]+\.zip)$/.test(decodeURIComponent(url.pathname)) &&
+      !/[\\\x00-\x1f]/.test(decodeURIComponent(url.pathname))) return url.href;
   if (url.origin !== 'https://vulpes-os.org' || url.pathname !== '/marketplace/index.php' ||
       !/^\d{1,10}$/.test(url.searchParams.get('download') || '') || url.username || url.password)
     throw Error('INVALID_PACKAGE_URL');
@@ -63,8 +67,17 @@ export class Packages {
     this.cancel();const controller=this.controller=new AbortController();
     const timer=this.schedule(()=>controller.abort(),60000);
     try {
-    const source=packageURL(url),response=await this.fetchPackage(source,{redirect:'error',credentials:'omit',signal:controller.signal});
+    const source=packageURL(url),options={redirect:'error',credentials:'omit',signal:controller.signal};
+    let response=await this.fetchPackage(source,options);
     if(!response.ok)throw Error('DOWNLOAD_FAILED');
+    if(new URL(source).pathname.endsWith('/manifest.webapp')) {
+      const manifest=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await bounded(response.body,128*1024)));
+      if(typeof manifest.package_path!=='string')throw Error('MISSING_PACKAGE');
+      const archive=packageURL(new URL(manifest.package_path,source).href);
+      if(new URL(archive).origin!==new URL(source).origin || !new URL(archive).pathname.endsWith('.zip'))throw Error('INVALID_PACKAGE_URL');
+      response=await this.fetchPackage(archive,options);
+      if(!response.ok)throw Error('DOWNLOAD_FAILED');
+    }
     const item=await unpackPackage(await bounded(response.body,MAX_ZIP),source);
     if(controller.signal.aborted)throw Error('DOWNLOAD_CANCELLED');
     this.pending.clear();const token=this.uuid();this.pending.set(token,{item,expires:Date.now()+300000});

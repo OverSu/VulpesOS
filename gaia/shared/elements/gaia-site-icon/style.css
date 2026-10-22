@@ -52,3 +52,18 @@ gaia-app-icon {
   visibility: hidden;
   height: 0;
 }
+
+/* Compact layouts can widen labels independently of the image. */
+#subtitle {
+  width: var(--vulpes-label-width, auto);
+  margin-inline-start: var(--vulpes-label-offset, 0px);
+}
+#image-container > img {
+  display: var(--vulpes-icon-display, inline);
+}
+
+#title-container {
+  /* Visually hide compact labels without removing their accessible names. */
+  position: var(--vulpes-icon-title-position, static);
+  clip-path: var(--vulpes-icon-title-clip, none);
+}

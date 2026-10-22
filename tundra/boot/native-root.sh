@@ -45,7 +45,7 @@ if [ -z "${SYSTEM_IMAGE:-}" ] || [ "${APPLY_NATIVE_CONFIG:-0}" = 1 ]; then
         done
     fi
     rm -f /newroot/etc/tundra/hardware-enabled /newroot/etc/systemd/system/tundra.target.wants/ofono.service /newroot/etc/systemd/system/tundra.target.wants/tundra-audio.service /newroot/etc/tundra/network-enabled /newroot/etc/systemd/system/tundra.target.wants/NetworkManager.service /newroot/etc/systemd/system/tundra.target.wants/tundra-wifi.service
-    tar -xf /native-config.tar -C /newroot
+    tar -xJf /native-config.tar -C /newroot
     if [ -d /run/tundra-identity ]; then
         for identity in /run/tundra-identity/*; do
             [ -f "$identity" ] && cp -p "$identity" /newroot/etc/
@@ -53,7 +53,7 @@ if [ -z "${SYSTEM_IMAGE:-}" ] || [ "${APPLY_NATIVE_CONFIG:-0}" = 1 ]; then
         chmod 644 /newroot/etc/machine-id
     fi
 fi
-if [ -f /shared-ui.tar ]; then tar -xf /shared-ui.tar -C /newroot; fi
+if [ -f /shared-ui.tar ]; then tar -xJf /shared-ui.tar -C /newroot; fi
 # A previous successful session must never count as proof of this boot.
 for log in test.json home.png session.pid gecko.log server.log compositor.log network-gecko.json wifi-ui.json; do
     rm -f "/newroot/opt/vulpes/logs/$log"

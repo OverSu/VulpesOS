@@ -81,7 +81,7 @@ def main():
     command = [sys.executable,str(ROOT/'tools/build-rescue-boot.py'), '--output',str(args.output),
                '--device-workspace',str(args.device_workspace),'--layout',str(args.device_workspace/'layout.json'),
                '--native','--runtime-config','--network','--hardware',
-               '--system-image',str(args.prepared/'system.json'),'--state',str(args.prepared/'data/state.json')]
+               '--system-image',str(args.prepared/'system.json'),'--differential-ui','--state',str(args.prepared/'data/state.json')]
     if args.no_deadline: command.append('--no-deadline')
     if args.local_debugger: command.append('--local-debugger')
     subprocess.run(command,check=True)
@@ -126,6 +126,8 @@ ln -sf ../tundra-boot-success.service /newroot/etc/systemd/system/tundra.target.
         image=out/'boot.img'; command=[sys.executable,str(packager/'mkbootimg.py')]
         for key,value in fields.items():command.extend([key,value])
         subprocess.run(command+['-o',str(image)],check=True)
+        if image.stat().st_size > 67108864:
+            raise ValueError('Final standalone boot exceeds the 64 MiB boot partition')
         verify=Path(temp)/'verify'
         subprocess.run([sys.executable,str(packager/'unpack_bootimg.py'),'--boot_img',str(image),'--out',str(verify)],check=True,stdout=subprocess.DEVNULL)
         if digest(verify/'kernel')!=build['kernelSha256'] or digest(verify/'ramdisk')!=digest(ramdisk):

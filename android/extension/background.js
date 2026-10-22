@@ -3,7 +3,7 @@ import {Input} from './services/input.mjs';
 import { Packages, packageURL } from './services/packages.mjs';
 import { Activities, isGaiaActivity } from './services/activities.mjs';
 import { authorizePlatform } from './services/platform.mjs';
-import { SettingsService } from './services/settings.mjs';
+import { SettingsService, migrateSearchDefaults, migratePrivacyDefaults } from './services/settings.mjs';
 import { DataStoreService } from './services/datastores.mjs';
 import { DataStoresIndexedDB } from './adapters/datastores-indexeddb.mjs';
 import { Contacts } from './Contacts.mjs';
@@ -35,7 +35,7 @@ function grants(app) {
 function broadcast(type, data, target) {
   for (const peer of peers) {
     if (target && peer.app.id !== target) continue;
-    if (type === 'settingchange' && !['language.current', 'vulpes.theme'].includes(data.key) && !grants(peer.app).includes('settings.read')) continue;
+    if (type === 'settingchange' && !['language.current', 'vulpes.theme', 'vulpes.layout'].includes(data.key) && !grants(peer.app).includes('settings.read')) continue;
     if (
       type === 'contactchange' &&
       !peer.app.manifest.permissions?.contacts?.access?.includes('read')
@@ -80,6 +80,12 @@ const ready = (async () => {
   const defaults = await (await fetch('defaults.json')).json();
   const saved = await browser.storage.local.get('settings');
   values = { ...defaults, ...saved.settings };
+  const privacyChanged = migratePrivacyDefaults(values);
+  if (migrateSearchDefaults(values) || privacyChanged) {
+    await browser.storage.local.set({settings:values});
+  }
+  await browser.runtime.sendNativeMessage('vulpes', {type:'privacy.configure',
+    enabled:values['privacy.trackingprotection.enabled'] === true});
   if (!values['vulpes.gaia-restoration.v1']) {
     values['lockscreen.enabled'] = true;
     values['vulpes.gaia-restoration.v1'] = true;
@@ -106,6 +112,8 @@ const ready = (async () => {
           await browser.storage.local.set({ settings: next });
           values = next;
           for (const [key, value] of entries) {
+            if (key === 'privacy.trackingprotection.enabled')
+              await browser.runtime.sendNativeMessage('vulpes', {type:'privacy.configure',enabled:value === true});
             broadcast('settingchange', { key, value });
             if(key==='keyboard.gaia.enabled') {
               input.hide();broadcast('input-mode',{enabled:value===true});
@@ -333,6 +341,7 @@ async function handle(peer, request) {
   }
   if (method === 'input.config') return values['keyboard.gaia.enabled'] === true;
   if (method === 'input.request') return input.request(peer,params);
+  if (method === 'layout.current') return {mode:values['vulpes.layout'] || 'auto', compactDefault:false};
   if (method === 'appearance.current') return values['vulpes.theme'] || 'light';
   if (method === 'locale.current') return values['language.current'] || 'en-US';
   if (method === 'settings.snapshot') {
@@ -541,7 +550,8 @@ let marketplaceDownload=null;
 browser.runtime.onMessage.addListener(async (message,sender)=>{
   if(!message.marketplaceDownload)return;
   const origin=new URL(sender.url);
-  if(origin.origin!=='https://vulpes-os.org' || !origin.pathname.startsWith('/marketplace/'))throw Error('PERMISSION_DENIED');
+  if(!((origin.origin==='https://vulpes-os.org' && origin.pathname.startsWith('/marketplace/')) ||
+    (origin.origin==='https://ffapps.danielherr.software' && origin.pathname.startsWith('/app/'))))throw Error('PERMISSION_DENIED');
   await ready;marketplaceDownload=packageURL(message.marketplaceDownload);
   const app=apps.find(a=>a.id==='marketplace');launch(app);
   await browser.runtime.sendNativeMessage('vulpes',{type:'marketplace.return'});

@@ -36,10 +36,10 @@ export class InputEditor {
       let key=typeof p.key==='object'?p.key.key:p.key;
       if(key===8 || key==='Backspace') this.document.execCommand('delete');
       else if(key===13 || key==='Enter') {
-        const options={key:'Enter',code:'Enter',keyCode:13,charCode:13,which:13,bubbles:true,cancelable:true};
-        const accepted=e.dispatchEvent(new win.KeyboardEvent('keydown',options)) && e.dispatchEvent(new win.KeyboardEvent('keypress',options));
-        if(accepted && (e.isContentEditable || e.localName==='textarea')) this.document.execCommand('insertLineBreak');
-        e.dispatchEvent(new win.KeyboardEvent('keyup',options));
+        // Software Enter edits the field or submits its form. Synthetic keyboard
+        // events enter native key-binding IPC on the standalone Wayland host.
+        if(e.isContentEditable || e.localName==='textarea') this.document.execCommand('insertLineBreak');
+        else if(e.localName==='input' && e.form) e.form.requestSubmit();
       } else {
         const text=typeof key==='string'?key:String.fromCodePoint(p.charCode || key);
         if(text.length>16) throw Error('INVALID_VALUE');

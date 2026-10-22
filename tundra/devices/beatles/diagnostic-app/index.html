@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vulpes — Diagnostic Nokia</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header><img src="icon.png" alt=""><div><h1>VULPES</h1><p>Laboratoire · Nokia 2720</p></div></header>
+  <main>
+    <section class="page active">
+      <span class="eyebrow">PREMIER CONTACT</span>
+      <h2>Bonjour, Nokia.</h2>
+      <p><strong>Gecko 153.5 ESR</strong> a calculé une page HTML/CSS/JS sur ce Nokia.</p>
+      <div class="notice">Cet écran utilise <strong>KaiOS / Gecko 48</strong>.<br>Le moteur récent est testé hors écran. Gaia reste à porter.</div>
+    </section>
+    <section class="page">
+      <span class="eyebrow">LE MATÉRIEL</span>
+      <h2>Petit format.</h2>
+      <dl><dt>Architecture</dt><dd>ARMv7 · 32 bits</dd><dt>Noyau</dt><dd>Linux 3.10.49</dd><dt>Mémoire visible</dt><dd>400 Mio environ</dd><dt>Écran intérieur</dt><dd>240 × 320</dd></dl>
+    </section>
+    <section class="page">
+      <span class="eyebrow">ESSAI DES TOUCHES</span>
+      <h2>À toi de jouer.</h2>
+      <p>Appuie sur les chiffres, les flèches ou la touche centrale.</p>
+      <output id="last-key">En attente…</output>
+      <p class="small">Aucune donnée personnelle lue. Aucune partition système modifiée.</p>
+    </section>
+    <section class="page proof">
+      <span class="eyebrow">RENDU RÉEL · GECKO 153.5 ESR</span>
+      <img src="gecko-proof.png" alt="Page calculée sur le Nokia : Gecko 153 et JavaScript moderne OK">
+      <p class="small">Image du rendu hors écran.<br>Cette prévisualisation reste dans KaiOS.</p>
+    </section>
+  </main>
+  <footer><span>← →</span><span id="position">1 / 4</span><span>OK : suite</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,3 +1,15 @@
+import {radioState} from '../services/radio-state.mjs';
+const RADIO_ERRORS = ['RADIO_NOT_REGISTERED', 'RADIO_BUSY', 'RADIO_NOT_READY', 'RADIO_TIMEOUT',
+      'RADIO_REQUEST_FAILED', 'RADIO_READBACK_FAILED', 'INVALID_REQUEST', 'APN_IN_USE', 'APN_NOT_FOUND', 'APN_WRITE_FAILED', 'APN_ROLLBACK_FAILED', 'CLOCK_REQUEST_FAILED', 'CLOCK_UNAVAILABLE', 'INVALID_NUMBER', 'INVALID_SMS', 'SMS_TOO_LONG', 'INVALID_CALL', 'NOT_SUPPORTED', 'CALL_AUDIO_UNAVAILABLE', 'HARDWARE_READBACK_FAILED'];
+const socketControl = () => Services.env?.get('VULPES_SOCKET_CONTROL') === '1';
+async function localControl(kind, params) {
+  const {unixControl}=ChromeUtils.importESModule('resource://vulpes/host/UnixControl.sys.mjs');
+  const reply=await unixControl(kind,params);
+  if(!reply || reply.error || reply.ok===false || !Object.hasOwn(reply,'result') ||
+      (['radio','hardware','mms'].includes(kind) && reply.ok!==true))
+    throw Error(kind==='radio' ? (RADIO_ERRORS.includes(reply?.error) ? reply.error : 'RADIO_REQUEST_FAILED') : reply?.error || 'HARDWARE_REQUEST_FAILED');
+  return reply.result;
+}
 // Native state is published by Tundra, never supplied by an application.
 export async function tundraSnapshot() {
   try {
@@ -16,11 +28,12 @@ export async function tundraSnapshot() {
           ? battery
           : null,
       wifi: value.wifi,
+      radio: radioState(value.radio),
       recordedAt: value.recordedAt,
       available: true,
     };
   } catch (_) {
-    return { battery: null, wifi: { available: false, state: 'unavailable' }, available: false };
+    return { battery: null, radio: [], wifi: { available: false, state: 'unavailable' }, available: false };
   }
 }
 
@@ -51,14 +64,15 @@ export function tundraCapabilities(release) {
 
 export async function tundraRadio(operation, params = {}) {
   if (Services.env.get('VULPES_TUNDRA_RADIO') !== '1') throw Error('RADIO_UNAVAILABLE');
-  if (!['deviceSettings', 'mobileSettings', 'status', 'calls', 'dial', 'hangup', 'answer', 'sms', 'incomingMessages', 'ackMessages', 'messageState'].includes(operation)) throw Error('RADIO_INVALID_REQUEST');
+  if (!['radioPower', 'hardware', 'volumeState', 'volume', 'deviceSettings', 'mobileSettings', 'status', 'calls', 'dial', 'hangup', 'answer', 'sms', 'incomingMessages', 'ackMessages', 'messageState', 'callAudio'].includes(operation)) throw Error('RADIO_INVALID_REQUEST');
+  if(socketControl())return localControl('radio',{...params,version:1,operation});
   const { Subprocess } = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
   const process = await Subprocess.call({
-    command: '/usr/bin/python3',
-    arguments: ['/etc/tundra/radio-control.py', '--client-envelope'],
+    command: Services.env.get('VULPES_DEVICE') === 'beatles' ? '/work/control-client' : '/usr/bin/python3',
+    arguments: Services.env.get('VULPES_DEVICE') === 'beatles' ? ['--radio'] : ['/etc/tundra/radio-control.py', '--client-envelope'],
     stderr: 'ignore',
   });
-  await process.stdin.write(JSON.stringify({ version: 1, operation, ...params }));
+  await process.stdin.write(JSON.stringify({ ...params, version: 1, operation }));
   await process.stdin.close();
   let output = '';
   for (;;) {
@@ -79,9 +93,8 @@ export async function tundraRadio(operation, params = {}) {
     throw Error('RADIO_INVALID_REPLY');
   }
   if (reply?.ok === false) {
-    const errors = ['RADIO_NOT_REGISTERED', 'RADIO_BUSY', 'RADIO_NOT_READY', 'RADIO_TIMEOUT',
-      'RADIO_REQUEST_FAILED', 'RADIO_READBACK_FAILED', 'INVALID_REQUEST', 'APN_IN_USE', 'APN_NOT_FOUND', 'APN_WRITE_FAILED', 'APN_ROLLBACK_FAILED', 'CLOCK_REQUEST_FAILED', 'CLOCK_UNAVAILABLE', 'INVALID_NUMBER', 'INVALID_SMS', 'INVALID_CALL'];
-    throw Error(errors.includes(reply.error) ? reply.error : 'RADIO_REQUEST_FAILED');
+
+    throw Error(RADIO_ERRORS.includes(reply.error) ? reply.error : 'RADIO_REQUEST_FAILED');
   }
   if (reply?.ok !== true) throw Error('RADIO_INVALID_REPLY');
   return reply.result;
@@ -117,10 +130,11 @@ export async function tundraWifi(params) {
 }
 
 async function wifiCommand(params) {
+  if(socketControl())return localControl('wifi',params);
   const { Subprocess } = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
   const process = await Subprocess.call({
-    command: '/usr/bin/python3',
-    arguments: ['/etc/tundra/wifi-control.py', '--client'],
+    command: Services.env.get('VULPES_DEVICE') === 'beatles' ? '/work/control-client' : '/usr/bin/python3',
+    arguments: Services.env.get('VULPES_DEVICE') === 'beatles' ? ['--wifi'] : ['/etc/tundra/wifi-control.py', '--client'],
     stderr: 'ignore',
   });
   // Passwords are never command-line arguments, preferences or log messages.
@@ -144,6 +158,7 @@ async function wifiCommand(params) {
 }
 
 export async function tundraHardware(params) {
+  if(socketControl())return localControl('hardware',params);
   if (Services.env.get('VULPES_TUNDRA') !== '1') return;
   const { Subprocess } = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
   const process = await Subprocess.call({command:'/usr/bin/python3',
@@ -156,6 +171,8 @@ export async function tundraHardware(params) {
 }
 
 export async function tundraCallAudio(params) {
+  if(socketControl())return localControl('audio',params);
+  if (Services.env?.get('VULPES_DEVICE') === 'beatles') return tundraRadio('callAudio',{settings:params});
   const {Subprocess} = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
   const process = await Subprocess.call({command:'/usr/bin/python3',
     arguments:['/etc/tundra/call-audio.py','--client'],stderr:'ignore'});
@@ -183,6 +200,7 @@ export async function tundraCallAudio(params) {
 export async function tundraMms(operation, params={}) {
   if(Services.env.get('VULPES_TUNDRA_RADIO')!=='1') throw Error('NotSupportedError');
   if(!['send','state','incoming','ack'].includes(operation)) throw Error('INVALID_REQUEST');
+  if(socketControl())return localControl('mms',{...params,version:1,operation});
   const {Subprocess}=ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
   const process=await Subprocess.call({command:'/usr/bin/python3',arguments:['/etc/tundra/mms-control.py','--client'],stderr:'ignore'});
   await process.stdin.write(JSON.stringify({version:1,operation,...params}));await process.stdin.close();
@@ -194,6 +212,7 @@ export async function tundraMms(operation, params={}) {
 // A persistent daemon owns BlueZ discovery and pending pairing requests.
 export async function tundraBluetooth(params) {
   if (Services.env.get('VULPES_TUNDRA') !== '1') throw Error('NotSupportedError');
+  if(socketControl())return localControl('bluetooth',{...params,version:1});
   const {Subprocess}=ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
   const process=await Subprocess.call({command:'/usr/bin/python3',
     arguments:['/etc/tundra/bluetooth-control.py','--client'],stderr:'ignore'});

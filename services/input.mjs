@@ -2,7 +2,9 @@
 export class Input {
   constructor(runtime) { this.runtime=runtime; this.focus=null; this.sequence=0; }
   changed(actor, state) {
-    const app=this.runtime.identity(actor);
+    // Physical keypads edit through their actor; do not cover the small screen with an IME.
+    if (this.runtime.hardwareKeyboard) { if (this.focus) this.hide(); return; }
+    const app=this.runtime.inputIdentity ? this.runtime.inputIdentity(actor) : this.runtime.identity(actor);
     if (!app || app.id==='keyboard') return;
     if (!state) { if(this.focus?.actor===actor) this.hide(); return; }
     this.focus={actor,state:{...state,id:++this.sequence}};
@@ -27,6 +29,9 @@ export class Input {
     }
     if(!this.focus || p.id!==this.focus.state.id) throw Error('INPUT_CONTEXT_EXPIRED');
     const context=this.focus;
+    if (this.runtime.inputIdentity && !this.runtime.inputIdentity(context.actor)) {
+      this.hide(); throw Error('INPUT_CONTEXT_EXPIRED');
+    }
     const result=await context.actor.sendQuery('Vulpes:Edit',p);
     // An application can close or focus another field while the edit is pending.
     if(this.focus!==context) throw Error('INPUT_CONTEXT_EXPIRED');

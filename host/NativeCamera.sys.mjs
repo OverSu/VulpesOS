@@ -53,7 +53,7 @@ export class NativeCamera {
     }
     if (!this.session || this.session.actor !== actor || this.session.id !== params.session)
       throw Error('CAMERA_NOT_OPEN');
-    if (!['frame','focus','zoom','picture'].includes(params.action)) throw Error('CAMERA_INVALID_COMMAND');
+    if (!['frame','focus','zoom','picture','flash'].includes(params.action)) throw Error('CAMERA_INVALID_COMMAND');
     let controlRejected = false;
     try {
       if (params.action === 'frame') {

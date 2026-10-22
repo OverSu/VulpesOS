@@ -16,7 +16,7 @@ import time
 import io
 import tarfile
 from ramdisk_reference import read_newc
-from shared_ui import build_payload
+from shared_ui import build_payload, compress_archive
 from tundra import ROOT, checked_source, cpio, digest, save
 
 
@@ -51,6 +51,19 @@ def main():
             raise ValueError('Missing standalone UI overlay')
         files={name:{**item} for name,item in original.items()}
         files['shared-ui.tar']['data']=payload
+        # Older trials stored plain tar archives. Both payloads now use XZ,
+        # including native-only refreshes, with explicit BusyBox decompression.
+        import lzma
+        native_payload = original['native-config.tar']['data']
+        if native_payload.startswith(b'\xfd7zXZ\x00'):
+            native_payload = lzma.decompress(native_payload)
+        files['native-config.tar']['data']=compress_archive(native_payload)
+        script=files['native-root.sh']['data']
+        for name in ('native-config.tar','shared-ui.tar'):
+            script=script.replace(('tar -xf /'+name).encode(),('tar -xJf /'+name).encode())
+            if ('tar -xJf /'+name).encode() not in script:
+                raise ValueError('Unrecognized native archive reader: '+name)
+        files['native-root.sh']['data']=script
         native_sources = {}
         if args.settings_adapters:
             names = ['radio-control.py','wifi-control.py','mobile-settings.py','camera-preview.py']
@@ -69,7 +82,7 @@ def main():
                 for name,link in aliases.items():
                     info=tarfile.TarInfo(name);info.type=tarfile.SYMTYPE;info.linkname=link;info.mode=0o777
                     target.addfile(info)
-            files['native-config.tar']['data']=buffer.getvalue()
+            files['native-config.tar']['data']=compress_archive(buffer.getvalue())
         entries=[]
         for name,item in sorted(files.items()):
             if (stat.S_ISCHR(item['mode']) or stat.S_ISBLK(item['mode'])) and name!='dev/console':
@@ -88,7 +101,7 @@ def main():
         verified=read_newc((temp/'verify/ramdisk').read_bytes())
         if verified.keys()!=original.keys():raise ValueError('Ramdisk entry list changed')
         changed=[name for name in original if (verified[name]['mode'],verified[name]['data'])!=(original[name]['mode'],original[name]['data'])]
-        permitted={'native-config.tar','shared-ui.tar'} if args.settings_adapters else {'shared-ui.tar'}
+        permitted={'native-config.tar','shared-ui.tar','native-root.sh'}
         if set(changed)-permitted:raise ValueError('Unexpected changes: '+str(changed))
         # A native-only fix may reproduce the same shared UI archive exactly.
         # Still verify every replacement, including unchanged payloads.
