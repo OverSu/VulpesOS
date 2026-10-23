@@ -4,7 +4,7 @@
 <p align="center">Firefox OS fork · Open source</p>
 
 <p align="center">
-<a href="https://nnsprod.com/git/oversu/VulpesOS/releases"><img src="https://img.shields.io/badge/Vulpes-2.7%20Preview%2020-0755be?style=flat-square" alt="Vulpes: 2.7 Preview 20"></a>
+<a href="https://nnsprod.com/git/oversu/VulpesOS/releases"><img src="https://img.shields.io/badge/Vulpes-2.7%20Preview%2022-0755be?style=flat-square" alt="Vulpes: 2.7 Preview 22"></a>
 <img src="https://img.shields.io/badge/Gaia-2.7-0755be?style=flat-square" alt="Gaia: 2.7">
 <img src="https://img.shields.io/badge/Gecko-156.0.1-0099cc?style=flat-square" alt="Gecko: 156.0.1">
 <img src="https://img.shields.io/badge/Tundra-0.1.0-0099cc?style=flat-square" alt="Tundra: 0.1.0">
@@ -12,7 +12,7 @@
 <p align="center">
 <a href="https://nnsprod.com/git/oversu/VulpesOS/releases"><img src="https://img.shields.io/badge/Android%20APK-Available-26764a?style=flat-square" alt="Android APK: Available"></a>
 <a href="#linux"><img src="https://img.shields.io/badge/Desktop-Available-26764a?style=flat-square" alt="Desktop: Available"></a>
-<a href="https://vulpes-os.org/devices/pixel-3a.php?lang=en"><img src="https://img.shields.io/badge/Native%20image-In%20development-996516?style=flat-square" alt="Native image: In development"></a>
+<a href="https://vulpes-os.org/devices/pixel-3a.php?lang=en"><img src="https://img.shields.io/badge/Native%20image-Experimental-996516?style=flat-square" alt="Native image: Experimental"></a>
 <a href="https://vulpes-os.org/devices/pixel-3a.php?lang=en"><img src="https://img.shields.io/badge/Pixel%203a-Bootable%20and%20usable-26764a?style=flat-square" alt="Pixel 3a: Bootable and usable"></a>
 </p>
 
@@ -42,7 +42,7 @@ On the Pixel 3a, **Tundra boots Gecko and Gaia directly** and provides access to
 
 [Download the Preview 22 APK](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.22). Shared Gaia fixes cover browser sharing and web input; PC checks passed. The release also includes the current Tundra/Nokia sources. Android 11 emulator installation and upgrade passed; physical Android devices still need qualification. The Nokia T9 keyboard also needs physical qualification.
 
-The Pixel 3a native image remains Preview 21. This release contains no new Sargo image, and its changes have not been flashed to the Pixel. See the [changelog](CHANGELOG.en.md) for platform details and remaining issues.
+An experimental Pixel 3a (Sargo) image is attached to Preview 22. It was flashed, but boot is not yet qualified. **Flashing erases all data in `userdata`, including the existing OS, files, apps and settings. Back up first.** See the [release](https://nnsprod.com/git/oversu/VulpesOS/releases/tag/v2.7-preview.22) and [changelog](CHANGELOG.en.md) for details.
 
 Desktop/Sargo use Gecko **156.0.1**; Android uses GeckoView **156.0**. Android 8 / API 26 minimum is declared. The APK is a signed development build with debugging available through authorized ADB.
 ### Linux
